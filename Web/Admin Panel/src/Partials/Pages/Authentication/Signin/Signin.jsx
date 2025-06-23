@@ -15,11 +15,13 @@ const schema = yup.object().shape({
     .required("Email is required")
     .email("Please enter a valid email"),
   password: yup.string().required("Password is required"),
+  remember: yup.boolean().notRequired(),
 });
 
 const Signin = () => {
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
   // Navigation
   const navigate = useNavigate();
@@ -47,10 +49,16 @@ const Signin = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
 
+    const payload = {
+      ...data,
+      remember: data.remember ? 1 : 0,
+    };
+
     try {
-      const res = await axios.post(`${APP_URL}/login`, data, {
+      const res = await axios.post(`${APP_URL}/admin-login`, payload, {
         headers: {
           "Content-Type": "application/json",
+          "X-App-Secret": `${SECRET_KEY}`,
         },
       });
 
@@ -147,6 +155,21 @@ const Signin = () => {
                   {errors.password.message}
                 </div>
               )}
+            </div>
+          </li>
+
+          <li className="col-12">
+            <div className="form-check fs-5">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="Rememberme"
+                {...register("remember")}
+                tabIndex="3"
+              />
+              <label className="form-check-label fs-6" htmlFor="Rememberme">
+                Remeber this Device
+              </label>
             </div>
           </li>
 
