@@ -1,8 +1,6 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import DataTable from "./DataTable";
 
-// eslint-disable-next-line react/prop-types
 const WalletTable = ({ paymentsData, isLoading }) => {
   const columns = [
     {
@@ -55,8 +53,8 @@ const WalletTable = ({ paymentsData, isLoading }) => {
               row.original.payment_status === "Success"
                 ? "bg-success"
                 : row.original.payment_status === "Pending"
-                  ? "bg-warning"
-                  : "bg-danger"
+                ? "bg-warning"
+                : "bg-danger"
             }`}
           >
             {row.original.payment_status}

@@ -26,6 +26,7 @@ const schema = yup.object().shape({
   profile_pic: yup.mixed().notRequired(),
   role: yup.string().required("User role is required"),
   old_profile_pic: yup.string().notRequired(),
+  address: yup.string().notRequired(),
 });
 
 const EditUser = () => {
@@ -78,15 +79,16 @@ const EditUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`${APP_URL}/user-details/${userId}`, {
+        const res = await axios.get(`${APP_URL}/users/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
         if (res.status === 200) {
-          setValue("firstname", res.data.user.firstname);
-          setValue("lastname", res.data.user.lastname);
+          setValue("firstname", res.data.user.first_name);
+          setValue("lastname", res.data.user.last_name);
+          setValue("address", res.data.user.address);
           setValue("email", res.data.user.email);
           setValue("contact_no", res.data.user.contact_no);
           setValue("old_profile_pic", res.data.user.profile_pic);
@@ -112,8 +114,9 @@ const EditUser = () => {
   const onSubmit = async (data) => {
     const formData = new FormData();
 
-    formData.append("firstname", data.firstname);
-    formData.append("lastname", data.lastname);
+    formData.append("first_name", data.firstname);
+    formData.append("last_name", data.lastname);
+    formData.append("address", data.address);
     formData.append("email", data.email);
     formData.append("role", data.role_id);
     formData.append("contact_no", data.contact_no);
@@ -165,7 +168,9 @@ const EditUser = () => {
                 <div className="form-floating">
                   <input
                     type="text"
-                    className={`form-control ${errors.firstname ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.firstname ? "is-invalid" : ""
+                    }`}
                     id="firstname"
                     {...register("firstname")}
                     placeholder="First Name"
@@ -183,7 +188,9 @@ const EditUser = () => {
                 <div className="form-floating">
                   <input
                     type="text"
-                    className={`form-control ${errors.lastname ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.lastname ? "is-invalid" : ""
+                    }`}
                     id="lastname"
                     {...register("lastname")}
                     placeholder="Last Name"
@@ -200,8 +207,10 @@ const EditUser = () => {
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
-                    type="email"
-                    className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                    type="text"
+                    className={`form-control ${
+                      errors.email ? "is-invalid" : ""
+                    }`}
                     id="email"
                     {...register("email")}
                     placeholder="Email"
@@ -224,7 +233,9 @@ const EditUser = () => {
                     onInput={(e) =>
                       (e.target.value = e.target.value.replace(/\D+/g, ""))
                     }
-                    className={`form-control ${errors.contact_no ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.contact_no ? "is-invalid" : ""
+                    }`}
                     id="contact_no"
                     {...register("contact_no")}
                     placeholder="Contact"
@@ -253,7 +264,9 @@ const EditUser = () => {
                   <input
                     type="file"
                     ref={fileInputRef}
-                    className={`form-control ${errors.profile_pic ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.profile_pic ? "is-invalid" : ""
+                    }`}
                     id="profile_pic"
                     {...register("profile_pic")}
                     accept="image/*"
@@ -281,7 +294,9 @@ const EditUser = () => {
                   <input
                     type="text"
                     disabled
-                    className={`form-control ${errors.role ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.role ? "is-invalid" : ""
+                    }`}
                     id="role"
                     {...register("role")}
                     tabIndex="6"
@@ -289,17 +304,37 @@ const EditUser = () => {
                   <label htmlFor="Role">Role</label>
                 </div>
               </div>
+              <div className="col-md-4">
+                <div className="form-floating">
+                  <textarea
+                    type="text"
+                    className={`form-control ${
+                      errors.address ? "is-invalid" : ""
+                    }`}
+                    id="address"
+                    {...register("address")}
+                    placeholder="Address"
+                    tabIndex="7"
+                  />
+                  <label htmlFor="address">Address</label>
+                  {errors.address && (
+                    <div className="invalid-feedback">
+                      {errors.address.message}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="col-12">
                 <button
                   type="submit"
-                  tabIndex="7"
+                  tabIndex="8"
                   className="me-1 btn btn-primary"
                 >
                   Update
                 </button>
                 <button
                   type="button"
-                  tabIndex="8"
+                  tabIndex="9"
                   className="btn btn-outline-secondary"
                   onClick={handleCancel}
                 >

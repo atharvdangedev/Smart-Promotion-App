@@ -16,6 +16,7 @@ const schema = yup.object().shape({
 const PasswordReset = () => {
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
   // State Variables
   const [message, setMessage] = useState("");
@@ -36,7 +37,15 @@ const PasswordReset = () => {
     formdata.append("email", data.email);
 
     try {
-      const response = await axios.post(`${APP_URL}/SendToken`, formdata);
+      const response = await axios.post(
+        `${APP_URL}/admin-forgot-password`,
+        formdata,
+        {
+          headers: {
+            "X-App-Secret": `${SECRET_KEY}`,
+          },
+        }
+      );
       if (response.status === 200) {
         setMessage(response.data.message);
       }

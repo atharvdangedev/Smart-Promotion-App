@@ -29,6 +29,7 @@ const TwoStep = () => {
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
   // State Variables
   const [showPassword, setShowPassword] = useState(false);
@@ -83,15 +84,14 @@ const TwoStep = () => {
       return;
     }
 
-    const params = new URLSearchParams();
-    params.append("reset_token", resetToken);
-    params.append("newpassword", data.password);
-    params.append("confirmpassword", data.cnfPassword);
+    const formdata = new FormData();
+    formdata.append("token", resetToken);
+    formdata.append("password", data.password);
 
     try {
-      const res = await axios.post(`${APP_URL}/ResetPassword`, params, {
+      const res = await axios.post(`${APP_URL}/ResetPassword`, formdata, {
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "X-App-Secret": `${SECRET_KEY}`,
         },
       });
       if (res.status === 200) {

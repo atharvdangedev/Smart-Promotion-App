@@ -151,7 +151,7 @@ const CommonRightbar = () => {
                             aria-label="Avatar"
                             data-bs-title="Avatar"
                             alt="avatar"
-                            title={user.firstname + " " + user.lastname}
+                            title={user.first_name + " " + user.last_name}
                             onError={(e) => {
                               e.target.src = `${Img_url}/default/list/user.webp`;
                             }}

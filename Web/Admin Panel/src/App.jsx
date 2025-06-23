@@ -99,8 +99,8 @@ const App = () => {
 
   if (authError) {
     console.log("Session expired or invalid.");
-    localStorage.removeItem("jwtToken");
-    window.location.href = "/signin";
+    // localStorage.removeItem("jwtToken");
+    // window.location.href = "/signin";
   }
 
   return (

@@ -49,22 +49,22 @@ const Signin = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
 
-    const payload = {
-      ...data,
-      remember: data.remember ? 1 : 0,
-    };
+    const formdata = new FormData();
+
+    formdata.append("email", data.email);
+    formdata.append("password", data.password);
+    formdata.append("remember", data.remember ? 1 : 0);
 
     try {
-      const res = await axios.post(`${APP_URL}/admin-login`, payload, {
+      const res = await axios.post(`${APP_URL}/admin-login`, formdata, {
         headers: {
-          "Content-Type": "application/json",
           "X-App-Secret": `${SECRET_KEY}`,
         },
       });
 
       if (res.status === 200) {
-        const { jwt } = res.data;
-        localStorage.setItem("jwtToken", jwt);
+        const { token } = res.data;
+        localStorage.setItem("jwtToken", token);
         toast.success(res.data.message);
         setTimeout(() => {
           navigate("admin/index");

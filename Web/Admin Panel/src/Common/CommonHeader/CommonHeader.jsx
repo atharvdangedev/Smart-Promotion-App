@@ -25,16 +25,15 @@ const CommonHeader = memo(() => {
     setSelectedMode(mode);
   };
 
-  // Fetch userdata based on user_id upon component mount
+  // Fetch userdata based on id upon component mount
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const decoded = jwtDecode(token);
-        const { user_id } = decoded.data;
-        const res = await axios.get(`${APP_URL}/user-details/${user_id}`, {
+        const { id } = decoded.data;
+        const res = await axios.get(`${APP_URL}/users/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         });
         if (res.status === 200) {
@@ -193,14 +192,14 @@ const CommonHeader = memo(() => {
                     ? `${Img_url}/profile/list/${userData.profile_pic}`
                     : `${Img_url}/default/list/user.webp`
                 }
-                alt={userData?.firstname || "User profile"}
+                alt={userData?.first_name || "User profile"}
                 className="me-2 avatar rounded-circle border-3"
                 onError={(e) => {
                   e.target.src = `${Img_url}/default/list/user.webp`;
                 }}
               />
               <span className="ms-2 fs-6 d-none d-sm-inline-flex">
-                {userData.firstname}
+                {userData.first_name}
               </span>
             </Link>
             <UserDropdown />

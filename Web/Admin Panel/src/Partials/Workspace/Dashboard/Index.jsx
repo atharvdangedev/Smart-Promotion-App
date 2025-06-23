@@ -28,8 +28,8 @@ const Index = memo(() => {
     const fetchUser = async () => {
       try {
         const decoded = jwtDecode(token);
-        const { user_id } = decoded.data;
-        const res = await axios.get(`${APP_URL}/user-details/${user_id}`, {
+        const { id } = decoded.data;
+        const res = await axios.get(`${APP_URL}/users/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -165,8 +165,8 @@ const Index = memo(() => {
           icon: category.category_name.includes("Review")
             ? Mail
             : category.category_name.includes("Business")
-              ? CreditCard
-              : ShoppingBag,
+            ? CreditCard
+            : ShoppingBag,
         })),
       ]
     : [];
@@ -355,7 +355,7 @@ const Index = memo(() => {
                   <h4 className="mb-0 text-gradient title-font">
                     Hello,{" "}
                     {userData
-                      ? `${userData.firstname} ${userData.lastname}`
+                      ? `${userData.first_name} ${userData.last_name}`
                       : "User"}
                     !
                   </h4>

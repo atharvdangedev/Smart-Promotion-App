@@ -339,12 +339,21 @@ const Agents = () => {
               <h4 className="title-font">
                 <strong>Agents List</strong>
               </h4>
-              <Link
-                className="btn btn-primary"
-                to="/admin/vendor/agents/add-agent"
-              >
-                Add New Agent
-              </Link>
+
+              <div className="d-flex gap-2">
+                <Link
+                  className="btn btn-primary"
+                  to="/admin/vendor/agents/add-agent"
+                >
+                  Add New Agent
+                </Link>
+                <Link
+                  to={`/admin/vendors`}
+                  className="btn btn-info text-white text-decoration-none"
+                >
+                  Back
+                </Link>
+              </div>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
