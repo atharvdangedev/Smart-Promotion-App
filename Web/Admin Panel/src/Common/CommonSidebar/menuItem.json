@@ -1,0 +1,50 @@
+{
+  "businessMenuItems": [
+    {
+      "link": "admin/categories",
+      "label": "Categories"
+    },
+    {
+      "link": "admin/templates",
+      "label": "Templates"
+    },
+    {
+      "link": "admin/testimonials",
+      "label": "Testimonials"
+    },
+    {
+      "link": "admin/clients",
+      "label": "Clients"
+    },
+    {
+      "link": "admin/portfolio",
+      "label": "Portfolios"
+    }
+  ],
+  "locationMenuItems": [
+    {
+      "link": "admin/cities",
+      "label": "Cities"
+    },
+    {
+      "link": "admin/areas",
+      "label": "Areas"
+    }
+  ],
+  "OrdersMenuItems": [
+    {
+      "link": "admin/app/preorders",
+      "label": "Pre Orders"
+    },
+    {
+      "link": "admin/app/orders",
+      "label": "Orders"
+    }
+  ],
+  "SharableMenuItems": [
+    {
+      "link": "admin/sharable",
+      "label": "Shareable"
+    }
+  ]
+}
