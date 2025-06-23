@@ -6,6 +6,8 @@ import SignInScreen from './screens/SignInScreen';
 import EnterpriseLoginScreen from './screens/EnterpriseLoginScreen';
 import BootSplash from "react-native-bootsplash";
 import { useEffect } from 'react';
+import ForgotPassword from './screens/ForgotPassword';
+import ResetPassword from './screens/ResetPassword';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,8 +33,10 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen name='Home' component={HomeScreen} />
-        <Stack.Screen name='SignIn' component={SignInScreen} />
-        <Stack.Screen name='EnterpriseLogin' component={EnterpriseLoginScreen} />
+        <Stack.Screen name='SignIn' component={SignInScreen} options={{ headerShown: false }} />
+        <Stack.Screen name='EnterpriseLogin' component={EnterpriseLoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name='ForgotPassword' component={ForgotPassword} options={{ headerShown: false }} />
+        <Stack.Screen name='ResetPassword' component={ResetPassword} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
