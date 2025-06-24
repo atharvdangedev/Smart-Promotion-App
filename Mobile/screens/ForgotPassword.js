@@ -9,9 +9,8 @@ export default function ForgotPassword({ navigation }) {
             <InputField icon='user' placeholder="Email" />
 
             <TouchableOpacity
-                onPress={() => navigation.navigate('ResetPassword')}
                 className="bg-black py-3 rounded-xl mb-4 mt-4">
-                <Text className="text-center text-white font-semibold">Get Token</Text>
+                <Text className="text-center text-white font-semibold">Submit</Text>
             </TouchableOpacity>
         </SafeAreaView>
     )
