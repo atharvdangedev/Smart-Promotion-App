@@ -16,7 +16,9 @@ export default function LoginScreen({ navigation }) {
                 <Text className="text-right text-sm text-gray-500">Forgot password?</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="bg-black py-3 rounded-xl mb-4">
+            <TouchableOpacity
+                onPress={() => navigation.navigate('HomeScreen')}
+                className="bg-black py-3 rounded-xl mb-4">
                 <Text className="text-center text-white font-semibold">Login</Text>
             </TouchableOpacity>
 
