@@ -57,14 +57,14 @@ export default function DashboardScreen() {
                     />
                 }
             >
-                {/* 💫 Welcome Section */}
+                {/*  Welcome Section */}
                 <View className="mb-6">
                     <Text className="text-4xl font-extrabold text-sky-600 tracking-tight">SmartPromotion</Text>
                     <Text className="text-lg text-white mt-1">Welcome back, Sangram 👋</Text>
                     <Text className="text-sm text-white">Here’s an overview of your team's performance.</Text>
                 </View>
 
-                {/* 📈 Line Chart */}
+                {/* Line Chart */}
                 <Text className="text-lg font-semibold text-white mb-2">Call Progress (Weekly)</Text>
                 <LineChart
                     data={{
@@ -89,7 +89,7 @@ export default function DashboardScreen() {
                     style={{ borderRadius: 16, marginBottom: 20 }}
                 />
 
-                {/* 📊 Stacked Bar Chart */}
+                {/* Stacked Bar Chart */}
                 <Text className="text-lg font-semibold text-white mb-2">Call Types by Day</Text>
                 <StackedBarChart
                     data={{
@@ -109,7 +109,7 @@ export default function DashboardScreen() {
                     style={{ borderRadius: 16, marginBottom: 24 }}
                 />
 
-                {/* 👨‍💼 Agent Summary */}
+                {/* Agent Summary */}
                 <Text className="text-lg font-semibold text-white mb-2">Agent Call Summary</Text>
                 <View className="bg-gray-100 p-4 rounded-xl shadow-sm">
                     <Text className="text-base font-bold text-black mb-2">{agent.name}</Text>
