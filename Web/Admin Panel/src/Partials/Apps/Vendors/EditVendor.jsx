@@ -159,7 +159,7 @@ const EditVendor = () => {
           if (res.data.vendor.profile_pic) {
             setValue("profile_pic", res.data.vendor.profile_pic);
             setProfilePicPreview(
-              `${Img_url}/profile/list/${res.data.vendor.profile_pic}`
+              `${Img_url}/profile/${res.data.vendor.profile_pic}`
             );
           }
 

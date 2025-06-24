@@ -5,15 +5,52 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
+import axios from "axios";
+import { handleApiError } from "../utils/handleApiError";
+import { formatDateTime } from "../utils/formatDate";
 
 const Subscriptions = () => {
+  // Access token
+  const token = localStorage.getItem("jwtToken");
+
+  // API URL
+  const APP_URL = import.meta.env.VITE_API_URL;
+
+  // State initialization
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  //fetch plans
+  useEffect(() => {
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${APP_URL}/subscriptions`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.status === 200) {
+          setData(response.data.subscriptions);
+        } else if (response.status === 204) {
+          setData([]);
+        }
+      } catch (error) {
+        setData([]);
+        handleApiError(error, "fetching", "subscriptions");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [APP_URL, token]);
 
   const columns = useMemo(
     () => [
@@ -38,28 +75,55 @@ const Subscriptions = () => {
       },
       {
         Header: "Vendor",
-        accessor: (row) => `${row.vendor_firstname} ${row.vendor_lastname}`,
+        accessor: (row) => `${row.first_name} ${row.last_name}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              {row.original.vendor_firstname
-                ? `${row.original.vendor_firstname} ${row.original.vendor_lastname}`
+              {row.original.first_name
+                ? `${row.original.first_name} ${row.original.last_name}`
                 : "No Vendor"}
             </div>
           </div>
         ),
       },
       {
-        Header: "Plan Validity",
-        accessor: (row) => `${row.plan_start_date} ${row.plan_end_date}`,
+        Header: "Business",
+        accessor: (row) => `${row.business_name}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>{row.original.plan_start_date}</span>
-              <span>{row.original.plan_end_date}</span>
+              {row.original.business_name
+                ? `${row.original.business_name}`
+                : "No Business"}
             </div>
           </div>
         ),
+      },
+      {
+        Header: "Plan Validity",
+        accessor: (row) => `${row.start_date} ${row.end_date}`,
+        Cell: ({ row }) => (
+          <div className="d-flex align-items-center">
+            <div className="d-flex flex-column">
+              <span>{formatDateTime(row.original.start_date)}</span> to
+              <span>{formatDateTime(row.original.end_date)}</span>
+            </div>
+          </div>
+        ),
+      },
+      {
+        Header: "PRICE",
+        accessor: "price",
+        Cell: ({ row }) => {
+          return (
+            <div>
+              {Number(row.original.price).toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR",
+              })}
+            </div>
+          );
+        },
       },
     ],
     []
@@ -189,7 +253,7 @@ const Subscriptions = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {isLoading ? (
+                {loading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading subscriptions..." />

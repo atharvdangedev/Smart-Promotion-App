@@ -31,9 +31,9 @@ const ClientsList = () => {
   // State initialization
   const [pageSize, setPageSize] = useState(10);
   const [clientsData, setClientsData] = useState([]);
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isUserActivationModalOpen, setIsUserActivationModalOpen] =
     useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [recordToUpdate, setRecordToUpdate] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -225,7 +225,7 @@ const ClientsList = () => {
             <img
               src={
                 row.original.profile_pic
-                  ? `${Img_url}/profile/list/${row.original.profile_pic}`
+                  ? `${Img_url}/profile/${row.original.profile_pic}`
                   : `${Img_url}/default/list/user.webp`
               }
               alt={row.original.first_name || "User profile"}

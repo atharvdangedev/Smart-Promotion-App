@@ -1,66 +1,62 @@
 /* eslint-disable react/prop-types */
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useGlobalFilter,
   usePagination,
   useSortBy,
   useTable,
 } from "react-table";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import ExportButtons from "../ExportButtons/ExportButtons";
-import LoadingFallback from "../LoadingFallback/LoadingFallback";
-import toast, { Toaster } from "react-hot-toast";
-import { handleApiError } from "../utils/handleApiError";
 import axios from "axios";
+import LoadingFallback from "../LoadingFallback/LoadingFallback";
+import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
+import { handleApiError } from "../utils/handleApiError";
+import toast, { Toaster } from "react-hot-toast";
+import Modal from "../StatusModal/Modal";
 import { Link, useNavigate } from "react-router-dom";
 import DeleteModal from "../DeleteModal/DeleteModal";
-import UserActivation from "../UserActivation/UserActivation";
-import Modal from "../StatusModal/Modal";
 
-const Affiliates = () => {
+const Plans = () => {
   // Navigate function
   const navigate = useNavigate();
 
   // Access token
   const token = localStorage.getItem("jwtToken");
 
-  // API URLs
+  // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
-  const Img_url = import.meta.env.VITE_IMG_URL;
 
   // State initialization
-  const [pageSize, setPageSize] = useState(10);
-  const [clientsData, setClientsData] = useState([]);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [isUserActivationModalOpen, setIsUserActivationModalOpen] =
-    useState(false);
   const [recordToUpdate, setRecordToUpdate] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
+  const [planToDelete, setPlanToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch user data
+  //fetch plans
   useEffect(() => {
+    setLoading(true);
     const fetchData = async () => {
-      setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/affiliates`, {
+        const response = await axios.get(`${APP_URL}/plans`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json;",
+            "Content-Type": "application/json",
           },
         });
         if (response.status === 200) {
-          setClientsData(response.data.affiliates);
+          setData(response.data.plans);
         } else if (response.status === 204) {
-          setClientsData([]);
+          setData([]);
         }
       } catch (error) {
-        setClientsData([]);
-        handleApiError(error, "fetching", "users");
+        setData([]);
+        handleApiError(error, "fetching", "plans");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
@@ -69,27 +65,25 @@ const Affiliates = () => {
 
   // Handle edit page navigation
   const handleEdit = useCallback(
-    async (firstname, id) => {
-      navigate(`/admin/affiliates/edit-affiliate/${id}`, {
-        state: { firstname },
-      });
+    async (id) => {
+      navigate(`/admin/plans/edit-plan/${id}`);
     },
     [navigate]
   );
 
   // Handle delete callback
-  const handleDelete = useCallback((first_name, id) => {
-    setUserToDelete({ first_name, id });
+  const handleDelete = useCallback((title, id) => {
+    setPlanToDelete({ title, id });
     setIsDeleteModalOpen(true);
   }, []);
 
   // Handle delete functionality
   const handleConfirmDelete = async () => {
-    if (userToDelete) {
+    if (planToDelete) {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/delete-user/${userToDelete.id}`,
+          `${APP_URL}/plans/${planToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -99,16 +93,16 @@ const Affiliates = () => {
         );
         if (response.status === 200) {
           toast.success(response.data.message);
-          setClientsData((prevData) =>
-            prevData.filter((user) => user.id !== userToDelete.id)
+          setData((prevData) =>
+            prevData.filter((plan) => plan.id !== planToDelete.id)
           );
         }
       } catch (error) {
-        handleApiError(error, "deleting", "user");
+        handleApiError(error, "deleting", "plans");
       } finally {
         setIsDeleting(false);
         setIsDeleteModalOpen(false);
-        setUserToDelete(null);
+        setPlanToDelete(null);
       }
     }
   };
@@ -123,7 +117,7 @@ const Affiliates = () => {
   const handleConfirmStatus = async (id) => {
     try {
       const response = await axios.put(
-        `${APP_URL}/update-user-status/${id}`,
+        `${APP_URL}/update-plan-status/${id}`,
         null,
         {
           headers: {
@@ -134,78 +128,17 @@ const Affiliates = () => {
       );
       if (response.status === 200) {
         toast.success(response.data.message);
-        setClientsData((prevData) =>
-          prevData.map((user) =>
-            user.id === id
-              ? { ...user, status: user.status === "1" ? "0" : "1" }
-              : user
+        setData((prevData) =>
+          prevData.map((plan) =>
+            plan.id === id
+              ? { ...plan, status: plan.status === "1" ? "0" : "1" }
+              : plan
           )
         );
         setIsStatusModalOpen(false);
       }
     } catch (error) {
-      handleApiError(error, "updating", "user status");
-    }
-  };
-
-  // Handle user activation callback
-  const handleUserActivationClick = useCallback((record) => {
-    setRecordToUpdate(record);
-    setIsUserActivationModalOpen(true);
-  }, []);
-
-  // Handle user activation functionality (via email)
-  const handleUserActivationConfirm = async () => {
-    try {
-      const params = new URLSearchParams();
-      params.append("email", recordToUpdate.email);
-      const response = await axios.post(
-        `${APP_URL}/SendActivationToken`,
-        params,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }
-      );
-      if (response.status === 200) {
-        toast.success(response.data.message);
-      }
-    } catch (error) {
-      handleApiError(error, "sending activation mail to", "user");
-    } finally {
-      setIsUserActivationModalOpen(false);
-    }
-  };
-
-  // Handle user activation functionality (directly)
-  const handleUserActivationConfirmDirectly = async () => {
-    try {
-      const response = await axios.post(
-        `${APP_URL}/activate-user/${recordToUpdate.id}`,
-        null,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.status === 200) {
-        toast.success(response.data.message);
-        setClientsData((prevData) =>
-          prevData.map((user) =>
-            user.id === recordToUpdate.id
-              ? { ...user, activated: "1", status: "1" }
-              : user
-          )
-        );
-      }
-    } catch (error) {
-      handleApiError(error, "activating", "user");
-    } finally {
-      setIsUserActivationModalOpen(false);
+      handleApiError(error, "updating", "plan status");
     }
   };
 
@@ -213,41 +146,40 @@ const Affiliates = () => {
   const columns = useMemo(
     () => [
       {
-        Header: "SR. NO.",
-        id: "serialNumber",
+        Header: "SR NO",
+        accessor: "serialNumber",
         Cell: ({ row }) => {
           return <div>{row.index + 1}</div>;
         },
       },
       {
         Header: "NAME",
-        id: "fullName",
-        accessor: (row) => `${row.first_name} ${row.last_name}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <img
-              src={
-                row.original.profile
-                  ? `${Img_url}/profile/${row.original.profile}`
-                  : `${Img_url}/default/list/user.webp`
-              }
-              alt={row.original.first_name || "User profile"}
-              className="me-2 avatar rounded-circle lg"
-              onError={(e) => {
-                e.target.src = `${Img_url}/default/list/user.webp`;
-              }}
-            />
-            <div className="d-flex flex-column">
-              {row.original.first_name} {row.original.last_name}
-            </div>
-          </div>
-        ),
+        accessor: "title",
       },
-      { Header: "EMAIL", accessor: "email" },
-      { Header: "CONTACT", accessor: "contact_no" },
       {
-        Header: "ROLE",
-        accessor: "rolename",
+        Header: "TYPE",
+        accessor: "plan_type",
+      },
+      {
+        Header: "VALIDITY",
+        accessor: "validity",
+        Cell: ({ row }) => {
+          return <div>{row.original.validity} days</div>;
+        },
+      },
+      {
+        Header: "PRICE",
+        accessor: "price",
+        Cell: ({ row }) => {
+          return (
+            <div>
+              {Number(row.original.price).toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR",
+              })}
+            </div>
+          );
+        },
       },
       {
         Header: "STATUS",
@@ -273,47 +205,27 @@ const Affiliates = () => {
       {
         Header: "ACTIONS",
         accessor: "activated",
-        Cell: ({ row, value }) => (
+        Cell: ({ row }) => (
           <div>
             <button
               type="button"
-              onClick={() =>
-                handleEdit(row.original.first_name, row.original.id)
-              }
+              onClick={() => handleEdit(row.original.id)}
               className="btn text-info px-2 me-1"
             >
               <i className="bi bi-pencil"></i>
             </button>
             <button
               type="button"
-              onClick={() =>
-                handleDelete(row.original.first_name, row.original.id)
-              }
+              onClick={() => handleDelete(row.original.title, row.original.id)}
               className="btn text-danger px-2"
             >
               <i className="fa fa-trash"></i>
             </button>
-            {value === "0" ? (
-              <button
-                className="btn btn-sm"
-                onClick={() => handleUserActivationClick(row.original)}
-              >
-                <i className="bi bi-shield-lock"></i>
-              </button>
-            ) : (
-              ""
-            )}
           </div>
         ),
       },
     ],
-    [
-      Img_url,
-      handleStatusClick,
-      handleEdit,
-      handleDelete,
-      handleUserActivationClick,
-    ]
+    [handleDelete, handleEdit, handleStatusClick]
   );
 
   // Use the useTable hook to build the table
@@ -336,7 +248,7 @@ const Affiliates = () => {
   } = useTable(
     {
       columns,
-      data: clientsData,
+      data,
       initialState: { pageIndex: 0, pageSize },
     },
     useGlobalFilter,
@@ -355,7 +267,6 @@ const Affiliates = () => {
     setPageSize(newPageSize);
     setTablePageSize(newPageSize);
   };
-
   return (
     <div className="px-4 py-3 page-body">
       <Toaster />
@@ -364,28 +275,18 @@ const Affiliates = () => {
           <div className="table-responsive">
             <div className="mb-3 d-flex justify-content-between">
               <h4 className="title-font">
-                <strong>Affiliates List</strong>
+                <strong>Plans</strong>
               </h4>
-              <Link
-                className="btn btn-primary"
-                to="/admin/affiliates/add-affiliate"
-              >
-                Add New Affiliate
+              <Link className="btn btn-primary" to="/admin/plans/add-plan">
+                Add New Plan
               </Link>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
               <ExportButtons
                 data={rows.map((row) => row.original)}
-                fileName="Users"
-                fields={[
-                  "first_name",
-                  "last_name",
-                  "email",
-                  "contact_no",
-                  "role",
-                  "status",
-                ]}
+                fileName="Plans"
+                fields={["title", "plan_type", "validity", "price", "status"]}
               />
               <div className="d-flex align-items-center">
                 <div className="me-2">
@@ -422,30 +323,17 @@ const Affiliates = () => {
                 onConfirm={() => handleConfirmStatus(recordToUpdate.id)}
                 message={`Are you sure you want to ${
                   recordToUpdate?.status === "1" ? "deactivate" : "activate"
-                } user ${recordToUpdate.first_name}?`}
+                } plan ${recordToUpdate.title}?`}
                 status={recordToUpdate?.status}
               />
             )}
 
-            {recordToUpdate && (
-              <UserActivation
-                isOpen={isUserActivationModalOpen}
-                onClose={() => setIsUserActivationModalOpen(false)}
-                viaEmail={handleUserActivationConfirm}
-                directly={handleUserActivationConfirmDirectly}
-                message={`This is an admin only action. Are you sure you want to manually activate ${
-                  recordToUpdate.first_name + " " + recordToUpdate.last_name
-                }?`}
-                isLoading={isLoading}
-              />
-            )}
-
-            {userToDelete && (
+            {planToDelete && (
               <DeleteModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
-                message={`Are you sure you want to delete user ${userToDelete.first_name}?`}
+                message={`Are you sure you want to delete plan ${planToDelete.title}?`}
                 isLoading={isDeleting}
               />
             )}
@@ -482,16 +370,16 @@ const Affiliates = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {isLoading ? (
+                {loading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
-                      <LoadingFallback message="Loading affiliates..." />
+                      <LoadingFallback message="Loading plans..." />
                     </td>
                   </tr>
-                ) : clientsData.length === 0 ? (
+                ) : data.length === 0 ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
-                      No affiliates available.
+                      No plans available.
                     </td>
                   </tr>
                 ) : page.length === 0 ? (
@@ -522,7 +410,7 @@ const Affiliates = () => {
             </table>
           </div>
 
-          {clientsData.length > 0 && (
+          {data.length > 0 && (
             <ResponsivePagination
               pageIndex={pageIndex}
               pageOptions={pageOptions}
@@ -539,4 +427,4 @@ const Affiliates = () => {
   );
 };
 
-export default Affiliates;
+export default Plans;

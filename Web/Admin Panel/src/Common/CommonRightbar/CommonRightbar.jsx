@@ -144,7 +144,7 @@ const CommonRightbar = () => {
                             className="avatar rounded-circle me-1"
                             src={
                               user.profile
-                                ? `${Img_url}/profile/list/${user.profile}`
+                                ? `${Img_url}/profile/${user.profile}`
                                 : `${Img_url}/default/list/user.webp`
                             }
                             data-bs-toggle="tooltip"

@@ -201,7 +201,7 @@ const Agents = () => {
             <img
               src={
                 row.original.profile
-                  ? `${Img_url}/profile/list/${row.original.profile}`
+                  ? `${Img_url}/profile/${row.original.profile}`
                   : `${Img_url}/default/list/user.webp`
               }
               alt={row.original.first_name || "User profile"}

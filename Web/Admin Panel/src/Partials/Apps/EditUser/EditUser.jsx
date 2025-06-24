@@ -92,15 +92,13 @@ const EditUser = () => {
           setValue("email", res.data.user.email);
           setValue("contact_no", res.data.user.contact_no);
           setValue("old_profile_pic", res.data.user.profile_pic);
-          setValue("role", res.data.user.role);
+          setValue("role", res.data.user.role_name);
           setValue("role_id", res.data.user.role_id);
 
           // Set profile image if available
           if (res.data.user.profile_pic) {
             setValue("profile_pic", res.data.user.profile_pic);
-            setProfileImage(
-              `${Img_url}/profile/list/${res.data.user.profile_pic}`
-            );
+            setProfileImage(`${Img_url}/profile/${res.data.user.profile_pic}`);
           }
         }
       } catch (error) {
@@ -126,7 +124,7 @@ const EditUser = () => {
       formData.append("old_profile_pic", data.old_profile_pic);
 
     try {
-      const res = await axios.post(`${APP_URL}/edit-user/${userId}`, formData, {
+      const res = await axios.put(`${APP_URL}/users/${userId}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

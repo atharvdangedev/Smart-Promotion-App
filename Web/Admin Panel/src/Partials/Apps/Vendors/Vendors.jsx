@@ -87,7 +87,7 @@ const Vendors = () => {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/delete-vendor/${userToDelete.id}`,
+          `${APP_URL}/vendors/${userToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -98,11 +98,11 @@ const Vendors = () => {
         if (response.status === 200) {
           toast.success(response.data.message);
           setData((prevData) =>
-            prevData.filter((user) => user.id !== userToDelete.id)
+            prevData.filter((vendor) => vendor.id !== userToDelete.id)
           );
         }
       } catch (error) {
-        handleApiError(error, "deleting", "user");
+        handleApiError(error, "deleting", "vendor");
       } finally {
         setIsDeleting(false);
         setIsDeleteModalOpen(false);
@@ -226,7 +226,7 @@ const Vendors = () => {
             <img
               src={
                 row.original.profile
-                  ? `${Img_url}/profile/list/${row.original.profile}`
+                  ? `${Img_url}/profile/${row.original.profile}`
                   : `${Img_url}/default/list/user.webp`
               }
               alt={row.original.first_name || "User profile"}

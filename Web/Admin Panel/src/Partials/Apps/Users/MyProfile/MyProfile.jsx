@@ -25,6 +25,7 @@ const schema = yup.object().shape({
   email: yup.string().email("Invalid email").required("Email is required"),
   contact_no: yup.string().required("Contact number is required"),
   role: yup.string().required("User role is required"),
+  role_id: yup.string().notRequired(),
 });
 
 const MyProfile = () => {
@@ -50,10 +51,13 @@ const MyProfile = () => {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
+
+  const formValues = watch();
 
   //fetch user data
   useEffect(() => {
@@ -70,8 +74,8 @@ const MyProfile = () => {
           setValue("first_name", res.data.user.first_name);
           setValue("last_name", res.data.user.last_name);
           setValue("email", res.data.user.email);
-          setValue("role", res.data.user.role);
-          setValue("role_id", res.data.user.role_id);
+          setValue("role", res.data.user.role_name);
+          setValue("role_id", res.data.user.role);
           setValue("contact_no", res.data.user.contact_no);
           setValue("old_profile_pic", res.data.user.profile_pic);
         }
@@ -136,10 +140,11 @@ const MyProfile = () => {
     if (data.contact_no) formData.append("contact_no", data.contact_no);
     if (data.old_profile_pic)
       formData.append("old_profile_pic", data.old_profile_pic);
-    formData.append("role", data.role_id);
+
+    formData.append("role", formValues.role_id);
 
     try {
-      const res = await axios.post(`${APP_URL}/edit-user/${id}`, formData, {
+      const res = await axios.put(`${APP_URL}/users/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -147,7 +152,7 @@ const MyProfile = () => {
       });
       if (res.status === 200) {
         toast.success(res.data.message);
-        setUpdated(true);
+        setUpdated((prev) => !prev);
       }
     } catch (error) {
       handleApiError(error, "updating", "user");
@@ -168,7 +173,7 @@ const MyProfile = () => {
               <img
                 src={
                   userData?.profile_pic
-                    ? `${Img_url}/profile/list/${userData.profile_pic}`
+                    ? `${Img_url}/profile/${userData.profile_pic}`
                     : `${Img_url}/default/list/user.webp`
                 }
                 alt={userData?.first_name || "User profile"}
