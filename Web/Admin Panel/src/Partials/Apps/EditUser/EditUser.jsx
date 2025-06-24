@@ -68,12 +68,15 @@ const EditUser = () => {
     register,
     handleSubmit,
     reset,
+    watch,
     setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     mode: "onChange",
   });
+
+  const formValues = watch();
 
   //fetch user data
   useEffect(() => {
@@ -93,7 +96,7 @@ const EditUser = () => {
           setValue("contact_no", res.data.user.contact_no);
           setValue("old_profile_pic", res.data.user.profile_pic);
           setValue("role", res.data.user.role_name);
-          setValue("role_id", res.data.user.role_id);
+          setValue("role_id", res.data.user.role);
 
           // Set profile image if available
           if (res.data.user.profile_pic) {
@@ -116,7 +119,7 @@ const EditUser = () => {
     formData.append("last_name", data.lastname);
     formData.append("address", data.address);
     formData.append("email", data.email);
-    formData.append("role", data.role_id);
+    formData.append("role", formValues.role_id);
     formData.append("contact_no", data.contact_no);
     if (data.profile_pic && data.profile_pic[0] instanceof File)
       formData.append("profile_pic", data.profile_pic[0]);
@@ -124,7 +127,7 @@ const EditUser = () => {
       formData.append("old_profile_pic", data.old_profile_pic);
 
     try {
-      const res = await axios.put(`${APP_URL}/users/${userId}`, formData, {
+      const res = await axios.post(`${APP_URL}/users/${userId}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -254,6 +257,9 @@ const EditUser = () => {
                     alt="User Profile"
                     className="img-thumbnail"
                     style={{ maxWidth: "100%", height: "60px" }}
+                    onError={(e) => {
+                      e.target.src = `${Img_url}/default/list/user.webp`;
+                    }}
                   />
                 </div>
               )}

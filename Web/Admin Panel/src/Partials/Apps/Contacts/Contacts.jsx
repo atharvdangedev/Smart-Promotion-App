@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useGlobalFilter,
   usePagination,
@@ -9,12 +9,47 @@ import {
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
+import axios from "axios";
+import { handleApiError } from "../utils/handleApiError";
 
 const Contacts = () => {
+  // Access token
+  const token = localStorage.getItem("jwtToken");
+
+  // API URL
+  const APP_URL = import.meta.env.VITE_API_URL;
+
   // State initialization
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  //fetch contacts
+  useEffect(() => {
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${APP_URL}/contacts`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.status === 200) {
+          setData(response.data.contacts);
+        } else if (response.status === 204) {
+          setData([]);
+        }
+      } catch (error) {
+        setData([]);
+        handleApiError(error, "fetching", "contacts");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [APP_URL, token]);
 
   // Table configuration
   const columns = useMemo(
@@ -40,12 +75,12 @@ const Contacts = () => {
       },
       {
         Header: "VENDOR",
-        accessor: (row) => `${row.vendor_firstname} ${row.vendor_lastname}`,
+        accessor: (row) => `${row.first_name} ${row.last_name}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              {row.original.vendor_firstname
-                ? `${row.original.vendor_firstname} ${row.original.vendor_lastname}`
+              {row.original.first_name
+                ? `${row.original.first_name} ${row.original.last_name}`
                 : "No Vendor"}
             </div>
           </div>

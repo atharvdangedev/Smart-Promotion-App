@@ -144,7 +144,7 @@ const MyProfile = () => {
     formData.append("role", formValues.role_id);
 
     try {
-      const res = await axios.put(`${APP_URL}/users/${id}`, formData, {
+      const res = await axios.post(`${APP_URL}/users/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

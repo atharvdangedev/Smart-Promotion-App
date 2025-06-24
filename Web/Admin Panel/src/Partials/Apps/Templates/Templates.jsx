@@ -29,14 +29,14 @@ const Templates = () => {
     setLoading(true);
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${APP_URL}/template-list`, {
+        const response = await axios.get(`${APP_URL}/templates`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
         if (response.status === 200) {
-          setData(response.data.Templates);
+          setData(response.data.templates);
         } else if (response.status === 204) {
           setData([]);
         }
@@ -71,12 +71,12 @@ const Templates = () => {
       },
       {
         Header: "VENDOR",
-        accessor: (row) => `${row.vendor_firstname} ${row.vendor_lastname}`,
+        accessor: (row) => `${row.first_name} ${row.last_name}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              {row.original.vendor_firstname
-                ? `${row.original.vendor_firstname} ${row.original.vendor_lastname}`
+              {row.original.first_name
+                ? `${row.original.first_name} ${row.original.last_name}`
                 : "No Vendor"}
             </div>
           </div>

@@ -50,6 +50,7 @@ const Commissions = () => {
 
     fetchData();
   }, [APP_URL, token]);
+
   const columns = useMemo(
     () => [
       {

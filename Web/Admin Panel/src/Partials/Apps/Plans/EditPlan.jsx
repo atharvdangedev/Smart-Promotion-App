@@ -29,7 +29,7 @@ const schema = yup.object().shape({
     .string()
     .required("Plan Price is required")
     .min(2, "Minimum 2 digits required.")
-    .max(7, "Maximum 7 digits allowed."),
+    .max(7, "Maximum 7se digits allowed."),
   type: yup
     .string()
     .required("Plan Type is required")
