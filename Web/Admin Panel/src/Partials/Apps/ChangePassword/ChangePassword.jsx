@@ -25,10 +25,7 @@ const ChangePassword = () => {
   // Schema definition
   const schema = yup.object().shape({
     old_password: yup.string().required("Current password is required"),
-    newpassword: yup
-      .string()
-      .min(6, "New Password must be at least 6 characters")
-      .required("New Password is required"),
+    newpassword: yup.string().required("New Password is required"),
     confirmPassword: yup
       .string()
       .oneOf([yup.ref("newpassword"), null], "Passwords must match")

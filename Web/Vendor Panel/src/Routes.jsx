@@ -38,11 +38,6 @@ const Index = lazyLoad(() => import("./Partials/Workspace/Dashboard/Index"));
 const MyWallet = lazyLoad(() =>
   import("./Partials/Workspace/MyWallet/MyWallet")
 );
-const ClientsList = lazyLoad(() =>
-  import("./Partials/Apps/MyProjects/ClientsList/ClientsList")
-);
-const Adduser = lazyLoad(() => import("./Partials/Apps/AddUser/Adduser"));
-const EditUser = lazyLoad(() => import("./Partials/Apps/EditUser/EditUser"));
 const Agents = lazyLoad(() => import("./Partials/Apps/Agents/Agents"));
 const AddAgent = lazyLoad(() => import("./Partials/Apps/Agents/AddAgent"));
 const EditAgent = lazyLoad(() => import("./Partials/Apps/Agents/EditAgent"));
@@ -87,15 +82,9 @@ const AppRoutes = () => {
               />
 
               <Route path="/vendor/app/invoice" element={<InvoiceDetails />} />
-              <Route path="/vendor/users" element={<ClientsList />} />
-              <Route path="/vendor/user/my-profile" element={<MyProfile />} />
-              <Route path="/vendor/user/add-user" element={<Adduser />} />
+              <Route path="/vendor/my-profile" element={<MyProfile />} />
               <Route
-                path="/vendor/user/edit-user/:userId"
-                element={<EditUser />}
-              />
-              <Route
-                path="/vendor/user/change-password"
+                path="/vendor/change-password"
                 element={<ChangePassword />}
               />
 

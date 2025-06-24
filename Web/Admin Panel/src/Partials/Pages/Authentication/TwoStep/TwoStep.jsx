@@ -89,11 +89,15 @@ const TwoStep = () => {
     formdata.append("password", data.password);
 
     try {
-      const res = await axios.post(`${APP_URL}/ResetPassword`, formdata, {
-        headers: {
-          "X-App-Secret": `${SECRET_KEY}`,
-        },
-      });
+      const res = await axios.post(
+        `${APP_URL}/admin-reset-password`,
+        formdata,
+        {
+          headers: {
+            "X-App-Secret": `${SECRET_KEY}`,
+          },
+        }
+      );
       if (res.status === 200) {
         toast.success(res.data.message);
         setTimeout(() => {

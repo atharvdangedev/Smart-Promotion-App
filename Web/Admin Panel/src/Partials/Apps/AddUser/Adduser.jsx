@@ -26,10 +26,7 @@ const schema = yup.object().shape({
     .required("Last name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
   contact_no: yup.string().required("Contact number is required"),
-  password: yup
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
+  password: yup.string().required("Password is required"),
   cnfPassword: yup
     .string()
     .oneOf([yup.ref("password"), null], "Passwords must match")

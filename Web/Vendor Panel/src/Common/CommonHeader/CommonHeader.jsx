@@ -180,7 +180,7 @@ const CommonHeader = memo(() => {
           <li className="nav-item user ms-3">
             <Link
               className="dropdown-toggle gray-6 d-flex text-decoration-none align-items-center lh-sm p-0"
-              to="/vendor/user/my-profile"
+              to="/vendor/my-profile"
               role="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"

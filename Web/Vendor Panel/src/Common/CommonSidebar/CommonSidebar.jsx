@@ -59,12 +59,6 @@ const CommonSidebar = memo(({ iconColor }) => {
                 menuItems={[]}
               />
               <MenuItem
-                title="Users"
-                link="vendor/users"
-                icon={<i className="bi bi-person"></i>}
-                menuItems={[]}
-              />
-              <MenuItem
                 title="Agents"
                 link="vendor/agents"
                 icon={<i className="bi bi-person"></i>}

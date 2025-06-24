@@ -121,8 +121,8 @@ const Subscriptions = () => {
                 data={rows.map((row) => row.original)}
                 fileName="Users"
                 fields={[
-                  "firstname",
-                  "lastname",
+                  "first_name",
+                  "last_name",
                   "email",
                   "contact_no",
                   "role",

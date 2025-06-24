@@ -345,7 +345,7 @@ const Index = memo(() => {
                       ? `${Img_url}/profile/list/${userData.profile_pic}`
                       : `${Img_url}/default/list/user.webp`
                   }
-                  alt={userData?.firstname || "User profile"}
+                  alt={userData?.first_name || "User profile"}
                   className="me-2 avatar rounded-circle xl"
                   onError={(e) => {
                     e.target.src = `${Img_url}/default/list/user.webp`;

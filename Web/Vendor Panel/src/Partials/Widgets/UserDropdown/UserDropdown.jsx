@@ -87,7 +87,7 @@ const UserDropdown = () => {
           <Link
             className="dropdown-item rounded-pill"
             aria-label="my profile"
-            to="/vendor/user/my-profile"
+            to="/vendor/my-profile"
           >
             My Profile
           </Link>
@@ -96,7 +96,7 @@ const UserDropdown = () => {
           <Link
             className="dropdown-item rounded-pill"
             aria-label="change password"
-            to="/vendor/user/change-password"
+            to="/vendor/change-password"
           >
             Change Password
           </Link>
