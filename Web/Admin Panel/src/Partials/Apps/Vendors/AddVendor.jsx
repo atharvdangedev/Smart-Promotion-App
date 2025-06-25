@@ -166,6 +166,8 @@ const AddVendor = () => {
       formData.append("contact_no", data.contact_no);
       formData.append("password", data.password);
       formData.append("role", "3");
+      formData.append("business_address", data.business_address);
+      formData.append("business_type", data.business_type);
 
       if (data.gst_number) formData.append("gst_number", data.gst_number);
       if (data.business_name)
@@ -175,20 +177,18 @@ const AddVendor = () => {
         formData.append("business_email", data.business_email);
       if (data.business_contact)
         formData.append("business_contact", data.business_contact);
-      if (data.website_url) formData.append("website_url", data.website_url);
-      if (data.business_address)
-        formData.append("business_address", data.business_address);
+      if (data.website_url) formData.append("website", data.website_url);
 
       if (data.profile_pic && data.profile_pic[0] instanceof File)
         formData.append("profile_pic", data.profile_pic[0]);
 
-      const res = await axios.post(`${APP_URL}/add-vendor`, formData, {
+      const res = await axios.post(`${APP_URL}/vendors`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
-      if (res.status === 200) {
+      if (res.status === 201) {
         toast.success(res.data.message);
         setTimeout(() => {
           navigate("/admin/vendors");
