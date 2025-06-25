@@ -55,7 +55,7 @@ const schema = yup.object().shape({
 
   gst_number: yup.string().notRequired(),
 
-  business_type: yup.string.required("Business Type is required"),
+  business_type: yup.string().required("Business Type is required"),
 
   business_email: yup.string().email("Invalid business email").notRequired(),
 
