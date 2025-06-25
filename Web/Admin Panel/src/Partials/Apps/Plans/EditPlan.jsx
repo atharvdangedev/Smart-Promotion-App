@@ -216,7 +216,7 @@ const EditPlan = () => {
                   <input
                     type="text"
                     inputMode="decimal"
-                    maxLength={5}
+                    maxLength={8}
                     onInput={(e) => {
                       e.target.value = e.target.value
                         .replace(/[^0-9.]/g, "") // Allow only digits and a decimal point
