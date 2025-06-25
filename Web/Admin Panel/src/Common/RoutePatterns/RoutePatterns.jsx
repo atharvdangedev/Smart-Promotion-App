@@ -52,6 +52,15 @@ export const routePatterns = [
     pattern: "admin/commissions",
     title: "Commissions",
   },
+  // Contacts
+  {
+    pattern: "admin/contacts",
+    title: "Contacts",
+  },
+  {
+    pattern: "admin/contacts/vendor/:vendorId",
+    title: "Vendor Contacts",
+  },
   // template routes
   { pattern: "admin/templates", title: "Templates / List" },
   { pattern: "admin/addTemplate", title: "Templates / Add Template" },

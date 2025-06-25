@@ -17,6 +17,7 @@ import Commissions from "./Partials/Apps/Commissions/Commissions";
 import Contacts from "./Partials/Apps/Contacts/Contacts";
 import AddPlan from "./Partials/Apps/Plans/AddPlan";
 import EditPlan from "./Partials/Apps/Plans/EditPlan";
+import VendorContacts from "./Partials/Apps/VendorContacts/VendorContacts";
 
 // Lazy loaded components using custom lazyLoad
 const NotFound = lazyLoad(() => import("./NotFound/NotFound"));
@@ -163,6 +164,10 @@ const AppRoutes = () => {
 
               {/* Contacts */}
               <Route path="/admin/contacts" element={<Contacts />} />
+              <Route
+                path="/admin/contacts/vendor/:vendorId"
+                element={<VendorContacts />}
+              />
 
               {/* template management */}
               <Route path="/admin/templates" element={<Templates />} />

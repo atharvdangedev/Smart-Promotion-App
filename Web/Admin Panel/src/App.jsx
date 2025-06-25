@@ -83,6 +83,7 @@ const App = () => {
     "/admin/coupon-codes": "CouponCodeManagement",
     "/admin/commissions": "Commissions",
     "/admin/contacts": "Contacts",
+    "/admin/contacts/vendor": "VendorContacts",
     "/admin/templates": "Templates",
     "/admin/addTemplate": "AddTemplate",
     "/admin/editTemplate": "EditTemplate",

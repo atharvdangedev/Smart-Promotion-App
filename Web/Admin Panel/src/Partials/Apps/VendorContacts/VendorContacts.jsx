@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useGlobalFilter,
   usePagination,
@@ -11,34 +11,40 @@ import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import axios from "axios";
 import { handleApiError } from "../utils/handleApiError";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 
-const Contacts = () => {
-  // Navigation Function
-  const navigate = useNavigate();
-
+const VendorContacts = () => {
   // Access token
   const token = localStorage.getItem("jwtToken");
+
+  // Vendor ID from params
+  const { vendorId } = useParams();
+
+  const location = useLocation();
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
 
   // State initialization
+  const [vendorName, setVendorName] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  //fetch contacts
+  //fetch VendorContacts
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${APP_URL}/contacts`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/contact/vendor/${vendorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setData(response.data.contacts);
         } else if (response.status === 204) {
@@ -46,23 +52,21 @@ const Contacts = () => {
         }
       } catch (error) {
         setData([]);
-        handleApiError(error, "fetching", "contacts");
+        handleApiError(error, "fetching", "vendor contacts");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, vendorId]);
 
-  const handleView = useCallback(
-    async (vendorId, vendorName) => {
-      navigate(`/admin/contacts/vendor/${vendorId}`, {
-        state: { vendorname: vendorName },
-      });
-    },
-    [navigate]
-  );
+  useEffect(() => {
+    if (location.state) {
+      const { vendorname } = location.state;
+      setVendorName(vendorname);
+    }
+  }, [location.state]);
 
   // Table configuration
   const columns = useMemo(
@@ -75,45 +79,19 @@ const Contacts = () => {
         },
       },
       {
-        Header: "BUSINESS",
-        accessor: "business_name",
+        Header: "CONTACT NAME",
+        accessor: "name",
       },
       {
-        Header: "VENDOR",
-        accessor: (row) => `${row.first_name} ${row.last_name}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              {row.original.first_name
-                ? `${row.original.first_name} ${row.original.last_name}`
-                : "No Vendor"}
-            </div>
-          </div>
-        ),
+        Header: "CONTACT NO",
+        accessor: "contact_no",
       },
       {
-        Header: "TOTAL CONTACTS",
-        accessor: "total_contacts",
-      },
-      {
-        Header: "ACTIONS",
-        accessor: "actions",
-        Cell: ({ row }) => {
-          return (
-            <button
-              onClick={() =>
-                handleView(row.original.vendor_id, row.original.business_name)
-              }
-              className="btn text-info px-2 me-1"
-              title={`View ${row.original.business_name} Contacts`}
-            >
-              <i className="bi bi-eye-fill"></i>
-            </button>
-          );
-        },
+        Header: "CONTACT EMAIL",
+        accessor: "email",
       },
     ],
-    [handleView]
+    []
   );
 
   // Use the useTable hook to build the table
@@ -163,14 +141,21 @@ const Contacts = () => {
           <div className="table-responsive">
             <div className="mb-3 d-flex justify-content-between">
               <h4 className="title-font">
-                <strong>Contacts</strong>
+                <strong>{vendorName} Contacts</strong>
               </h4>
+
+              <Link
+                to={`/admin/contacts`}
+                className="btn btn-info text-white text-decoration-none"
+              >
+                Back
+              </Link>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
               <ExportButtons
                 data={rows.map((row) => row.original)}
-                fileName="Contacts"
+                fileName="VendorContacts"
                 fields={["title", "status"]}
               />
               <div className="d-flex align-items-center">
@@ -236,13 +221,13 @@ const Contacts = () => {
                 {loading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
-                      <LoadingFallback message="Loading contacts..." />
+                      <LoadingFallback message="Loading VendorContacts..." />
                     </td>
                   </tr>
                 ) : data.length === 0 ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
-                      No Contacts available.
+                      No VendorContacts available.
                     </td>
                   </tr>
                 ) : page.length === 0 ? (
@@ -290,4 +275,4 @@ const Contacts = () => {
   );
 };
 
-export default Contacts;
+export default VendorContacts;
