@@ -29,7 +29,7 @@ const schema = yup.object().shape({
     .string()
     .required("Plan Price is required")
     .min(2, "Minimum 2 digits required.")
-    .max(7, "Maximum 7se digits allowed."),
+    .max(7, "Maximum 7 digits allowed."),
   type: yup
     .string()
     .required("Plan Type is required")
@@ -50,9 +50,8 @@ const EditPlan = () => {
   const { planId } = useParams();
 
   const types = [
-    { value: "monthly", label: "Monthly" },
-    { value: "yearly", label: "Yearly" },
-    { value: "custom", label: "Custom" },
+    { value: "plan", label: "Plan" },
+    { value: "addon", label: "Add-On" },
   ];
 
   // useForm hook initialization
@@ -83,7 +82,7 @@ const EditPlan = () => {
           setValue("description", response.data.plan.description);
           setValue("validity", response.data.plan.validity);
           setValue("price", response.data.plan.price);
-          setValue("plan_type", response.data.plan.plan_type);
+          setValue("type", response.data.plan.plan_type);
         }
       } catch (error) {
         handleApiError(error, "fetching", "template details");
@@ -103,7 +102,7 @@ const EditPlan = () => {
     formData.append("plan_type", data.type);
 
     try {
-      const res = await axios.put(`${APP_URL}/plans/${planId}`, formData, {
+      const res = await axios.post(`${APP_URL}/plans/${planId}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

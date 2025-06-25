@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-escape */
 import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast, { Toaster } from "react-hot-toast";
@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import ImagePreview from "../utils/ImagePreview";
 import { evaluatePasswordStrength } from "../utils/evaluatePasswordStrength";
 import { handleApiError } from "../utils/handleApiError";
+import Select from "react-select";
 
 // Schema definition
 const schema = yup.object().shape({
@@ -28,7 +29,10 @@ const schema = yup.object().shape({
 
   email: yup.string().email("Invalid email").required("Email is required"),
 
-  contact_no: yup.string().required("Contact number is required"),
+  contact_no: yup
+    .string()
+    .min(10, "Contact number must be minimun 10 digits")
+    .required("Contact number is required"),
 
   password: yup.string().required("Password is required"),
 
@@ -39,15 +43,19 @@ const schema = yup.object().shape({
 
   profile_pic: yup.mixed().notRequired(),
 
-  company_name: yup
+  business_name: yup
     .string()
-    .required("Company Name is required")
+    .required("Business Name is required")
     .matches(
       /^[A-Za-z0-9\s]+$/,
-      "Company name must contain only alphanumeric characters and spaces."
+      "Business name must contain only alphanumeric characters and spaces."
     )
     .min(2, "Minimum 2 characters required.")
     .max(100, "Maximum 100 characters allowed."),
+
+  gst_number: yup.string().notRequired(),
+
+  business_type: yup.string.required("Business Type is required"),
 
   business_email: yup.string().email("Invalid business email").notRequired(),
 
@@ -55,22 +63,10 @@ const schema = yup.object().shape({
 
   website_url: yup.string().notRequired().url("Invalid website URL"),
 
-  company_address: yup
+  business_address: yup
     .string()
     .notRequired()
     .max(200, "Maximum 200 characters allowed."),
-
-  logo: yup.mixed().notRequired(),
-
-  footer_logo: yup.mixed().notRequired(),
-
-  facebook_social_link: yup.string().notRequired(),
-
-  instagram_social_link: yup.string().notRequired(),
-
-  linkedin_social_link: yup.string().notRequired(),
-
-  youtube_social_link: yup.string().notRequired(),
 
   old_profile_pic: yup.string().notRequired(),
 });
@@ -85,13 +81,28 @@ const AddVendor = () => {
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
 
+  const businessTypes = [
+    {
+      value: "private-limited",
+      label: "Private Limited",
+    },
+    {
+      value: "limited",
+      label: "Limited",
+    },
+    {
+      value: "llp",
+      label: "LLP",
+    },
+    {
+      value: "proprietor",
+      label: "Proprietor",
+    },
+  ];
+
   // State initialization
   const profilePicRef = useRef();
-  const logoRef = useRef();
-  const footerLogoRef = useRef();
   const [profilePicPreview, setProfilePicPreview] = useState(null);
-  const [logoPreview, setLogoPreview] = useState(null);
-  const [footerLogoPreview, setFooterLogoPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState([]);
 
@@ -100,6 +111,7 @@ const AddVendor = () => {
     register,
     handleSubmit,
     reset,
+    control,
     resetField,
     formState: { errors },
     watch,
@@ -137,36 +149,6 @@ const AddVendor = () => {
     }
   };
 
-  const handleLogo = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setLogoPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleRemoveLogo = () => {
-    setLogoPreview(null);
-    resetField("logo");
-    if (logoRef.current) {
-      logoRef.current.value = "";
-    }
-  };
-
-  const handleFooterLogo = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFooterLogoPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleRemoveFooterLogo = () => {
-    setFooterLogoPreview(null);
-    resetField("footer_logo");
-    if (footerLogoRef.current) {
-      footerLogoRef.current.value = "";
-    }
-  };
-
   // Handle submit
   const onSubmit = async (data) => {
     const { isStrong, errors } = evaluatePasswordStrength(data.password);
@@ -178,45 +160,27 @@ const AddVendor = () => {
     try {
       const formData = new FormData();
 
-      formData.append("firstname", data.firstname);
-      formData.append("lastname", data.lastname);
+      formData.append("first_name", data.firstname);
+      formData.append("last_name", data.lastname);
       formData.append("email", data.email);
       formData.append("contact_no", data.contact_no);
       formData.append("password", data.password);
-      formData.append("cnfPassword", data.cnfPassword);
       formData.append("role", "3");
 
-      if (data.company_name) formData.append("company_name", data.company_name);
+      if (data.gst_number) formData.append("gst_number", data.gst_number);
+      if (data.business_name)
+        formData.append("business_name", data.business_name);
+      if (data.website) formData.append("website", data.website_url);
       if (data.business_email)
         formData.append("business_email", data.business_email);
       if (data.business_contact)
         formData.append("business_contact", data.business_contact);
       if (data.website_url) formData.append("website_url", data.website_url);
-      if (data.company_address)
-        formData.append("company_address", data.company_address);
-
-      if (data.logo && data.logo[0] instanceof File) {
-        formData.append("logo", data.logo[0]);
-      }
-
-      if (data.footer_logo && data.footer_logo[0] instanceof File) {
-        formData.append("footer_logo", data.footer_logo[0]);
-      }
+      if (data.business_address)
+        formData.append("business_address", data.business_address);
 
       if (data.profile_pic && data.profile_pic[0] instanceof File)
         formData.append("profile_pic", data.profile_pic[0]);
-
-      if (data.facebook_social_link)
-        formData.append("facebook_social_link", data.facebook_social_link);
-
-      if (data.instagram_social_link)
-        formData.append("instagram_social_link", data.instagram_social_link);
-
-      if (data.linkedin_social_link)
-        formData.append("linkedin_social_link", data.linkedin_social_link);
-
-      if (data.youtube_social_link)
-        formData.append("youtube_social_link", data.youtube_social_link);
 
       const res = await axios.post(`${APP_URL}/add-vendor`, formData, {
         headers: {
@@ -455,17 +419,17 @@ const AddVendor = () => {
                   <input
                     type="text"
                     className={`form-control ${
-                      errors.company_name ? "is-invalid" : ""
+                      errors.business_name ? "is-invalid" : ""
                     }`}
-                    id="company_name"
-                    {...register("company_name")}
-                    placeholder="Company Name"
+                    id="business_name"
+                    {...register("business_name")}
+                    placeholder="Business Name"
                     tabIndex="8"
                   />
-                  <label htmlFor="company_name">Company Name</label>
-                  {errors.company_name && (
+                  <label htmlFor="business_name">Business Name</label>
+                  {errors.business_name && (
                     <div className="invalid-feedback">
-                      {errors.company_name.message}
+                      {errors.business_name.message}
                     </div>
                   )}
                 </div>
@@ -546,17 +510,17 @@ const AddVendor = () => {
                   <input
                     type="text"
                     className={`form-control ${
-                      errors.company_address ? "is-invalid" : ""
+                      errors.business_address ? "is-invalid" : ""
                     }`}
-                    id="company_address"
-                    {...register("company_address")}
-                    placeholder="Company Address"
+                    id="business_address"
+                    {...register("business_address")}
+                    placeholder="Business Address"
                     tabIndex="13"
                   />
-                  <label htmlFor="company_address">Company Address</label>
-                  {errors.company_address && (
+                  <label htmlFor="business_address">Business Address</label>
+                  {errors.business_address && (
                     <div className="invalid-feedback">
-                      {errors.company_address.message}
+                      {errors.business_address.message}
                     </div>
                   )}
                 </div>
@@ -566,156 +530,103 @@ const AddVendor = () => {
                 <div className="form-floating">
                   <input
                     type="text"
+                    inputMode="numeric"
+                    maxLength={15}
+                    onInput={(e) =>
+                      (e.target.value = e.target.value.replace(/\D+/g, ""))
+                    }
                     className={`form-control ${
-                      errors.facebook_social_link ? "is-invalid" : ""
+                      errors.gst_number ? "is-invalid" : ""
                     }`}
-                    id="facebook_social_link"
-                    {...register("facebook_social_link")}
-                    placeholder="Facebook Handle"
-                    tabIndex="18"
-                  />
-                  <label htmlFor="facebook_social_link">Facebook Handle</label>
-                  {errors.facebook_social_link && (
-                    <div className="invalid-feedback">
-                      {errors.facebook_social_link.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <input
-                    type="text"
-                    className={`form-control ${
-                      errors.instagram_social_link ? "is-invalid" : ""
-                    }`}
-                    id="instagram_social_link"
-                    {...register("instagram_social_link")}
-                    placeholder="Instagram Handle"
-                    tabIndex="19"
-                  />
-                  <label htmlFor="instagram_social_link">
-                    Instagram Handle
-                  </label>
-                  {errors.instagram_social_link && (
-                    <div className="invalid-feedback">
-                      {errors.instagram_social_link.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <input
-                    type="text"
-                    className={`form-control ${
-                      errors.linkedin_social_link ? "is-invalid" : ""
-                    }`}
-                    id="linkedin_social_link"
-                    {...register("linkedin_social_link")}
-                    placeholder="Linkedin Handle"
-                    tabIndex="20"
-                  />
-                  <label htmlFor="linkedin_social_link">Linkedin Handle</label>
-                  {errors.linkedin_social_link && (
-                    <div className="invalid-feedback">
-                      {errors.linkedin_social_link.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <input
-                    type="text"
-                    className={`form-control ${
-                      errors.youtube_social_link ? "is-invalid" : ""
-                    }`}
-                    id="youtube_social_link"
-                    {...register("youtube_social_link")}
-                    placeholder="Youtube Handle"
-                    tabIndex="20"
-                  />
-                  <label htmlFor="youtube_social_link">Youtube Handle</label>
-                  {errors.youtube_social_link && (
-                    <div className="invalid-feedback">
-                      {errors.youtube_social_link.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <input
-                    ref={logoRef}
-                    type="file"
-                    className={`form-control ${
-                      errors.logo ? "is-invalid" : ""
-                    }`}
-                    id="logo"
-                    {...register("logo")}
-                    onChange={handleLogo}
-                    accept="image/*"
+                    id="gst_number"
+                    {...register("gst_number")}
+                    placeholder="GST Number"
                     tabIndex="14"
                   />
-                  <label htmlFor="logo">Logo (Optional)</label>
-                  {errors.logo && (
+                  <label htmlFor="gst_number">GST Number</label>
+                  {errors.gst_number && (
                     <div className="invalid-feedback">
-                      {errors.logo.message}
+                      {errors.gst_number.message}
                     </div>
                   )}
                 </div>
-                {logoPreview && (
-                  <ImagePreview
-                    ImagePreviewURL={logoPreview}
-                    onRemove={handleRemoveLogo}
-                  />
-                )}
               </div>
 
-              <div className={`${footerLogoPreview ? "col-md-3" : "col-md-4"}`}>
+              <div className="col-md-4">
                 <div className="form-floating">
-                  <input
-                    type="file"
-                    ref={footerLogoRef}
-                    className={`form-control ${
-                      errors.footer_logo ? "is-invalid" : ""
-                    }`}
-                    id="footer_logo"
-                    {...register("footer_logo")}
-                    accept="image/*"
-                    onChange={handleFooterLogo}
-                    tabIndex="15"
+                  <Controller
+                    name="business_type"
+                    control={control}
+                    rules={{ required: "Business Type is required" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={businessTypes}
+                        tabIndex="15"
+                        className={`basic-single ${
+                          errors.business_type ? "is-invalid" : ""
+                        }`}
+                        classNamePrefix="select"
+                        isClearable={true}
+                        isSearchable={true}
+                        placeholder="Select Business type"
+                        value={
+                          businessTypes.find(
+                            (type) => type.value === field.value
+                          ) || null
+                        }
+                        onChange={(selectedOption) =>
+                          field.onChange(
+                            selectedOption ? selectedOption.value : ""
+                          )
+                        }
+                        styles={{
+                          control: (baseStyles) => ({
+                            ...baseStyles,
+                            height: "calc(3.5rem + 2px)",
+                            borderRadius: "0.375rem",
+                            border: "1px solid #ced4da",
+                          }),
+                          valueContainer: (baseStyles) => ({
+                            ...baseStyles,
+                            height: "100%",
+                            padding: "0.7rem 0.6rem",
+                          }),
+                          placeholder: (baseStyles) => ({
+                            ...baseStyles,
+                            color: "#6c757d",
+                          }),
+                          input: (baseStyles) => ({
+                            ...baseStyles,
+                            margin: 0,
+                            padding: 0,
+                          }),
+                          menu: (baseStyles) => ({
+                            ...baseStyles,
+                            zIndex: 9999,
+                          }),
+                        }}
+                      />
+                    )}
                   />
-                  <label htmlFor="footer_logo">Footer Logo </label>
-                  {errors.footer_logo && (
+                  {errors.business_type && (
                     <div className="invalid-feedback">
-                      {errors.footer_logo.message}
+                      {errors.business_type.message}
                     </div>
                   )}
                 </div>
-                {footerLogoPreview && (
-                  <ImagePreview
-                    ImagePreviewURL={footerLogoPreview}
-                    onRemove={handleRemoveFooterLogo}
-                  />
-                )}
               </div>
 
               <div className="col-12">
                 <button
-                  tabIndex="20"
+                  tabIndex="16"
                   className="me-1 btn btn-primary"
                   type="submit"
                 >
                   Add Vendor
                 </button>
                 <button
-                  tabIndex="21"
+                  tabIndex="17"
                   className="btn btn-outline-secondary"
                   type="button"
                   onClick={handleCancel}

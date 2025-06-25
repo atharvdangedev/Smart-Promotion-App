@@ -22,7 +22,10 @@ const schema = yup.object().shape({
     .matches(/^[A-Za-z]+$/, "Last name must contain only alphabets.")
     .required("Last name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
-  contact_no: yup.string().required("Contact number is required"),
+  contact_no: yup
+    .string()
+    .min(10, "Contact number must be minimun 10 digits")
+    .required("Contact number is required"),
   profile_pic: yup.mixed().notRequired(),
   role: yup.string().required("User role is required"),
   old_profile_pic: yup.string().notRequired(),

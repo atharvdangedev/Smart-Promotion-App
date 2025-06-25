@@ -26,7 +26,10 @@ const schema = yup.object().shape({
 
   email: yup.string().email("Invalid email").required("Email is required"),
 
-  contact_no: yup.string().required("Contact number is required"),
+  contact_no: yup
+    .string()
+    .min(10, "Contact number must be minimun 10 digits")
+    .required("Contact number is required"),
 
   profile_pic: yup.mixed().notRequired(),
 
