@@ -321,7 +321,7 @@ const Vendors = () => {
             <button
               type="button"
               onClick={() =>
-                handleEdit(row.original.first_name, row.original.user_id)
+                handleEdit(row.original.first_name, row.original.id)
               }
               className="btn text-info px-2 me-1"
             >
@@ -330,7 +330,7 @@ const Vendors = () => {
             <button
               type="button"
               onClick={() =>
-                handleDelete(row.original.first_name, row.original.user_id)
+                handleDelete(row.original.first_name, row.original.id)
               }
               className="btn text-danger px-2"
             >
