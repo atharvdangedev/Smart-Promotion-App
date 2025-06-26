@@ -168,7 +168,7 @@ const Signin = () => {
                 tabIndex="3"
               />
               <label className="form-check-label fs-6" htmlFor="Rememberme">
-                Remeber this Device
+                Remember this Device
               </label>
             </div>
           </li>

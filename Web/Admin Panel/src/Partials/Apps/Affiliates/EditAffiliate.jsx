@@ -153,8 +153,8 @@ const EditAffiliate = () => {
           },
         });
         if (res.status === 200) {
-          setValue("firstname", res.data.affiliate.firstname);
-          setValue("lastname", res.data.affiliate.lastname);
+          setValue("firstname", res.data.affiliate.first_name);
+          setValue("lastname", res.data.affiliate.last_name);
           setValue("email", res.data.affiliate.email);
           setValue("contact_no", res.data.affiliate.contact_no);
           setValue("old_profile_pic", res.data.affiliate.profile_pic);

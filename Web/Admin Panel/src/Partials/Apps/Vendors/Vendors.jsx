@@ -142,7 +142,7 @@ const Vendors = () => {
         setIsStatusModalOpen(false);
       }
     } catch (error) {
-      handleApiError(error, "updating", "user status");
+      handleApiError(error, "updating", "vendor status");
     }
   };
 
@@ -171,7 +171,7 @@ const Vendors = () => {
         toast.success(response.data.message);
       }
     } catch (error) {
-      handleApiError(error, "sending activation mail to", "user");
+      handleApiError(error, "sending activation mail to", "vendor");
     } finally {
       setIsUserActivationModalOpen(false);
     }
@@ -201,7 +201,7 @@ const Vendors = () => {
         );
       }
     } catch (error) {
-      handleApiError(error, "activating", "user");
+      handleApiError(error, "activating", "vendor");
     } finally {
       setIsUserActivationModalOpen(false);
     }
@@ -321,7 +321,7 @@ const Vendors = () => {
             <button
               type="button"
               onClick={() =>
-                handleEdit(row.original.first_name, row.original.id)
+                handleEdit(row.original.first_name, row.original.user_id)
               }
               className="btn text-info px-2 me-1"
             >
@@ -330,7 +330,7 @@ const Vendors = () => {
             <button
               type="button"
               onClick={() =>
-                handleDelete(row.original.first_name, row.original.id)
+                handleDelete(row.original.first_name, row.original.user_id)
               }
               className="btn text-danger px-2"
             >
@@ -464,7 +464,7 @@ const Vendors = () => {
               <Modal
                 isOpen={isStatusModalOpen}
                 onClose={() => setIsStatusModalOpen(false)}
-                onConfirm={() => handleConfirmStatus(recordToUpdate.id)}
+                onConfirm={() => handleConfirmStatus(recordToUpdate.user_id)}
                 message={`Are you sure you want to ${
                   recordToUpdate?.status === "1" ? "deactivate" : "activate"
                 } vendor ${recordToUpdate.first_name}?`}

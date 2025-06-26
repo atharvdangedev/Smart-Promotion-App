@@ -104,7 +104,7 @@ const Affiliates = () => {
           );
         }
       } catch (error) {
-        handleApiError(error, "deleting", "user");
+        handleApiError(error, "deleting", "affiliate");
       } finally {
         setIsDeleting(false);
         setIsDeleteModalOpen(false);
@@ -144,7 +144,7 @@ const Affiliates = () => {
         setIsStatusModalOpen(false);
       }
     } catch (error) {
-      handleApiError(error, "updating", "user status");
+      handleApiError(error, "updating", "affiliate status");
     }
   };
 
@@ -160,7 +160,7 @@ const Affiliates = () => {
       const params = new URLSearchParams();
       params.append("email", recordToUpdate.email);
       const response = await axios.post(
-        `${APP_URL}/SendActivationToken`,
+        `${APP_URL}/SendActivationToken/${recordToUpdate.id}`,
         params,
         {
           headers: {
@@ -173,7 +173,7 @@ const Affiliates = () => {
         toast.success(response.data.message);
       }
     } catch (error) {
-      handleApiError(error, "sending activation mail to", "user");
+      handleApiError(error, "sending activation mail to", "affiliate");
     } finally {
       setIsUserActivationModalOpen(false);
     }
