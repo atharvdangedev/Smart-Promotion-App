@@ -202,13 +202,17 @@ const EditAffiliate = () => {
       if (data.profile_pic && data.profile_pic[0] instanceof File)
         formData.append("profile_pic", data.profile_pic[0]);
 
-      const res = await axios.post(`${APP_URL}/affiliates`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      if (res.status === 201) {
+      const res = await axios.post(
+        `${APP_URL}/affiliates/${affiliateId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (res.status === 200) {
         toast.success(res.data.message);
         setTimeout(() => {
           navigate("/admin/affiliates");
