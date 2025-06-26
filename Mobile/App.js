@@ -9,6 +9,8 @@ import { useEffect } from 'react';
 import ForgotPassword from './screens/ForgotPassword';
 import ResetPassword from './screens/ResetPassword';
 import linking from './linking';
+import TemplateScreen from './screens/Template';
+import PlansPricingScreen from './screens/PlansPricing';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +40,8 @@ export default function App() {
         <Stack.Screen name='EnterpriseLogin' component={EnterpriseLoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name='ForgotPassword' component={ForgotPassword} options={{ headerShown: false }} />
         <Stack.Screen name='ResetPassword' component={ResetPassword} options={{ headerShown: false }} />
+        <Stack.Screen name='Template' component={TemplateScreen} options={{ headerShown: false }} />
+        <Stack.Screen name='PlansPricing' component={PlansPricingScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

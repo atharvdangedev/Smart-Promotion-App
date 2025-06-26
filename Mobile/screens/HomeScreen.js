@@ -1,5 +1,6 @@
+import { Navigation } from 'lucide-react-native';
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, Dimensions, TouchableOpacity } from 'react-native';
 import { LineChart, StackedBarChart } from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -30,7 +31,7 @@ const dummyData = [
     },
 ];
 
-export default function DashboardScreen() {
+export default function DashboardScreen({ navigation }) {
     const [refreshing, setRefreshing] = useState(false);
     const [dataIndex, setDataIndex] = useState(0);
 
@@ -126,7 +127,17 @@ export default function DashboardScreen() {
                         <Text className="text-black font-semibold">{agent.missed}</Text>
                     </View>
                 </View>
-                <Text className='border border-b-hairline'></Text>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('Template')}
+                    className='p-4 bg-white my-3 rounded-xl'>
+                    <Text className='text-black font-semibold text-xl text-center'> Message Template </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('PlansPricing')}
+                    className='p-4 bg-white mb-3 rounded-xl'>
+                    <Text className='text-black font-semibold text-xl text-center'> Browse Plans </Text>
+                </TouchableOpacity>
+                <Text className='m-1 border border-b-hairline'></Text>
             </ScrollView>
         </SafeAreaView>
     );
