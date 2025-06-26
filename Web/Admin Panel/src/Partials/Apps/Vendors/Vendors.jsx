@@ -255,7 +255,7 @@ const Vendors = () => {
         ),
       },
       {
-        Header: "COMPANY NAME",
+        Header: "BUSINESS NAME",
         accessor: "company_name",
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">

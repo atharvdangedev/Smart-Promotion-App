@@ -48,15 +48,18 @@ const schema = yup.object().shape({
 
   business_type: yup.string().required("Business Type is required"),
 
-  business_email: yup.string().email("Invalid business email").notRequired(),
+  business_email: yup
+    .string()
+    .email("Invalid business email")
+    .required("Business Email is required"),
 
-  business_contact: yup.string().notRequired(),
+  business_contact: yup.string().required("Business Contact is required"),
 
   website_url: yup.string().notRequired().url("Invalid website URL"),
 
   business_address: yup
     .string()
-    .notRequired()
+    .required("Business Address is required")
     .max(200, "Maximum 200 characters allowed."),
 
   old_profile_pic: yup.string().notRequired(),
@@ -139,8 +142,8 @@ const EditVendor = () => {
           },
         });
         if (res.status === 200) {
-          setValue("firstname", res.data.vendor.firstname);
-          setValue("lastname", res.data.vendor.lastname);
+          setValue("firstname", res.data.vendor.first_name);
+          setValue("lastname", res.data.vendor.last_name);
           setValue("email", res.data.vendor.email);
           setValue("contact_no", res.data.vendor.contact_no);
           setValue("old_profile_pic", res.data.vendor.profile_pic);
