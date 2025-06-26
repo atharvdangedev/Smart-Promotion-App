@@ -359,7 +359,9 @@ const Index = memo(() => {
                       : "User"}
                     !
                   </h4>
-                  <span className="text-muted small">{userData?.email}</span>
+                  <span className="text-muted small">
+                    {userData?.email || ""}
+                  </span>
                 </div>
               </div>
             </div>

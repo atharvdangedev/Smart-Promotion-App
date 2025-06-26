@@ -89,7 +89,7 @@ const Affiliates = () => {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/delete-user/${userToDelete.id}`,
+          `${APP_URL}/affiliates/${userToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
