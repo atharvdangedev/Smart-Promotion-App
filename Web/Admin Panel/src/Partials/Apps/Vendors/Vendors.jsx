@@ -155,15 +155,14 @@ const Vendors = () => {
   // Handle user activation functionality (via email)
   const handleUserActivationConfirm = async () => {
     try {
-      const params = new URLSearchParams();
-      params.append("email", recordToUpdate.email);
+      const formData = new FormData();
+      formData.append("email", recordToUpdate.email);
       const response = await axios.post(
-        `${APP_URL}/SendActivationToken`,
-        params,
+        `${APP_URL}/SendActivationToken/${recordToUpdate.id}`,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/x-www-form-urlencoded",
           },
         }
       );
@@ -225,8 +224,8 @@ const Vendors = () => {
           <div className="d-flex align-items-center">
             <img
               src={
-                row.original.profile
-                  ? `${Img_url}/profile/${row.original.profile}`
+                row.original.profile_pic
+                  ? `${Img_url}/profile/${row.original.profile_pic}`
                   : `${Img_url}/default/list/user.webp`
               }
               alt={row.original.first_name || "User profile"}
@@ -464,7 +463,7 @@ const Vendors = () => {
               <Modal
                 isOpen={isStatusModalOpen}
                 onClose={() => setIsStatusModalOpen(false)}
-                onConfirm={() => handleConfirmStatus(recordToUpdate.user_id)}
+                onConfirm={() => handleConfirmStatus(recordToUpdate.id)}
                 message={`Are you sure you want to ${
                   recordToUpdate?.status === "1" ? "deactivate" : "activate"
                 } vendor ${recordToUpdate.first_name}?`}

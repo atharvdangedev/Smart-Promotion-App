@@ -68,7 +68,7 @@ const PasswordReset = () => {
           <li className="col-12">
             <div className="form-floating mb-4">
               <input
-                type="email"
+                type="text"
                 className={`form-control ${errors.email ? "is-invalid" : ""}`}
                 id="email"
                 {...register("email")}

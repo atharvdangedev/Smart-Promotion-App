@@ -200,8 +200,8 @@ const Agents = () => {
           <div className="d-flex align-items-center">
             <img
               src={
-                row.original.profile
-                  ? `${Img_url}/profile/${row.original.profile}`
+                row.original.profile_pic
+                  ? `${Img_url}/profile/${row.original.profile_pic}`
                   : `${Img_url}/default/list/user.webp`
               }
               alt={row.original.first_name || "User profile"}

@@ -12,10 +12,7 @@ import { handleApiError } from "../../../Apps/utils/handleApiError";
 
 // Validation Schema
 const schema = yup.object().shape({
-  password: yup
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
+  password: yup.string().required("Password is required"),
   cnfPassword: yup
     .string()
     .oneOf([yup.ref("password"), null], "Passwords must match")

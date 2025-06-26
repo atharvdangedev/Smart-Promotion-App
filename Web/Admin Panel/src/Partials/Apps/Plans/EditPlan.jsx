@@ -7,6 +7,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { handleApiError } from "../utils/handleApiError";
 import Select from "react-select";
 import { useEffect } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 // Schema initialization
 const schema = yup.object().shape({
@@ -53,6 +55,17 @@ const EditPlan = () => {
     { value: "plan", label: "Plan" },
     { value: "addon", label: "Add-On" },
   ];
+
+  // Quill modules configuration
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["link"],
+      ["clean"],
+    ],
+  };
 
   // useForm hook initialization
   const {
@@ -124,6 +137,7 @@ const EditPlan = () => {
     reset();
     navigate("/admin/plans");
   };
+
   return (
     <div className="px-4 py-3 page-body">
       <Toaster />
@@ -156,27 +170,6 @@ const EditPlan = () => {
                   {errors.title && (
                     <div className="invalid-feedback">
                       {errors.title.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div className="form-floating">
-                  <input
-                    type="text"
-                    className={`form-control ${
-                      errors.description ? "is-invalid" : ""
-                    }`}
-                    {...register("description")}
-                    placeholder="Plan Description"
-                    tabIndex="2"
-                  />
-                  <label htmlFor="description" className="col-form-label">
-                    Plan Description
-                  </label>
-                  {errors.description && (
-                    <div className="invalid-feedback">
-                      {errors.description.message}
                     </div>
                   )}
                 </div>
@@ -241,7 +234,7 @@ const EditPlan = () => {
                   )}
                 </div>
               </div>
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <div className="form-floating">
                   <Controller
                     name="type"
@@ -303,6 +296,31 @@ const EditPlan = () => {
                     </div>
                   )}
                 </div>
+              </div>
+              <div className="col-md-12">
+                <Controller
+                  name="description"
+                  control={control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <>
+                      <ReactQuill
+                        theme="snow"
+                        placeholder="Enter plan description..."
+                        modules={modules}
+                        value={field.value}
+                        onChange={(value) => field.onChange(value)}
+                        tabIndex="2"
+                        className={errors.description ? "is-invalid" : ""}
+                      />
+                      {errors.description && (
+                        <div className="invalid-feedback">
+                          {errors.description.message}
+                        </div>
+                      )}
+                    </>
+                  )}
+                />
               </div>
               <div className="col-12">
                 <button
