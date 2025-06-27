@@ -198,7 +198,7 @@ const VendorContacts = () => {
             <div className="d-flex justify-content-between align-items-center mb-3">
               <ExportButtons
                 data={rows.map((row) => row.original)}
-                fileName="VendorContacts"
+                fileName="Vendor Contacts"
                 fields={[
                   "contact_name",
                   "contact_no",

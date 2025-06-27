@@ -41,13 +41,6 @@ const schema = yup.object().shape({
     .min(10, "Contact number must be minimun 10 digits")
     .required("Contact number is required"),
 
-  password: yup.string().required("Password is required"),
-
-  cnfPassword: yup
-    .string()
-    .oneOf([yup.ref("password"), null], "Passwords must match")
-    .required("Confirm password is required"),
-
   profile_pic: yup.mixed().notRequired(),
 
   gst_number: yup
@@ -590,7 +583,7 @@ const EditAffiliate = () => {
                   className="me-1 btn btn-primary"
                   type="submit"
                 >
-                  Add Affiliate
+                  Update
                 </button>
                 <button
                   tabIndex="17"

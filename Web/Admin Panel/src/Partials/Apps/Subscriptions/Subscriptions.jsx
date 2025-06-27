@@ -183,14 +183,16 @@ const Subscriptions = () => {
             <div className="d-flex justify-content-between align-items-center mb-3">
               <ExportButtons
                 data={rows.map((row) => row.original)}
-                fileName="Users"
+                fileName="Subscriptions"
                 fields={[
+                  "plan_name",
+                  "plan_type",
+                  "business_name",
                   "first_name",
                   "last_name",
-                  "email",
-                  "contact_no",
-                  "role",
-                  "status",
+                  "start_date",
+                  "end_date",
+                  "price",
                 ]}
               />
               <div className="d-flex align-items-center">

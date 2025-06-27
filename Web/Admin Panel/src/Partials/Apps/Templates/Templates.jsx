@@ -141,7 +141,13 @@ const Templates = () => {
               <ExportButtons
                 data={rows.map((row) => row.original)}
                 fileName="Templates"
-                fields={["title", "status"]}
+                fields={[
+                  "title",
+                  "template_type",
+                  "first_name",
+                  "last_name",
+                  "status",
+                ]}
               />
               <div className="d-flex align-items-center">
                 <div className="me-2">
