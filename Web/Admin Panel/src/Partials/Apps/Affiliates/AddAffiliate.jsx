@@ -15,6 +15,7 @@ const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i;
 // const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 const accountNumberRegex = /^[0-9]{9,18}$/;
 const upiRegex = /^[\w.\-]{2,256}@[a-zA-Z]{2,64}$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Schema definition
 const schema = yup.object().shape({
@@ -32,7 +33,10 @@ const schema = yup.object().shape({
     .matches(/^[A-Za-z]+$/, "Last name must contain only alphabets.")
     .required("Last name is required"),
 
-  email: yup.string().email("Invalid email").required("Email is required"),
+  email: yup
+    .string()
+    .required("Email is required")
+    .matches(emailRegex, "Invalid email address"),
 
   contact_no: yup
     .string()
@@ -56,6 +60,10 @@ const schema = yup.object().shape({
   account_holder: yup
     .string()
     .required("Account holder name is required")
+    .matches(
+      /^[A-Za-z\s]+$/,
+      "Account holder name must contain only alphabets and spaces."
+    )
     .min(3, "Name must be at least 3 characters")
     .max(100, "Name is too long"),
 
@@ -91,8 +99,6 @@ const schema = yup.object().shape({
     .matches(upiRegex, "Invalid UPI ID format (e.g., name@bank)"),
 
   // ifsc_code: yup.string().notRequired(),
-
-  old_profile_pic: yup.string().notRequired(),
 });
 
 const AddAffiliate = () => {
@@ -274,7 +280,7 @@ const AddAffiliate = () => {
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
-                    type="email"
+                    type="text"
                     className={`form-control ${
                       errors.email ? "is-invalid" : ""
                     }`}

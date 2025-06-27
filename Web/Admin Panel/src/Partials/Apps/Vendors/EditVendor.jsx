@@ -9,6 +9,8 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { handleApiError } from "../utils/handleApiError";
 import Select from "react-select";
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 // Schema definition
 const schema = yup.object().shape({
   firstname: yup
@@ -25,7 +27,10 @@ const schema = yup.object().shape({
     .matches(/^[A-Za-z]+$/, "Last name must contain only alphabets.")
     .required("Last name is required"),
 
-  email: yup.string().email("Invalid email").required("Email is required"),
+  email: yup
+    .string()
+    .required("Email is required")
+    .matches(emailRegex, "Invalid email address"),
 
   contact_no: yup
     .string()
@@ -284,7 +289,7 @@ const EditVendor = () => {
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
-                    type="email"
+                    type="text"
                     className={`form-control ${
                       errors.email ? "is-invalid" : ""
                     }`}
@@ -463,7 +468,7 @@ const EditVendor = () => {
 
               <div className="col-md-4">
                 <div className="form-floating">
-                  <input
+                  <textarea
                     type="text"
                     className={`form-control ${
                       errors.business_address ? "is-invalid" : ""

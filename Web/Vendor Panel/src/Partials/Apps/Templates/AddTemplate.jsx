@@ -1,10 +1,13 @@
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { handleApiError } from "../utils/handleApiError";
+import Select from "react-select";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 // Schema initialization
 const schema = yup.object().shape({
@@ -13,11 +16,16 @@ const schema = yup.object().shape({
     .required("Template Name is required")
     .min(3, "Minimum 3 characters required.")
     .max(200, "Maximum 200 characters allowed."),
-  template_slug: yup
+  description: yup
     .string()
-    .required("Template slug is required")
+    .required("Template Description is required")
     .min(3, "Minimum 3 characters required.")
-    .max(200, "Maximum 200 characters allowed."),
+    .max(500, "Maximum 500 characters allowed."),
+  type: yup
+    .string()
+    .required("Template Type is required")
+    .min(3, "Minimum 3 characters required.")
+    .max(50, "Maximum 50 characters allowed."),
 });
 
 const AddTemplate = () => {
@@ -30,9 +38,28 @@ const AddTemplate = () => {
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
 
+  const types = [
+    { value: "incoming", label: "Incoming" },
+    { value: "outgoing", label: "Outgoing" },
+    { value: "missed", label: "Missed" },
+    { value: "rejected", label: "Rejected" },
+  ];
+
+  // Quill modules configuration
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["link"],
+      ["clean"],
+    ],
+  };
+
   // useForm hook initialization
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors },
@@ -45,19 +72,20 @@ const AddTemplate = () => {
   const onSubmit = async (data) => {
     const formData = new FormData();
     formData.append("title", data.title);
-    formData.append("template_slug", data.template_slug);
+    formData.append("description", data.description);
+    formData.append("template_type", data.type);
 
     try {
-      const res = await axios.post(`${APP_URL}/add-template`, formData, {
+      const res = await axios.post(`${APP_URL}/vendor/templates`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
-      if (res.status === 200) {
+      if (res.status === 201) {
         toast.success(res.data.message);
         setTimeout(() => {
-          navigate("/admin/templates");
+          navigate("/templates");
         }, 2000);
       }
     } catch (error) {
@@ -68,7 +96,7 @@ const AddTemplate = () => {
   // Handle cancel
   const handleCancel = () => {
     reset();
-    navigate("/admin/templates");
+    navigate("/templates");
   };
 
   return (
@@ -79,7 +107,7 @@ const AddTemplate = () => {
           <h4 className="title-font mt-2 mb-0">
             <strong>Add New Template</strong>
           </h4>
-          <Link className="btn btn-info text-white" to="/admin/templates">
+          <Link className="btn btn-info text-white" to="/templates">
             Back
           </Link>
         </div>
@@ -90,7 +118,9 @@ const AddTemplate = () => {
                 <div className="form-floating">
                   <input
                     type="text"
-                    className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.title ? "is-invalid" : ""
+                    }`}
                     {...register("title")}
                     placeholder="Template Name"
                     tabIndex="1"
@@ -107,43 +137,91 @@ const AddTemplate = () => {
               </div>
               <div className="col-md-6">
                 <div className="form-floating">
-                  <input
-                    type="text"
-                    className={`form-control ${errors.template_slug ? "is-invalid" : ""}`}
-                    {...register("template_slug")}
-                    placeholder="Template slug"
-                    tabIndex="2"
+                  <Controller
+                    name="type"
+                    control={control}
+                    rules={{ required: "Template Type is required" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={types}
+                        tabIndex="2"
+                        className={`basic-single ${
+                          errors.type ? "is-invalid" : ""
+                        }`}
+                        classNamePrefix="select"
+                        isClearable={true}
+                        isSearchable={true}
+                        placeholder="Select template type"
+                        value={
+                          types.find((type) => type.value === field.value) ||
+                          null
+                        }
+                        onChange={(selectedOption) =>
+                          field.onChange(
+                            selectedOption ? selectedOption.value : ""
+                          )
+                        }
+                        styles={{
+                          control: (baseStyles) => ({
+                            ...baseStyles,
+                            height: "calc(3.5rem + 2px)",
+                            borderRadius: "0.375rem",
+                            border: "1px solid #ced4da",
+                          }),
+                          valueContainer: (baseStyles) => ({
+                            ...baseStyles,
+                            height: "100%",
+                            padding: "0.7rem 0.6rem",
+                          }),
+                          placeholder: (baseStyles) => ({
+                            ...baseStyles,
+                            color: "#6c757d",
+                          }),
+                          input: (baseStyles) => ({
+                            ...baseStyles,
+                            margin: 0,
+                            padding: 0,
+                          }),
+                          menu: (baseStyles) => ({
+                            ...baseStyles,
+                            zIndex: 9999,
+                          }),
+                        }}
+                      />
+                    )}
                   />
-                  <label
-                    htmlFor="template_slug"
-                    className="col-form-label"
-                    style={{
-                      wordBreak: "break-word",
-                      overflowWrap: "break-word",
-                    }}
-                  >
-                    Template Slug
-                  </label>
-                  <small className="px-1 mb-0 form-text text-muted">
-                    Slug should be unique, lowercase and without spaces, only
-                    underscores
-                  </small>
-                  <p className="px-1 mb-0 fst-italic text-dark mt-2">
-                    <a
-                      href="https://smartmeta.net/smart-tools/slug-generator"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary text-decoration-underline"
-                    >
-                      You can use our slug generator to generate slug
-                    </a>
-                  </p>
-                  {errors.template_slug && (
+                  {errors.type && (
                     <div className="invalid-feedback">
-                      {errors.template_slug.message}
+                      {errors.type.message}
                     </div>
                   )}
                 </div>
+              </div>
+              <div className="col-md-12">
+                <Controller
+                  name="description"
+                  control={control}
+                  defaultValue=""
+                  render={({ field }) => (
+                    <>
+                      <ReactQuill
+                        theme="snow"
+                        placeholder="Enter template description..."
+                        modules={modules}
+                        value={field.value}
+                        onChange={(value) => field.onChange(value)}
+                        tabIndex="3"
+                        className={errors.description ? "is-invalid" : ""}
+                      />
+                      {errors.description && (
+                        <div className="invalid-feedback">
+                          {errors.description.message}
+                        </div>
+                      )}
+                    </>
+                  )}
+                />
               </div>
               <div className="col-12">
                 <button

@@ -19,7 +19,11 @@ const ChangePassword = () => {
   const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
   // State initialization
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState({
+    old: false,
+    new: false,
+    confirm: false,
+  });
   const [passwordErrors, setPasswordErrors] = useState([]);
 
   // Schema definition
@@ -57,8 +61,8 @@ const ChangePassword = () => {
   const passwordValue = watch("newpassword");
 
   // Handle toggle password
-  const toggleShowPassword = () => {
-    setShowPassword((prevShowPassword) => !prevShowPassword);
+  const togglePasswordVisibility = (field) => {
+    setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
   // Set password errors
@@ -159,11 +163,11 @@ const ChangePassword = () => {
                   <div
                     className="position-absolute top-50 end-0 translate-middle-y pe-3"
                     style={{ cursor: "pointer" }}
-                    onClick={toggleShowPassword}
+                    onClick={() => togglePasswordVisibility("old")}
                   >
                     <i
                       className={`bi ${
-                        showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"
+                        showPassword.old ? "bi-eye-fill" : "bi-eye-slash-fill"
                       }`}
                     ></i>
                   </div>
@@ -195,11 +199,11 @@ const ChangePassword = () => {
                   <div
                     className="position-absolute top-50 end-0 translate-middle-y pe-3"
                     style={{ cursor: "pointer" }}
-                    onClick={toggleShowPassword}
+                    onClick={() => togglePasswordVisibility("new")}
                   >
                     <i
                       className={`bi ${
-                        showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"
+                        showPassword.new ? "bi-eye-fill" : "bi-eye-slash-fill"
                       }`}
                     ></i>
                   </div>
@@ -234,11 +238,13 @@ const ChangePassword = () => {
                   <div
                     className="position-absolute top-50 end-0 translate-middle-y pe-3"
                     style={{ cursor: "pointer" }}
-                    onClick={toggleShowPassword}
+                    onClick={() => togglePasswordVisibility("confirm")}
                   >
                     <i
                       className={`bi ${
-                        showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"
+                        showPassword.confirm
+                          ? "bi-eye-fill"
+                          : "bi-eye-slash-fill"
                       }`}
                     ></i>
                   </div>

@@ -10,6 +10,8 @@ import ImagePreview from "../utils/ImagePreview";
 import { evaluatePasswordStrength } from "../utils/evaluatePasswordStrength";
 import { handleApiError } from "../utils/handleApiError";
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 // Schema definition
 const schema = yup.object().shape({
   firstname: yup
@@ -24,7 +26,10 @@ const schema = yup.object().shape({
     .max(50, "Maximum 50 characters allowed.")
     .matches(/^[A-Za-z]+$/, "Last name must contain only alphabets.")
     .required("Last name is required"),
-  email: yup.string().email("Invalid email").required("Email is required"),
+  email: yup
+    .string()
+    .required("Email is required")
+    .matches(emailRegex, "Invalid email address"),
   contact_no: yup
     .string()
     .min(10, "Contact number must be minimun 10 digits")

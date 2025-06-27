@@ -27,11 +27,14 @@ const VendorContacts = () => {
 
   // State initialization
   const [vendorName, setVendorName] = useState("");
+  const [totalRecords, setTotalRecords] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  //fetch VendorContacts
+  const useServerPagination = true;
+
+  //fetch Vendor Contacts
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
@@ -46,7 +49,7 @@ const VendorContacts = () => {
           }
         );
         if (response.status === 200) {
-          setData(response.data.contacts);
+          setData(response.data.vendor_contacts);
         } else if (response.status === 204) {
           setData([]);
         }
@@ -80,7 +83,7 @@ const VendorContacts = () => {
       },
       {
         Header: "CONTACT NAME",
-        accessor: "name",
+        accessor: "contact_name",
       },
       {
         Header: "CONTACT NO",
@@ -88,7 +91,11 @@ const VendorContacts = () => {
       },
       {
         Header: "CONTACT EMAIL",
-        accessor: "email",
+        accessor: "contact_email",
+      },
+      {
+        Header: "CONTACT BRITHDATE",
+        accessor: "contact_birthdate",
       },
     ],
     []
@@ -116,11 +123,47 @@ const VendorContacts = () => {
       columns,
       data,
       initialState: { pageIndex: 0, pageSize },
+      manualPagination: useServerPagination,
+      pageCount: useServerPagination
+        ? Math.ceil(totalRecords / pageSize)
+        : undefined,
     },
     useGlobalFilter,
     useSortBy,
     usePagination
   );
+
+  useEffect(() => {
+    if (!useServerPagination) return;
+
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${APP_URL}/contact/vendor/${vendorId}`,
+          {
+            params: { page: pageIndex + 1, limit: pageSize },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.status === 200) {
+          setData(response.data.vendor_contacts);
+          setTotalRecords(response.data.pagination.total);
+        } else if (response.status === 204) {
+          setData([]);
+        }
+      } catch (error) {
+        setData([]);
+        handleApiError(error, "fetching", "vendor contacts");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [APP_URL, pageIndex, pageSize, token, useServerPagination, vendorId]);
 
   // Handle search function
   const handleGlobalFilterChange = (e) => {
@@ -156,7 +199,12 @@ const VendorContacts = () => {
               <ExportButtons
                 data={rows.map((row) => row.original)}
                 fileName="VendorContacts"
-                fields={["title", "status"]}
+                fields={[
+                  "contact_name",
+                  "contact_no",
+                  "contact_email",
+                  "contact_birthdate",
+                ]}
               />
               <div className="d-flex align-items-center">
                 <div className="me-2">

@@ -16,7 +16,7 @@ const CommonSidebar = memo(({ iconColor }) => {
         >
           <div className="offcanvas-header">
             <div className="d-flex">
-              <Link to="vendor/index" className="brand-icon me-2">
+              <Link to="index" className="brand-icon me-2">
                 <img
                   src={logoImg}
                   alt="logo"
@@ -42,43 +42,43 @@ const CommonSidebar = memo(({ iconColor }) => {
             <ul className={`list-unstyled mb-4 menu-list ${iconColor}`}>
               <MenuItem
                 title="Dashboard"
-                link="vendor/index"
+                link="dashboard"
                 icon={<i className="bi bi-house-door"></i>}
                 menuItems={[]}
               />
               <MenuItem
                 title="Payments"
-                link="vendor/payments"
+                link="payments"
                 icon={<i className="bi bi-wallet2"></i>}
                 menuItems={[]}
               />
               <MenuItem
                 title="Orders"
-                link="vendor/app/orders"
+                link="orders"
                 icon={<i className="bi bi-cart"></i>}
                 menuItems={[]}
               />
               <MenuItem
                 title="Agents"
-                link="vendor/agents"
+                link="agents"
                 icon={<i className="bi bi-person"></i>}
                 menuItems={[]}
               />
               <MenuItem
                 title="Commissions"
-                link="vendor/commissions"
+                link="commissions"
                 icon={<i className="bi bi-cash"></i>}
                 menuItems={[]}
               />
               <MenuItem
                 title="Templates"
-                link="vendor/templates"
+                link="templates"
                 icon={<i className="bi bi-file-earmark-richtext"></i>}
                 menuItems={[]}
               />
               <MenuItem
                 title="Contacts"
-                link="vendor/contacts"
+                link="contacts"
                 icon={<i className="bi bi-person-lines-fill"></i>}
                 menuItems={[]}
               />

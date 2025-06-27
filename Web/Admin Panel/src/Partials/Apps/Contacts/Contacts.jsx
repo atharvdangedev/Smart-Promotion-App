@@ -171,7 +171,12 @@ const Contacts = () => {
               <ExportButtons
                 data={rows.map((row) => row.original)}
                 fileName="Contacts"
-                fields={["title", "status"]}
+                fields={[
+                  "business_name",
+                  "first_name",
+                  "last_name",
+                  "total_contacts",
+                ]}
               />
               <div className="d-flex align-items-center">
                 <div className="me-2">

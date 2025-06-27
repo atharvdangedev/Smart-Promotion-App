@@ -379,6 +379,7 @@ const ClientsList = () => {
                   "contact_no",
                   "role_name",
                   "status",
+                  "activated",
                 ]}
               />
               <div className="d-flex align-items-center">

@@ -57,22 +57,22 @@ const App = () => {
   };
 
   const adminTitleMapping = {
-    "/vendor/index": "Index",
-    "/vendor/payments": "MyWallet",
-    "/vendor/app/orders": "Invoices",
-    "/vendor/app/orders/:orderId": "OrderDetails",
-    "/vendor/app/invoice": "InvoiceDetails",
-    "/vendor/my-profile": "MyProfile",
-    "/vendor/change-password": "ChangePassword",
-    "/vendor/agents": "Agents",
-    "/vendor/agents/add-agent": "AddAgent",
-    "/vendor/agents/edit-agent/:agentId": "EditAgent",
-    "/vendor/coupon-codes": "CouponCodeManagement",
-    "/vendor/commissions": "Commissions",
-    "/vendor/contacts": "Contacts",
-    "/vendor/templates": "Templates",
-    "/vendor/addTemplate": "AddTemplate",
-    "/vendor/editTemplate": "EditTemplate",
+    "/dashboard": "Index",
+    "/payments": "MyWallet",
+    "/orders": "Invoices",
+    "/order-details": "OrderDetails",
+    "/invoice": "InvoiceDetails",
+    "/my-profile": "MyProfile",
+    "/change-password": "ChangePassword",
+    "/agents": "Agents",
+    "/agents/add-agent": "AddAgent",
+    "/agents/edit-agent": "EditAgent",
+    "/coupon-codes": "CouponCodeManagement",
+    "/commissions": "Commissions",
+    "/contacts": "Contacts",
+    "/templates": "Templates",
+    "/templates/add-template": "AddTemplate",
+    "/templates/edit-template": "EditTemplate",
   };
 
   // API URL
@@ -96,7 +96,7 @@ const App = () => {
   return (
     <ErrorBoundary>
       <Routes>
-        <Route path="/" element={<Navigate to="/vendor/index" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
         {isAuthRoute && (
           <Route element={<AuthLayout />}>

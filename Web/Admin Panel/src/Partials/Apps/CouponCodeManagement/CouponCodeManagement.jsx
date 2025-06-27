@@ -5,12 +5,14 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import axios from "axios";
 import { handleApiError } from "../utils/handleApiError";
+import ApproveModal from "../ApproveModal/ApproveModal";
+import toast, { Toaster } from "react-hot-toast";
 
 const CouponCodeManagement = () => {
   // Access token
@@ -20,6 +22,9 @@ const CouponCodeManagement = () => {
   const APP_URL = import.meta.env.VITE_API_URL;
 
   // State initialization
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [couponToApprove, setCouponToApprove] = useState(null);
+  const [isApproving, setIsApproving] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -50,6 +55,47 @@ const CouponCodeManagement = () => {
 
     fetchData();
   }, [APP_URL, token]);
+
+  // Handle approve callback
+  const handleApprove = useCallback((coupon_code, id) => {
+    setCouponToApprove({ coupon_code, id });
+    setIsApproveModalOpen(true);
+  }, []);
+
+  // Handle approve functionality
+  const handleConfirmApprove = async () => {
+    if (couponToApprove) {
+      setIsApproving(true);
+      try {
+        const response = await axios.put(
+          `${APP_URL}/approve-coupon/${couponToApprove.id}`,
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json;",
+            },
+          }
+        );
+        if (response.status === 200) {
+          toast.success(response.data.message);
+          setData((prevData) =>
+            prevData.map((coupon) =>
+              coupon.id === couponToApprove.id
+                ? { ...coupon, approve: coupon.approve === "1" ? "0" : "1" }
+                : coupon
+            )
+          );
+        }
+      } catch (error) {
+        handleApiError(error, "approving", "coupon");
+      } finally {
+        setIsApproving(false);
+        setIsApproveModalOpen(false);
+        setCouponToApprove(null);
+      }
+    }
+  };
 
   const columns = useMemo(
     () => [
@@ -127,22 +173,25 @@ const CouponCodeManagement = () => {
         Cell: ({ row }) => {
           return (
             <div>
-              {row.original.payout_balance > 0 && (
-                <button
-                  className="btn text-success px-2 me-1"
-                  data-toggle="tooltip"
-                  data-placement="bottom"
-                  title="Approve Request"
-                >
-                  Approve
-                </button>
-              )}
+              <button
+                className="btn btn-success px-2 me-1"
+                data-toggle="tooltip"
+                type="button"
+                disabled={row.original.approve === "1"}
+                onClick={() =>
+                  handleApprove(row.original.coupon_code, row.original.id)
+                }
+                data-placement="bottom"
+                title={row.original.approve === "0" ? "Approve Request" : ""}
+              >
+                {row.original.approve === "0" ? "Approve" : "Approved"}
+              </button>
             </div>
           );
         },
       },
     ],
-    []
+    [handleApprove]
   );
 
   // Use the useTable hook to build the table
@@ -187,6 +236,7 @@ const CouponCodeManagement = () => {
 
   return (
     <div className="px-4 py-3 page-body">
+      <Toaster />
       <div className="col-lg-12 col-md-12">
         <div className="card mb-3 p-3">
           <div className="table-responsive">
@@ -201,12 +251,15 @@ const CouponCodeManagement = () => {
                 data={rows.map((row) => row.original)}
                 fileName="Coupon Codes"
                 fields={[
+                  "coupon_code",
+                  "title",
+                  "plan_type",
                   "first_name",
                   "last_name",
-                  "email",
-                  "contact_no",
-                  "role",
+                  "valid_from",
+                  "valid_till",
                   "status",
+                  "approve",
                 ]}
               />
               <div className="d-flex align-items-center">
@@ -236,6 +289,16 @@ const CouponCodeManagement = () => {
                 </div>
               </div>
             </div>
+
+            {couponToApprove && (
+              <ApproveModal
+                isOpen={isApproveModalOpen}
+                onClose={() => setIsApproveModalOpen(false)}
+                onConfirm={handleConfirmApprove}
+                message={`Are you sure you want to approve coupon ${couponToApprove.coupon_code}?`}
+                isLoading={isApproving}
+              />
+            )}
 
             <table
               {...getTableProps()}

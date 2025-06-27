@@ -91,16 +91,7 @@ const Commissions = () => {
       },
       {
         Header: "Business",
-        accessor: (row) => `${row.vendor_firstname} ${row.vendor_lastname}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              {row.original.vendor_firstname
-                ? `${row.original.vendor_firstname} ${row.original.vendor_lastname}`
-                : "No Business"}
-            </div>
-          </div>
-        ),
+        accessor: "business_name",
       },
       {
         Header: "Commission",
@@ -210,12 +201,13 @@ const Commissions = () => {
                 data={rows.map((row) => row.original)}
                 fileName="Commissions"
                 fields={[
+                  "plan_title",
+                  "plan_type",
                   "first_name",
                   "last_name",
-                  "email",
-                  "contact_no",
-                  "role",
-                  "status",
+                  "business_name",
+                  "commission",
+                  "payout_balance",
                 ]}
               />
               <div className="d-flex align-items-center">

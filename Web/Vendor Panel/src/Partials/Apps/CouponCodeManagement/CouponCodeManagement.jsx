@@ -42,12 +42,12 @@ const CouponCodeManagement = () => {
       },
       {
         Header: "User",
-        accessor: (row) => `${row.firstname} ${row.lastname}`,
+        accessor: (row) => `${row.first_name} ${row.last_name}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              {row.original.firstname
-                ? `${row.original.firstname} ${row.original.lastname}`
+              {row.original.first_name
+                ? `${row.original.first_name} ${row.original.last_name}`
                 : "No User"}
             </div>
           </div>
@@ -165,8 +165,8 @@ const CouponCodeManagement = () => {
                 data={rows.map((row) => row.original)}
                 fileName="Coupon Codes"
                 fields={[
-                  "firstname",
-                  "lastname",
+                  "first_name",
+                  "last_name",
                   "email",
                   "contact_no",
                   "role",

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useGlobalFilter,
   usePagination,
@@ -11,8 +11,15 @@ import axios from "axios";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import { handleApiError } from "../utils/handleApiError";
+import toast, { Toaster } from "react-hot-toast";
+import { Link, useNavigate } from "react-router-dom";
+import Modal from "../StatusModal/Modal";
+import DeleteModal from "../DeleteModal/DeleteModal";
 
 const Templates = () => {
+  // Navigation function
+  const navigate = useNavigate();
+
   // Access token
   const token = localStorage.getItem("jwtToken");
 
@@ -20,6 +27,11 @@ const Templates = () => {
   const APP_URL = import.meta.env.VITE_API_URL;
 
   // State initialization
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [recordToUpdate, setRecordToUpdate] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -29,14 +41,14 @@ const Templates = () => {
     setLoading(true);
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${APP_URL}/template-list`, {
+        const response = await axios.get(`${APP_URL}/vendor/templates`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
         if (response.status === 200) {
-          setData(response.data.Templates);
+          setData(response.data.templates);
         } else if (response.status === 204) {
           setData([]);
         }
@@ -50,6 +62,90 @@ const Templates = () => {
 
     fetchData();
   }, [APP_URL, token]);
+
+  // Handle edit page navigation
+  const handleEdit = useCallback(
+    (templateName, templateId) => {
+      navigate(`/templates/edit-template/${templateId}`, {
+        state: { templateName },
+      });
+    },
+    [navigate]
+  );
+
+  // Handle delete callback
+  const handleDelete = useCallback((templateName, id) => {
+    setTemplateToDelete({ templateName, id });
+    setIsDeleteModalOpen(true);
+  }, []);
+
+  // Handle delete functionality
+  const handleConfirmDelete = async () => {
+    if (templateToDelete) {
+      setIsDeleting(true);
+      try {
+        const response = await axios.delete(
+          `${APP_URL}/vendor/templates/${templateToDelete.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json;",
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          toast.success(response.data.message);
+          setData((prevData) =>
+            prevData.filter((template) => template.id !== templateToDelete.id)
+          );
+        }
+      } catch (error) {
+        handleApiError(error, "deleting", "template");
+      } finally {
+        setIsDeleting(false);
+        setIsDeleteModalOpen(false);
+        setTemplateToDelete(null);
+      }
+    }
+  };
+
+  // Handle status click callback
+  const handleStatusClick = useCallback((record) => {
+    setRecordToUpdate(record);
+    setIsModalOpen(true);
+  }, []);
+
+  // Handle status change functionality
+  const handleConfirm = async (id) => {
+    try {
+      const response = await axios.put(
+        `${APP_URL}/vendor/update-template-status/${id}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setData((prevData) =>
+          prevData.map((template) =>
+            template.id === id
+              ? { ...template, status: response.data.new_status.toString() }
+              : template
+          )
+        );
+        toast.success(response.data.message);
+        setIsModalOpen(false);
+        setRecordToUpdate(null);
+      }
+    } catch (error) {
+      handleApiError(error, "updating", "template status");
+    }
+  };
 
   // Table configuration
   const columns = useMemo(
@@ -67,10 +163,52 @@ const Templates = () => {
       },
       {
         Header: "TEMPLATE TYPE",
-        accessor: "type",
+        accessor: "template_type",
+      },
+      {
+        Header: "STATUS",
+        accessor: "status",
+        Cell: ({ value, row }) => (
+          <button
+            onClick={() => handleStatusClick(row.original)}
+            className={`btn btn-sm ${
+              value === "1" ? "btn-success" : "btn-danger"
+            }`}
+            style={{
+              backgroundColor: value === "1" ? "#28a745" : "#dc3545",
+              borderColor: value === "1" ? "#28a745" : "#dc3545",
+              color: "#fff",
+              width: "90px",
+              height: "35px",
+            }}
+          >
+            {value === "1" ? "Active" : "Inactive"}
+          </button>
+        ),
+      },
+      {
+        Header: "ACTIONS",
+        Cell: ({ row }) => (
+          <div>
+            <button
+              type="button"
+              onClick={() => handleEdit(row.original.title, row.original.id)}
+              className="btn text-info px-2 me-1"
+            >
+              <i className="bi bi-pencil"></i>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDelete(row.original.title, row.original.id)}
+              className="btn text-danger px-2"
+            >
+              <i className="fa fa-trash"></i>
+            </button>
+          </div>
+        ),
       },
     ],
-    []
+    [handleDelete, handleEdit, handleStatusClick]
   );
 
   // Use the useTable hook to build the table
@@ -115,6 +253,7 @@ const Templates = () => {
 
   return (
     <div className="px-4 py-3 page-body">
+      <Toaster />
       <div className="col-lg-12 col-md-12">
         <div className="card mb-3 p-3">
           <div className="table-responsive">
@@ -122,6 +261,9 @@ const Templates = () => {
               <h4 className="title-font">
                 <strong>Templates</strong>
               </h4>
+              <Link className="btn btn-primary" to="/templates/add-template">
+                Add New Template
+              </Link>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -157,6 +299,25 @@ const Templates = () => {
                 </div>
               </div>
             </div>
+
+            <Modal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onConfirm={() => handleConfirm(recordToUpdate?.id)}
+              message={`Are you sure you want to ${
+                recordToUpdate?.status === "1" ? "deactivate" : "activate"
+              } template ${recordToUpdate?.title}?`}
+            />
+
+            {templateToDelete && (
+              <DeleteModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                message={`Are you sure you want to delete template ${templateToDelete.templateName}?`}
+                isLoading={isDeleting}
+              />
+            )}
 
             <table
               {...getTableProps()}

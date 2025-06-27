@@ -383,8 +383,9 @@ const Affiliates = () => {
                   "last_name",
                   "email",
                   "contact_no",
-                  "role",
+                  "rolename",
                   "status",
+                  "activated",
                 ]}
               />
               <div className="d-flex align-items-center">

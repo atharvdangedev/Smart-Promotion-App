@@ -21,7 +21,6 @@ const Signin = lazyLoad(() =>
 const UserActivation = lazyLoad(() =>
   import("./Partials/Pages/Authentication/UserActivation/UserActivation")
 );
-
 const PasswordReset = lazyLoad(() =>
   import("./Partials/Pages/Authentication/PasswordReset/PasswordReset")
 );
@@ -68,51 +67,42 @@ const AppRoutes = () => {
           <AuthWrapper>
             <Routes>
               {/* Root route */}
-              <Route
-                path="/"
-                element={<Navigate to="/vendor/index" replace />}
-              />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               {/* Protected routes */}
-              <Route path="/vendor/index" element={<Index />} />
-              <Route path="/vendor/payments" element={<MyWallet />} />
-              <Route path="/vendor/app/orders" element={<Invoices />} />
+              <Route path="/dashboard" element={<Index />} />
+              <Route path="/payments" element={<MyWallet />} />
+              <Route path="/orders" element={<Invoices />} />
               <Route
-                path="/vendor/app/orders/:orderId"
+                path="/order-details/:orderId"
                 element={<OrderDetails />}
               />
 
-              <Route path="/vendor/app/invoice" element={<InvoiceDetails />} />
-              <Route path="/vendor/my-profile" element={<MyProfile />} />
-              <Route
-                path="/vendor/change-password"
-                element={<ChangePassword />}
-              />
+              <Route path="/invoice" element={<InvoiceDetails />} />
+              <Route path="/my-profile" element={<MyProfile />} />
+              <Route path="/change-password" element={<ChangePassword />} />
 
               {/* Agent Management */}
-              <Route path="/vendor/agents" element={<Agents />} />
-              <Route path="/vendor/agents/add-agent" element={<AddAgent />} />
+              <Route path="/agents" element={<Agents />} />
+              <Route path="/agents/add-agent" element={<AddAgent />} />
               <Route
-                path="/vendor/agents/edit-agent/:agentId"
+                path="/agents/edit-agent/:agentId"
                 element={<EditAgent />}
               />
 
               {/* Coupon Code Management */}
-              <Route
-                path="/vendor/coupon-codes"
-                element={<CouponCodeManagement />}
-              />
+              <Route path="/coupon-codes" element={<CouponCodeManagement />} />
 
               {/* Comissions */}
-              <Route path="/vendor/commissions" element={<Commissions />} />
+              <Route path="/commissions" element={<Commissions />} />
 
               {/* Contacts */}
-              <Route path="/vendor/contacts" element={<Contacts />} />
+              <Route path="/contacts" element={<Contacts />} />
 
               {/* Template Management */}
-              <Route path="/vendor/templates" element={<Templates />} />
-              <Route path="/vendor/addTemplate" element={<AddTemplate />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/templates/add-template" element={<AddTemplate />} />
               <Route
-                path="/vendor/editTemplate/:templateName/:templateId"
+                path="/templates/edit-template/:templateId"
                 element={<EditTemplate />}
               />
               {/* Catch-all for undefined routes */}
