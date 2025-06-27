@@ -30,7 +30,7 @@ const schema = yup.object().shape({
     .string()
     .required("Plan Price is required")
     .min(2, "Minimum 2 digits required.")
-    .max(7, "Maximum 7 digits allowed."),
+    .max(5, "Maximum 5 digits allowed."),
   type: yup
     .string()
     .required("Plan Type is required")
@@ -180,7 +180,7 @@ const AddPlan = () => {
                   <input
                     type="text"
                     inputMode="decimal"
-                    maxLength={7}
+                    maxLength={5}
                     onInput={(e) => {
                       e.target.value = e.target.value
                         .replace(/[^0-9.]/g, "") // Allow only digits and a decimal point
