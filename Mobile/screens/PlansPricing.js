@@ -24,7 +24,9 @@ export default function PlansPricingScreen() {
             features: ['All Basic Features', 'Unlimited Templates', 'Dedicated Support'],
             buttonText: 'Go Premium',
             theme: 'gold',
+            isRecommended: true,
         },
+
         {
             name: 'Add-on',
             price: '₹99',
@@ -51,8 +53,8 @@ export default function PlansPricingScreen() {
             case 'addon':
                 return {
                     container: 'bg-sky-100 border border-sky-400 shadow-md',
-                    text: 'text-sky-800',
-                    icon: '#0ea5e9',
+                    text: 'text-slate-900',
+                    icon: 'black',
                 };
             default:
                 return {
@@ -64,16 +66,22 @@ export default function PlansPricingScreen() {
     };
 
     return (
-        <ScrollView className="flex-1 bg-gray-100 px-4 py-6">
-            <Text className="text-3xl font-bold text-center text-black mb-6">Plans & Pricing</Text>
+        <ScrollView className="flex-1 bg-black px-4 py-6">
+            <Text className="text-3xl font-bold text-center text-white my-6">Plans & Pricing</Text>
 
             {plans.map((plan, index) => {
                 const style = getPlanStyles(plan.theme);
                 return (
                     <View
                         key={index}
-                        className={`rounded-2xl p-5 mb-6 ${style.container}`}
+                        className={`relative rounded-2xl p-5 mb-6 ${style.container}`}
                     >
+                        {plan.isRecommended && (
+                            <View className="absolute top-2 right-2 bg-yellow-500 px-3 py-1 rounded-full shadow">
+                                <Text className="text-xs font-bold text-white">Most Recommended</Text>
+                            </View>
+                        )}
+
                         <Text className={`text-2xl font-bold mb-2 ${style.text}`}>{plan.name}</Text>
                         <Text className={`text-xl mb-4 ${style.text}`}>{plan.price}</Text>
 
@@ -84,10 +92,11 @@ export default function PlansPricingScreen() {
                             </View>
                         ))}
 
-                        <TouchableOpacity className="mt-4 bg-sky-500 rounded-xl py-3">
+                        <TouchableOpacity className="mt-4 bg-slate-800 rounded-xl py-3">
                             <Text className="text-center text-white font-semibold">{plan.buttonText}</Text>
                         </TouchableOpacity>
                     </View>
+
                 );
             })}
         </ScrollView>

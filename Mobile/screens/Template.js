@@ -62,33 +62,38 @@ export default function TemplateScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-black px-4 py-2">
-            <Text className="text-white text-2xl font-bold mb-4">Message Templates</Text>
+            <Text className="text-white text-2xl font-bold my-4">Message Templates</Text>
 
             <ScrollView className="flex-1">
                 {templates.map((template, index) => (
-                    <View key={template.id} className="bg-neutral-900 rounded-xl p-4 mb-4 shadow">
-                        <Text className="text-white text-lg font-bold">{template.name}</Text>
-                        <Text className="text-gray-400 mt-1 mb-3">{template.text}</Text>
+                    <View key={template.id} className=" bg-neutral-900 rounded-xl p-4 mb-4 shadow">
+                        <View className='flex-row justify-between'>
+                            <View>
+                                <Text className="text-white text-lg font-bold">{template.name}</Text>
+                                <Text className="text-gray-400 mt-1 mb-3">{template.text}</Text>
+                            </View>
+                            <View className='mt-2'>
+                                <Text className="text-xs px-2 py-1 bg-green-600 text-white rounded">
+                                    {template.active ? "Enabled" : "Disabled"}
+                                </Text>
+                            </View>
+                        </View>
 
                         <View className="flex-row justify-between items-center mb-2">
-                            {/* <Text className="text-xs px-2 py-1 bg-blue-600 text-white rounded">RECEIVED</Text> */}
-                            <Text className="text-xs px-2 py-1 bg-sky-700 text-white rounded">
+
+                            <Text className="text-xs px-2 py-1 bg-sky-700 text-white rounded p-2 mt-1">
                                 {template.type.toUpperCase()}
                             </Text>
-
-                            <Text className="text-xs px-2 py-1 bg-green-600 text-white rounded">
-                                {template.active ? "Enabled" : "Disabled"}
-                            </Text>
+                            <View className="flex-row justify-end gap-4">
+                                <TouchableOpacity onPress={() => handleEdit(index)}>
+                                    <Pencil color="white" size={20} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => handleDelete(template.id)}>
+                                    <Trash color="red" size={20} />
+                                </TouchableOpacity>
+                            </View>
                         </View>
 
-                        <View className="flex-row justify-end gap-4">
-                            <TouchableOpacity onPress={() => handleEdit(index)}>
-                                <Pencil color="white" size={20} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleDelete(template.id)}>
-                                <Trash color="red" size={20} />
-                            </TouchableOpacity>
-                        </View>
                     </View>
                 ))}
             </ScrollView>

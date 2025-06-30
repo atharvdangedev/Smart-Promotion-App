@@ -11,6 +11,8 @@ import ResetPassword from './screens/ResetPassword';
 import linking from './linking';
 import TemplateScreen from './screens/Template';
 import PlansPricingScreen from './screens/PlansPricing';
+import ProfileScreen from './screens/ProfileScreen';
+import ContactLogScreen from './screens/ContactLogScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -42,6 +44,8 @@ export default function App() {
         <Stack.Screen name='ResetPassword' component={ResetPassword} options={{ headerShown: false }} />
         <Stack.Screen name='Template' component={TemplateScreen} options={{ headerShown: false }} />
         <Stack.Screen name='PlansPricing' component={PlansPricingScreen} options={{ headerShown: false }} />
+        <Stack.Screen name='ProfileScreen' component={ProfileScreen} options={{ headerShown: false }} />
+        <Stack.Screen name='ContactLogScreen' component={ContactLogScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
