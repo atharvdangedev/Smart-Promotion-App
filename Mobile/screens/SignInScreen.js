@@ -26,10 +26,6 @@ export default function LoginScreen({ navigation }) {
                 <Text className="text-center text-gray-500 mb-3">Reset Password</Text>
             </TouchableOpacity>
 
-            {/* <View className="flex-row justify-center space-x-6 mb-6">
-                <Text>🌐</Text><Text>📘</Text><Text>🍎</Text>
-            </View> */}
-
             <TouchableOpacity onPress={() => navigation.navigate('EnterpriseLogin')}>
                 <Text className="text-center text-sm text-gray-500">
                     Don’t have an account? <Text className="font-semibold text-black">Sign Up</Text>

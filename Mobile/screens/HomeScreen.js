@@ -1,4 +1,4 @@
-import { Navigation } from 'lucide-react-native';
+import { Navigation, User } from 'lucide-react-native';
 import React, { useState, useCallback } from 'react';
 import { View, Text, ScrollView, RefreshControl, Dimensions, TouchableOpacity } from 'react-native';
 import { LineChart, StackedBarChart } from 'react-native-chart-kit';
@@ -60,8 +60,15 @@ export default function DashboardScreen({ navigation }) {
             >
                 {/*  Welcome Section */}
                 <View className="mb-6">
-                    <Text className="text-4xl font-extrabold text-sky-600 tracking-tight">SmartPromotion</Text>
-                    <Text className="text-lg text-white mt-1">Welcome back, Sangram 👋</Text>
+                    <View className='flex-row justify-between border border-white p-3 rounded-xl'>
+                        <Text className="text-4xl font-extrabold text-sky-600 tracking-tight">SmartPromotion</Text>
+                        <TouchableOpacity
+                            className='border border-gray-700 rounded-full p-1'
+                            onPress={() => navigation.navigate('ProfileScreen')}>
+                            <User size={30} color="white" />
+                        </TouchableOpacity>
+                    </View>
+                    <Text className="text-lg text-white mt-2">Welcome back, Sangram 👋</Text>
                     <Text className="text-sm text-white">Here’s an overview of your team's performance.</Text>
                 </View>
 
@@ -129,13 +136,18 @@ export default function DashboardScreen({ navigation }) {
                 </View>
                 <TouchableOpacity
                     onPress={() => navigation.navigate('Template')}
-                    className='p-4 bg-white my-3 rounded-xl'>
-                    <Text className='text-black font-semibold text-xl text-center'> Message Template </Text>
+                    className='p-3 bg-black my-3 rounded-xl border border-white'>
+                    <Text className='text-white font-semibold text-xl text-center'> Message Template </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() => navigation.navigate('PlansPricing')}
-                    className='p-4 bg-white mb-3 rounded-xl'>
-                    <Text className='text-black font-semibold text-xl text-center'> Browse Plans </Text>
+                    className='p-3 bg-black mb-3 rounded-xl border border-white'>
+                    <Text className='text-white font-semibold text-xl text-center'> Browse Plans </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('ContactLogScreen')}
+                    className='p-3 bg-black mb-3 rounded-xl border border-white'>
+                    <Text className='text-white font-semibold text-xl text-center'> Contact Log </Text>
                 </TouchableOpacity>
                 <Text className='m-1 border border-b-hairline'></Text>
             </ScrollView>
