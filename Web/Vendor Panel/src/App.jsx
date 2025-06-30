@@ -68,6 +68,8 @@ const App = () => {
     "/agents/add-agent": "AddAgent",
     "/agents/edit-agent": "EditAgent",
     "/coupon-codes": "CouponCodeManagement",
+    "/coupon-codes/add-coupon": "AddCouponCode",
+    "/coupon-codes/edit-coupon": "EditCouponCode",
     "/commissions": "Commissions",
     "/contacts": "Contacts",
     "/templates": "Templates",

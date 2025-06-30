@@ -50,6 +50,8 @@ const EditTemplate = lazyLoad(() =>
 const Contacts = lazyLoad(() => import("./Partials/Apps/Contacts/Contacts"));
 import CouponCodeManagement from "./Partials/Apps/CouponCodeManagement/CouponCodeManagement";
 import Commissions from "./Partials/Apps/Commissions/Commissions";
+import AddCouponCode from "./Partials/Apps/CouponCodeManagement/AddCouponCode";
+import EditCouponCode from "./Partials/Apps/CouponCodeManagement/EditCouponCode";
 
 const AppRoutes = () => {
   return (
@@ -91,6 +93,14 @@ const AppRoutes = () => {
 
               {/* Coupon Code Management */}
               <Route path="/coupon-codes" element={<CouponCodeManagement />} />
+              <Route
+                path="/coupon-codes/add-coupon"
+                element={<AddCouponCode />}
+              />
+              <Route
+                path="/coupon-codes/edit-coupon/:couponId"
+                element={<EditCouponCode />}
+              />
 
               {/* Comissions */}
               <Route path="/commissions" element={<Commissions />} />

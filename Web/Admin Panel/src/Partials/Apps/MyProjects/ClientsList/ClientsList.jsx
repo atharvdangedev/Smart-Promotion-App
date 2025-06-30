@@ -11,7 +11,6 @@ import ExportButtons from "../../ExportButtons/ExportButtons";
 import Modal from "../../StatusModal/Modal";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-import UserActivation from "../../UserActivation/UserActivation";
 import DeleteModal from "../../DeleteModal/DeleteModal";
 import ResponsivePagination from "../../ResponsivePagination/ResponsivePagination";
 import LoadingFallback from "../../LoadingFallback/LoadingFallback";
@@ -31,8 +30,6 @@ const ClientsList = () => {
   // State initialization
   const [pageSize, setPageSize] = useState(10);
   const [clientsData, setClientsData] = useState([]);
-  const [isUserActivationModalOpen, setIsUserActivationModalOpen] =
-    useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [recordToUpdate, setRecordToUpdate] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -146,66 +143,6 @@ const ClientsList = () => {
     }
   };
 
-  // Handle user activation callback
-  const handleUserActivationClick = useCallback((record) => {
-    setRecordToUpdate(record);
-    setIsUserActivationModalOpen(true);
-  }, []);
-
-  // Handle user activation functionality (via email)
-  const handleUserActivationConfirm = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("email", recordToUpdate.email);
-      const response = await axios.post(
-        `${APP_URL}/SendActivationToken`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        toast.success(response.data.message);
-      }
-    } catch (error) {
-      handleApiError(error, "sending activation mail to", "user");
-    } finally {
-      setIsUserActivationModalOpen(false);
-    }
-  };
-
-  // Handle user activation functionality (directly)
-  const handleUserActivationConfirmDirectly = async () => {
-    try {
-      const response = await axios.post(
-        `${APP_URL}/activate-user/${recordToUpdate.id}`,
-        null,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.status === 200) {
-        toast.success(response.data.message);
-        setClientsData((prevData) =>
-          prevData.map((user) =>
-            user.id === recordToUpdate.id
-              ? { ...user, activated: "1", status: "1" }
-              : user
-          )
-        );
-      }
-    } catch (error) {
-      handleApiError(error, "activating", "user");
-    } finally {
-      setIsUserActivationModalOpen(false);
-    }
-  };
-
   // Table configuration
   const columns = useMemo(
     () => [
@@ -270,7 +207,7 @@ const ClientsList = () => {
       {
         Header: "ACTIONS",
         accessor: "activated",
-        Cell: ({ row, value }) => (
+        Cell: ({ row }) => (
           <div>
             <button
               type="button"
@@ -290,27 +227,11 @@ const ClientsList = () => {
             >
               <i className="fa fa-trash"></i>
             </button>
-            {value === "0" ? (
-              <button
-                className="btn btn-sm"
-                onClick={() => handleUserActivationClick(row.original)}
-              >
-                <i className="bi bi-shield-lock"></i>
-              </button>
-            ) : (
-              ""
-            )}
           </div>
         ),
       },
     ],
-    [
-      Img_url,
-      handleStatusClick,
-      handleEdit,
-      handleDelete,
-      handleUserActivationClick,
-    ]
+    [Img_url, handleStatusClick, handleEdit, handleDelete]
   );
 
   // Use the useTable hook to build the table
@@ -419,19 +340,6 @@ const ClientsList = () => {
                   recordToUpdate?.status === "1" ? "deactivate" : "activate"
                 } user ${recordToUpdate.first_name}?`}
                 status={recordToUpdate?.status}
-              />
-            )}
-
-            {recordToUpdate && (
-              <UserActivation
-                isOpen={isUserActivationModalOpen}
-                onClose={() => setIsUserActivationModalOpen(false)}
-                viaEmail={handleUserActivationConfirm}
-                directly={handleUserActivationConfirmDirectly}
-                message={`This is an admin only action. Are you sure you want to manually activate ${
-                  recordToUpdate.first_name + " " + recordToUpdate.last_name
-                }?`}
-                isLoading={isLoading}
               />
             )}
 

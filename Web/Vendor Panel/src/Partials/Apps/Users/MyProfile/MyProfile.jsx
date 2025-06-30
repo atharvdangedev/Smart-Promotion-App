@@ -1,12 +1,12 @@
 /* eslint-disable no-useless-escape */
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast, { Toaster } from "react-hot-toast";
-import UploadProgress from "../../utils/UploadProgress";
+// import UploadProgress from "../../utils/UploadProgress";
 import { handleApiError } from "../../utils/handleApiError";
 import { setPageTitle } from "../../utils/docTitle";
 import Select from "react-select";
@@ -105,11 +105,11 @@ const MyProfile = () => {
   ];
 
   // State initialisation
-  const [uploadProgress, setUploadProgress] = useState(0);
+  // const [uploadProgress, setUploadProgress] = useState(0);
   const [userData, setUserData] = useState({});
   const [updated, setUpdated] = useState(false);
 
-  const fileInputRef = useRef();
+  // const fileInputRef = useRef();
 
   // Use form initialisation
   const {
@@ -161,46 +161,46 @@ const MyProfile = () => {
   }, [id, token, updated, APP_URL, setValue, Img_url]);
 
   // Handle profile picture click
-  const handleProfilePicClick = () => {
-    fileInputRef.current.click();
-  };
+  // const handleProfilePicClick = () => {
+  //   fileInputRef.current.click();
+  // };
 
   // Handle profile picture change
-  const handleProfilePicChange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  // const handleProfilePicChange = async (event) => {
+  //   const file = event.target.files[0];
+  //   if (!file) return;
 
-    const formData = new FormData();
-    formData.append("profile_pic", file);
+  //   const formData = new FormData();
+  //   formData.append("profile_pic", file);
 
-    try {
-      const res = await axios.post(
-        `${APP_URL}/update-profile-pic/${id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(percentCompleted);
-          },
-        }
-      );
+  //   try {
+  //     const res = await axios.post(
+  //       `${APP_URL}/update-profile-pic/${id}`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "multipart/form-data",
+  //         },
+  //         onUploadProgress: (progressEvent) => {
+  //           const percentCompleted = Math.round(
+  //             (progressEvent.loaded * 100) / progressEvent.total
+  //           );
+  //           setUploadProgress(percentCompleted);
+  //         },
+  //       }
+  //     );
 
-      if (res.status === 200) {
-        toast.success(res.data.message);
-      }
-    } catch (error) {
-      handleApiError(error, "updating", "profile picture");
-    } finally {
-      setUpdated((prev) => !prev);
-      setUploadProgress(0);
-    }
-  };
+  //     if (res.status === 200) {
+  //       toast.success(res.data.message);
+  //     }
+  //   } catch (error) {
+  //     handleApiError(error, "updating", "profile picture");
+  //   } finally {
+  //     setUpdated((prev) => !prev);
+  //     setUploadProgress(0);
+  //   }
+  // };
 
   // Handle submit
   const onSubmit = async (data) => {
@@ -225,16 +225,12 @@ const MyProfile = () => {
     if (data.website_url) formData.append("website", data.website_url);
 
     try {
-      const res = await axios.post(
-        `${APP_URL}/edit-vendor-profile/${id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await axios.post(`${APP_URL}/vendors/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
       if (res.status === 200) {
         toast.success(res.data.message);
         setUpdated((prev) => !prev);
@@ -267,7 +263,7 @@ const MyProfile = () => {
                   e.target.src = `${Img_url}/default/list/user.webp`;
                 }}
               />
-              <div
+              {/* <div
                 className="position-absolute bottom-0 end-0 bg-primary rounded px-1"
                 style={{
                   cursor: "pointer",
@@ -275,7 +271,7 @@ const MyProfile = () => {
                   color: "white",
                   fontSize: "14px",
                 }}
-                onClick={handleProfilePicClick}
+                // onClick={handleProfilePicClick}
               >
                 <i className="bi bi-pencil"></i>
               </div>
@@ -283,12 +279,12 @@ const MyProfile = () => {
                 type="file"
                 ref={fileInputRef}
                 style={{ display: "none" }}
-                onChange={handleProfilePicChange}
+                // onChange={handleProfilePicChange}
                 accept="image/*"
               />
               {uploadProgress > 0 && (
                 <UploadProgress uploadProgress={uploadProgress} />
-              )}
+              )} */}
             </div>
             <div className="media-body ms-md-5 m-0 mt-md-0 text-md-start text-center">
               <h4 className="mb-1 mt-3">

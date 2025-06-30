@@ -19,6 +19,14 @@ export const routePatterns = [
     pattern: "coupon-codes",
     title: "Coupon Code Management",
   },
+  {
+    pattern: "coupon-codes/add-coupon",
+    title: "Coupon Codes / Add Coupon",
+  },
+  {
+    pattern: "coupon-codes/edit-coupon/:couponId",
+    title: "Coupon Code / Edit Coupon",
+  },
   // Commissions
   {
     pattern: "commissions",
@@ -30,5 +38,10 @@ export const routePatterns = [
   {
     pattern: "templates/edit-template/:templateId",
     title: "Templates / Edit Template",
+  },
+  // Contacts
+  {
+    pattern: "contacts",
+    title: "Contacts",
   },
 ];

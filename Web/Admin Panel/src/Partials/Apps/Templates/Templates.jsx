@@ -67,7 +67,7 @@ const Templates = () => {
       },
       {
         Header: "TEMPLATE TYPE",
-        accessor: "type",
+        accessor: "template_type",
       },
       {
         Header: "VENDOR",

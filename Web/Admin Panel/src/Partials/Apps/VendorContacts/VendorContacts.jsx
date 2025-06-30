@@ -34,36 +34,6 @@ const VendorContacts = () => {
 
   const useServerPagination = true;
 
-  //fetch Vendor Contacts
-  useEffect(() => {
-    setLoading(true);
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${APP_URL}/contact/vendor/${vendorId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.status === 200) {
-          setData(response.data.vendor_contacts);
-        } else if (response.status === 204) {
-          setData([]);
-        }
-      } catch (error) {
-        setData([]);
-        handleApiError(error, "fetching", "vendor contacts");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [APP_URL, token, vendorId]);
-
   useEffect(() => {
     if (location.state) {
       const { vendorname } = location.state;

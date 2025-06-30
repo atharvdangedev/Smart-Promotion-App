@@ -12,7 +12,7 @@ const Index = memo(() => {
   const Img_url = import.meta.env.VITE_IMG_URL;
   const APP_URL = import.meta.env.VITE_API_URL;
 
-  setPageTitle("Dashboard | Vendor Panel");
+  setPageTitle("Dashboard");
 
   const token = localStorage.getItem("jwtToken");
   const [userData, setUserData] = useState(null);

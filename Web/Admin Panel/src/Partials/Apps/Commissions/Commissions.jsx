@@ -24,7 +24,7 @@ const Commissions = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  //fetch plans
+  //fetch commission
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
