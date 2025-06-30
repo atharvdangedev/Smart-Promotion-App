@@ -36,7 +36,6 @@ export default function WelcomeScreen({ navigation }) {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={() => navigation.navigate('EnterpriseLogin')}
                     className="bg-zinc-800 px-6 py-3 rounded-md w-full">
                     <Text className="text-center text-white font-semibold">SIGN IN WITH ENTERPRISE</Text>
                 </TouchableOpacity>
@@ -49,7 +48,7 @@ export default function WelcomeScreen({ navigation }) {
                     <Text className="underline text-blue-500">Terms of use</Text> and{' '}
                     <Text className="underline text-blue-500">Privacy policy</Text>.
                 </Text>
-                <Text className="text-xs text-sky-500 mt-2 underline">Trouble signing in?</Text>
+                <Text className="text-xs text-blue-500 mt-2 underline">Trouble signing in?</Text>
             </View>
         </SafeAreaView>
     );
