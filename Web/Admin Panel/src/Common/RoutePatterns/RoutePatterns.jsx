@@ -5,6 +5,10 @@ export const routePatterns = [
   { pattern: "admin/app/orders/:orderId", title: "Orders / Order Details" },
   { pattern: "admin/app/invoice", title: "Invoices / Invoice Details" },
   { pattern: "admin/app/subscriptions", title: "Subscriptions" },
+  // plan routes
+  { pattern: "admin/plans", title: "Plans" },
+  { pattern: "admin/plans/add-plan", title: "Plans / Add Plan" },
+  { pattern: "admin/plans/edit-plan/:planId", title: "Plans / Edit Plan" },
   // user routes
   { pattern: "admin/users", title: "Users / List" },
   { pattern: "admin/user/my-profile", title: "User / My Profile" },
@@ -47,6 +51,15 @@ export const routePatterns = [
   {
     pattern: "admin/commissions",
     title: "Commissions",
+  },
+  // Contacts
+  {
+    pattern: "admin/contacts",
+    title: "Contacts",
+  },
+  {
+    pattern: "admin/contacts/vendor/:vendorId",
+    title: "Vendor Contacts",
   },
   // template routes
   { pattern: "admin/templates", title: "Templates / List" },

@@ -6,16 +6,19 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 const schema = yup.object().shape({
   email: yup
     .string()
-    .email("Invalid email format")
-    .required("Email is required"),
+    .required("Email is required")
+    .matches(emailRegex, "Invalid email address"),
 });
 
 const PasswordReset = () => {
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
   // State Variables
   const [message, setMessage] = useState("");
@@ -36,7 +39,15 @@ const PasswordReset = () => {
     formdata.append("email", data.email);
 
     try {
-      const response = await axios.post(`${APP_URL}/SendToken`, formdata);
+      const response = await axios.post(
+        `${APP_URL}/admin-forgot-password`,
+        formdata,
+        {
+          headers: {
+            "X-App-Secret": `${SECRET_KEY}`,
+          },
+        }
+      );
       if (response.status === 200) {
         setMessage(response.data.message);
       }
@@ -59,7 +70,7 @@ const PasswordReset = () => {
           <li className="col-12">
             <div className="form-floating mb-4">
               <input
-                type="email"
+                type="text"
                 className={`form-control ${errors.email ? "is-invalid" : ""}`}
                 id="email"
                 {...register("email")}

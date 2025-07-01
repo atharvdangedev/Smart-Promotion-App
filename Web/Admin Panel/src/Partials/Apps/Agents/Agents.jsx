@@ -51,8 +51,8 @@ const Agents = () => {
   );
 
   // Handle delete callback
-  const handleDelete = useCallback((firstname, id) => {
-    setUserToDelete({ firstname, id });
+  const handleDelete = useCallback((first_name, id) => {
+    setUserToDelete({ first_name, id });
     setIsDeleteModalOpen(true);
   }, []);
 
@@ -195,23 +195,23 @@ const Agents = () => {
       {
         Header: "NAME",
         id: "fullName",
-        accessor: (row) => `${row.firstname} ${row.lastname}`,
+        accessor: (row) => `${row.first_name} ${row.last_name}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <img
               src={
-                row.original.profile
-                  ? `${Img_url}/profile/list/${row.original.profile}`
+                row.original.profile_pic
+                  ? `${Img_url}/profile/${row.original.profile_pic}`
                   : `${Img_url}/default/list/user.webp`
               }
-              alt={row.original.firstname || "User profile"}
+              alt={row.original.first_name || "User profile"}
               className="me-2 avatar rounded-circle lg"
               onError={(e) => {
                 e.target.src = `${Img_url}/default/list/user.webp`;
               }}
             />
             <div className="d-flex flex-column">
-              {row.original.firstname} {row.original.lastname}
+              {row.original.first_name} {row.original.last_name}
             </div>
           </div>
         ),
@@ -251,7 +251,7 @@ const Agents = () => {
             <button
               type="button"
               onClick={() =>
-                handleEdit(row.original.firstname, row.original.id)
+                handleEdit(row.original.first_name, row.original.id)
               }
               className="btn text-info px-2 me-1"
             >
@@ -260,7 +260,7 @@ const Agents = () => {
             <button
               type="button"
               onClick={() =>
-                handleDelete(row.original.firstname, row.original.id)
+                handleDelete(row.original.first_name, row.original.id)
               }
               className="btn text-danger px-2"
             >
@@ -339,12 +339,21 @@ const Agents = () => {
               <h4 className="title-font">
                 <strong>Agents List</strong>
               </h4>
-              <Link
-                className="btn btn-primary"
-                to="/admin/vendor/agents/add-agent"
-              >
-                Add New Agent
-              </Link>
+
+              <div className="d-flex gap-2">
+                <Link
+                  className="btn btn-primary"
+                  to="/admin/vendor/agents/add-agent"
+                >
+                  Add New Agent
+                </Link>
+                <Link
+                  to={`/admin/vendors`}
+                  className="btn btn-info text-white text-decoration-none"
+                >
+                  Back
+                </Link>
+              </div>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -352,8 +361,8 @@ const Agents = () => {
                 data={rows.map((row) => row.original)}
                 fileName="Agents"
                 fields={[
-                  "firstname",
-                  "lastname",
+                  "first_name",
+                  "last_name",
                   "email",
                   "contact_no",
                   "role",
@@ -395,7 +404,7 @@ const Agents = () => {
                 onConfirm={() => handleConfirmStatus(recordToUpdate.id)}
                 message={`Are you sure you want to ${
                   recordToUpdate?.status === "1" ? "deactivate" : "activate"
-                } user ${recordToUpdate.firstname}?`}
+                } user ${recordToUpdate.first_name}?`}
                 status={recordToUpdate?.status}
               />
             )}
@@ -407,7 +416,7 @@ const Agents = () => {
                 viaEmail={handleUserActivationConfirm}
                 directly={handleUserActivationConfirmDirectly}
                 message={`This is an admin only action. Are you sure you want to manually activate ${
-                  recordToUpdate.firstname + " " + recordToUpdate.lastname
+                  recordToUpdate.first_name + " " + recordToUpdate.last_name
                 }?`}
                 isLoading={isLoading}
               />
@@ -418,7 +427,7 @@ const Agents = () => {
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
-                message={`Are you sure you want to delete agent ${userToDelete.firstname}?`}
+                message={`Are you sure you want to delete agent ${userToDelete.first_name}?`}
                 isLoading={isDeleting}
               />
             )}

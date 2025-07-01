@@ -7,49 +7,39 @@ import {
   useTable,
 } from "react-table";
 import ExportButtons from "../ExportButtons/ExportButtons";
-import axios from "axios";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
+import axios from "axios";
 import { handleApiError } from "../utils/handleApiError";
+import { Link, useLocation, useParams } from "react-router-dom";
 
-const Templates = () => {
+const VendorContacts = () => {
   // Access token
   const token = localStorage.getItem("jwtToken");
+
+  // Vendor ID from params
+  const { vendorId } = useParams();
+
+  const location = useLocation();
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
 
   // State initialization
+  const [vendorName, setVendorName] = useState("");
+  const [totalRecords, setTotalRecords] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  //fetch templates
-  useEffect(() => {
-    setLoading(true);
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${APP_URL}/templates`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (response.status === 200) {
-          setData(response.data.templates);
-        } else if (response.status === 204) {
-          setData([]);
-        }
-      } catch (error) {
-        setData([]);
-        handleApiError(error, "fetching", "templates");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const useServerPagination = true;
 
-    fetchData();
-  }, [APP_URL, token]);
+  useEffect(() => {
+    if (location.state) {
+      const { vendorname } = location.state;
+      setVendorName(vendorname);
+    }
+  }, [location.state]);
 
   // Table configuration
   const columns = useMemo(
@@ -62,25 +52,20 @@ const Templates = () => {
         },
       },
       {
-        Header: "TEMPLATE TITLE",
-        accessor: "title",
+        Header: "CONTACT NAME",
+        accessor: "contact_name",
       },
       {
-        Header: "TEMPLATE TYPE",
-        accessor: "template_type",
+        Header: "CONTACT NO",
+        accessor: "contact_no",
       },
       {
-        Header: "VENDOR",
-        accessor: (row) => `${row.first_name} ${row.last_name}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              {row.original.first_name
-                ? `${row.original.first_name} ${row.original.last_name}`
-                : "No Vendor"}
-            </div>
-          </div>
-        ),
+        Header: "CONTACT EMAIL",
+        accessor: "contact_email",
+      },
+      {
+        Header: "CONTACT BRITHDATE",
+        accessor: "contact_birthdate",
       },
     ],
     []
@@ -108,11 +93,47 @@ const Templates = () => {
       columns,
       data,
       initialState: { pageIndex: 0, pageSize },
+      manualPagination: useServerPagination,
+      pageCount: useServerPagination
+        ? Math.ceil(totalRecords / pageSize)
+        : undefined,
     },
     useGlobalFilter,
     useSortBy,
     usePagination
   );
+
+  useEffect(() => {
+    if (!useServerPagination) return;
+
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${APP_URL}/contact/vendor/${vendorId}`,
+          {
+            params: { page: pageIndex + 1, limit: pageSize },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.status === 200) {
+          setData(response.data.vendor_contacts);
+          setTotalRecords(response.data.pagination.total);
+        } else if (response.status === 204) {
+          setData([]);
+        }
+      } catch (error) {
+        setData([]);
+        handleApiError(error, "fetching", "vendor contacts");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [APP_URL, pageIndex, pageSize, token, useServerPagination, vendorId]);
 
   // Handle search function
   const handleGlobalFilterChange = (e) => {
@@ -133,20 +154,26 @@ const Templates = () => {
           <div className="table-responsive">
             <div className="mb-3 d-flex justify-content-between">
               <h4 className="title-font">
-                <strong>Templates</strong>
+                <strong>{vendorName} Contacts</strong>
               </h4>
+
+              <Link
+                to={`/admin/contacts`}
+                className="btn btn-info text-white text-decoration-none"
+              >
+                Back
+              </Link>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
               <ExportButtons
                 data={rows.map((row) => row.original)}
-                fileName="Templates"
+                fileName="Vendor Contacts"
                 fields={[
-                  "title",
-                  "template_type",
-                  "first_name",
-                  "last_name",
-                  "status",
+                  "contact_name",
+                  "contact_no",
+                  "contact_email",
+                  "contact_birthdate",
                 ]}
               />
               <div className="d-flex align-items-center">
@@ -212,13 +239,13 @@ const Templates = () => {
                 {loading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
-                      <LoadingFallback message="Loading templates..." />
+                      <LoadingFallback message="Loading VendorContacts..." />
                     </td>
                   </tr>
                 ) : data.length === 0 ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
-                      No Templates available.
+                      No VendorContacts available.
                     </td>
                   </tr>
                 ) : page.length === 0 ? (
@@ -266,4 +293,4 @@ const Templates = () => {
   );
 };
 
-export default Templates;
+export default VendorContacts;

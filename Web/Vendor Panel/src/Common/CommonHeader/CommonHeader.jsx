@@ -30,8 +30,8 @@ const CommonHeader = memo(() => {
     const fetchUser = async () => {
       try {
         const decoded = jwtDecode(token);
-        const { user_id } = decoded.data;
-        const res = await axios.get(`${APP_URL}/user-details/${user_id}`, {
+        const { id } = decoded.data;
+        const res = await axios.get(`${APP_URL}/users/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -180,7 +180,7 @@ const CommonHeader = memo(() => {
           <li className="nav-item user ms-3">
             <Link
               className="dropdown-toggle gray-6 d-flex text-decoration-none align-items-center lh-sm p-0"
-              to="/vendor/user/my-profile"
+              to="/my-profile"
               role="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"
@@ -190,17 +190,17 @@ const CommonHeader = memo(() => {
               <img
                 src={
                   userData?.profile_pic
-                    ? `${Img_url}/profile/list/${userData.profile_pic}`
+                    ? `${Img_url}/profile/${userData.profile_pic}`
                     : `${Img_url}/default/list/user.webp`
                 }
-                alt={userData?.firstname || "User profile"}
+                alt={userData?.first_name || "User profile"}
                 className="me-2 avatar rounded-circle border-3"
                 onError={(e) => {
                   e.target.src = `${Img_url}/default/list/user.webp`;
                 }}
               />
               <span className="ms-2 fs-6 d-none d-sm-inline-flex">
-                {userData.firstname}
+                {userData.first_name}
               </span>
             </Link>
             <UserDropdown />

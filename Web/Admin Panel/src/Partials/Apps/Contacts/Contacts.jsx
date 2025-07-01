@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useGlobalFilter,
   usePagination,
@@ -9,12 +9,60 @@ import {
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
+import axios from "axios";
+import { handleApiError } from "../utils/handleApiError";
+import { useNavigate } from "react-router-dom";
 
 const Contacts = () => {
+  // Navigation Function
+  const navigate = useNavigate();
+
+  // Access token
+  const token = localStorage.getItem("jwtToken");
+
+  // API URL
+  const APP_URL = import.meta.env.VITE_API_URL;
+
   // State initialization
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  //fetch contacts
+  useEffect(() => {
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${APP_URL}/contacts`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.status === 200) {
+          setData(response.data.contacts);
+        } else if (response.status === 204) {
+          setData([]);
+        }
+      } catch (error) {
+        setData([]);
+        handleApiError(error, "fetching", "contacts");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [APP_URL, token]);
+
+  const handleView = useCallback(
+    async (vendorId, vendorName) => {
+      navigate(`/admin/contacts/vendor/${vendorId}`, {
+        state: { vendorname: vendorName },
+      });
+    },
+    [navigate]
+  );
 
   // Table configuration
   const columns = useMemo(
@@ -27,32 +75,45 @@ const Contacts = () => {
         },
       },
       {
-        Header: "CONTACT NAME",
-        accessor: "name",
-      },
-      {
-        Header: "CONTACT NO",
-        accessor: "contact_no",
-      },
-      {
-        Header: "CONTACT EMAIL",
-        accessor: "email",
+        Header: "BUSINESS",
+        accessor: "business_name",
       },
       {
         Header: "VENDOR",
-        accessor: (row) => `${row.vendor_firstname} ${row.vendor_lastname}`,
+        accessor: (row) => `${row.first_name} ${row.last_name}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              {row.original.vendor_firstname
-                ? `${row.original.vendor_firstname} ${row.original.vendor_lastname}`
+              {row.original.first_name
+                ? `${row.original.first_name} ${row.original.last_name}`
                 : "No Vendor"}
             </div>
           </div>
         ),
       },
+      {
+        Header: "TOTAL CONTACTS",
+        accessor: "total_contacts",
+      },
+      {
+        Header: "ACTIONS",
+        accessor: "actions",
+        Cell: ({ row }) => {
+          return (
+            <button
+              onClick={() =>
+                handleView(row.original.vendor_id, row.original.business_name)
+              }
+              className="btn text-info px-2 me-1"
+              title={`View ${row.original.business_name} Contacts`}
+            >
+              <i className="bi bi-eye-fill"></i>
+            </button>
+          );
+        },
+      },
     ],
-    []
+    [handleView]
   );
 
   // Use the useTable hook to build the table
@@ -110,7 +171,12 @@ const Contacts = () => {
               <ExportButtons
                 data={rows.map((row) => row.original)}
                 fileName="Contacts"
-                fields={["title", "status"]}
+                fields={[
+                  "business_name",
+                  "first_name",
+                  "last_name",
+                  "total_contacts",
+                ]}
               />
               <div className="d-flex align-items-center">
                 <div className="me-2">

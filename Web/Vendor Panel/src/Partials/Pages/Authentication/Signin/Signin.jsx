@@ -7,7 +7,6 @@ import * as yup from "yup";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { handleApiError } from "../../../Apps/utils/handleApiError";
-import { setPageTitle } from "../../../Apps/utils/docTitle";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -16,13 +15,13 @@ const schema = yup.object().shape({
     .required("Email is required")
     .email("Please enter a valid email"),
   password: yup.string().required("Password is required"),
+  remember: yup.boolean().notRequired(),
 });
 
 const Signin = () => {
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
-
-  setPageTitle("Sign In | Vendor Panel");
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
   // Navigation
   const navigate = useNavigate();
@@ -50,23 +49,29 @@ const Signin = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
 
+    const formdata = new FormData();
+
+    formdata.append("email", data.email);
+    formdata.append("password", data.password);
+    formdata.append("remember", data.remember ? 1 : 0);
+
     try {
-      const res = await axios.post(`${APP_URL}/vendor-login`, data, {
+      const res = await axios.post(`${APP_URL}/login`, formdata, {
         headers: {
-          "Content-Type": "application/json",
+          "X-App-Secret": `${SECRET_KEY}`,
         },
       });
 
       if (res.status === 200) {
-        const { jwt } = res.data;
-        localStorage.setItem("jwtToken", jwt);
+        const { token } = res.data;
+        localStorage.setItem("jwtToken", token);
         toast.success(res.data.message);
         setTimeout(() => {
-          navigate("vendor/index");
+          navigate("dashboard");
         }, 2000);
       }
     } catch (error) {
-      handleApiError(error, "logging in", "vendor");
+      handleApiError(error, "logging in", "user");
     } finally {
       setIsLoading(false);
     }
@@ -89,10 +94,8 @@ const Signin = () => {
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <ul className="row g-3 list-unstyled li_animate">
           <li className="col-12">
-            <h1 className="h2 title-font">
-              Welcome to Smart WhatsApp Promotion
-            </h1>
-            <p>Your Vendor Dashboard</p>
+            <h1 className="h2 title-font">Welcome to Smart Promotion App</h1>
+            <p>Your Dashboard</p>
           </li>
 
           <li className="col-12">
@@ -152,6 +155,21 @@ const Signin = () => {
                   {errors.password.message}
                 </div>
               )}
+            </div>
+          </li>
+
+          <li className="col-12">
+            <div className="form-check fs-5">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="Rememberme"
+                {...register("remember")}
+                tabIndex="3"
+              />
+              <label className="form-check-label fs-6" htmlFor="Rememberme">
+                Remember this Device
+              </label>
             </div>
           </li>
 

@@ -8,6 +8,7 @@ import { handleApiError } from "../../Apps/utils/handleApiError";
 const UserDropdown = () => {
   const token = localStorage.getItem("jwtToken");
   const APP_URL = import.meta.env.VITE_API_URL;
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
   const [userData, setUserData] = useState({});
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -16,8 +17,8 @@ const UserDropdown = () => {
     const fetchUser = async () => {
       try {
         const decoded = jwtDecode(token);
-        const { user_id } = decoded.data;
-        const res = await axios.get(`${APP_URL}/user-details/${user_id}`, {
+        const { id } = decoded.data;
+        const res = await axios.get(`${APP_URL}/users/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -27,7 +28,7 @@ const UserDropdown = () => {
           setUserData(res.data.user);
         }
       } catch (error) {
-        handleApiError(error, "fetching", "vendor details");
+        handleApiError(error, "fetching", "user details");
       }
     };
 
@@ -55,9 +56,10 @@ const UserDropdown = () => {
         throw new Error("Token not found");
       }
 
-      const response = await axios.post(`${APP_URL}/vendor-logout`, null, {
+      const response = await axios.post(`${APP_URL}/logout`, null, {
         headers: {
           Authorization: `Bearer ${token}`,
+          "X-App-Secret": `${SECRET_KEY}`,
         },
       });
       if (response.status === 200) {
@@ -68,14 +70,14 @@ const UserDropdown = () => {
         }, 1000);
       }
     } catch (error) {
-      handleApiError(error, "logging out", "vendor");
+      handleApiError(error, "logging", "out");
     }
   };
 
   return (
     <div className="dropdown-menu dropdown-menu-end shadow p-2 p-xl-3 rounded-4">
       <div className="bg-body p-2 rounded-3">
-        <h4 className="mb-1 title-font text-gradient">{userData.firstname}</h4>
+        <h4 className="mb-1 title-font text-gradient">{userData.first_name}</h4>
         <p className="small text-muted">{userData.email}</p>
         <p className="mb-0 animation-blink">
           <span className={isOnline ? "text-primary" : "text-danger"}>●</span>
@@ -87,7 +89,7 @@ const UserDropdown = () => {
           <Link
             className="dropdown-item rounded-pill"
             aria-label="my profile"
-            to="/vendor/user/my-profile"
+            to="/my-profile"
           >
             My Profile
           </Link>
@@ -96,7 +98,7 @@ const UserDropdown = () => {
           <Link
             className="dropdown-item rounded-pill"
             aria-label="change password"
-            to="/vendor/user/change-password"
+            to="/change-password"
           >
             Change Password
           </Link>

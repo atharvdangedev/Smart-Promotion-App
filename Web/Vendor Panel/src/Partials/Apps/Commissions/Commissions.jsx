@@ -5,15 +5,51 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
+import axios from "axios";
+import { handleApiError } from "../utils/handleApiError";
 
 const Commissions = () => {
+  // Access token
+  const token = localStorage.getItem("jwtToken");
+
+  // API URL
+  const APP_URL = import.meta.env.VITE_API_URL;
+
+  // State initialization
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  //fetch commission
+  useEffect(() => {
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${APP_URL}/vendor/commission`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.status === 200) {
+          setData(response.data.commission);
+        } else if (response.status === 204) {
+          setData([]);
+        }
+      } catch (error) {
+        setData([]);
+        handleApiError(error, "fetching", "commission");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [APP_URL, token]);
 
   const columns = useMemo(
     () => [
@@ -30,25 +66,12 @@ const Commissions = () => {
       },
       {
         Header: "Plan",
-        accessor: (row) => `${row.plan_name} ${row.plan_type}`,
+        accessor: (row) => `${row.plan_title} ${row.plan_type}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>{row.original.plan_name}</span>
+              <span>{row.original.plan_title}</span>
               <span>{row.original.plan_type}</span>
-            </div>
-          </div>
-        ),
-      },
-      {
-        Header: "User",
-        accessor: (row) => `${row.firstname} ${row.lastname}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              {row.original.firstname
-                ? `${row.original.firstname} ${row.original.lastname}`
-                : "No User"}
             </div>
           </div>
         ),
@@ -56,6 +79,16 @@ const Commissions = () => {
       {
         Header: "Commission",
         accessor: "commission",
+        Cell: ({ row }) => {
+          return (
+            <div>
+              {Number(row.original.commission).toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR",
+              })}
+            </div>
+          );
+        },
       },
       {
         Header: "Payout Balance",
@@ -67,26 +100,6 @@ const Commissions = () => {
                 style: "currency",
                 currency: "INR",
               })}
-            </div>
-          );
-        },
-      },
-      {
-        Header: "Action",
-        accessor: "action",
-        Cell: ({ row }) => {
-          return (
-            <div>
-              {row.original.payout_balance > 0 && (
-                <button
-                  className="btn text-success px-2 me-1"
-                  data-toggle="tooltip"
-                  data-placement="bottom"
-                  title="Payout"
-                >
-                  Pay
-                </button>
-              )}
             </div>
           );
         },
@@ -151,8 +164,8 @@ const Commissions = () => {
                 data={rows.map((row) => row.original)}
                 fileName="Commissions"
                 fields={[
-                  "firstname",
-                  "lastname",
+                  "first_name",
+                  "last_name",
                   "email",
                   "contact_no",
                   "role",
@@ -219,7 +232,7 @@ const Commissions = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {isLoading ? (
+                {loading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading commissions..." />

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useGlobalFilter,
   usePagination,
@@ -9,12 +9,24 @@ import {
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
+import { handleApiError } from "../utils/handleApiError";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const Contacts = () => {
+  // Access token
+  const token = localStorage.getItem("jwtToken");
+
+  // API URL
+  const APP_URL = import.meta.env.VITE_API_URL;
+
   // State initialization
+  const [totalRecords, setTotalRecords] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const useServerPagination = true;
 
   // Table configuration
   const columns = useMemo(
@@ -28,7 +40,7 @@ const Contacts = () => {
       },
       {
         Header: "CONTACT NAME",
-        accessor: "name",
+        accessor: "contact_name",
       },
       {
         Header: "CONTACT NO",
@@ -36,7 +48,11 @@ const Contacts = () => {
       },
       {
         Header: "CONTACT EMAIL",
-        accessor: "email",
+        accessor: "contact_email",
+      },
+      {
+        Header: "CONTACT BRITHDATE",
+        accessor: "contact_birthdate",
       },
     ],
     []
@@ -64,11 +80,49 @@ const Contacts = () => {
       columns,
       data,
       initialState: { pageIndex: 0, pageSize },
+      manualPagination: useServerPagination,
+      pageCount: useServerPagination
+        ? Math.ceil(totalRecords / pageSize)
+        : undefined,
     },
     useGlobalFilter,
     useSortBy,
     usePagination
   );
+
+  useEffect(() => {
+    if (!useServerPagination) return;
+
+    const fetchData = async () => {
+      try {
+        const decoded = jwtDecode(token);
+        const { id } = decoded.data;
+        const response = await axios.get(
+          `${APP_URL}/vendor/contact/vendor/${id}`,
+          {
+            params: { page: pageIndex + 1, limit: pageSize },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.status === 200) {
+          setData(response.data.vendor_contacts);
+          setTotalRecords(response.data.pagination.total);
+        } else if (response.status === 204) {
+          setData([]);
+        }
+      } catch (error) {
+        setData([]);
+        handleApiError(error, "fetching", "vendor contacts");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [APP_URL, pageIndex, pageSize, token, useServerPagination]);
 
   // Handle search function
   const handleGlobalFilterChange = (e) => {
@@ -97,7 +151,12 @@ const Contacts = () => {
               <ExportButtons
                 data={rows.map((row) => row.original)}
                 fileName="Contacts"
-                fields={["title", "status"]}
+                fields={[
+                  "contact_name",
+                  "contact_no",
+                  "contact_email",
+                  "contact_birthdate",
+                ]}
               />
               <div className="d-flex align-items-center">
                 <div className="me-2">

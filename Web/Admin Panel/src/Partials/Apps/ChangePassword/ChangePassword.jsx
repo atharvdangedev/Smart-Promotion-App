@@ -16,9 +16,14 @@ const ChangePassword = () => {
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
   // State initialization
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState({
+    old: false,
+    new: false,
+    confirm: false,
+  });
   const [passwordErrors, setPasswordErrors] = useState([]);
 
   // Schema definition
@@ -26,8 +31,15 @@ const ChangePassword = () => {
     old_password: yup.string().required("Current password is required"),
     newpassword: yup
       .string()
-      .min(6, "New Password must be at least 6 characters")
-      .required("New Password is required"),
+      .required("New Password is required")
+      .test(
+        "not-same-as-old",
+        "New password must be different from the current password",
+        function (value) {
+          const { old_password } = this.parent;
+          return value !== old_password;
+        }
+      ),
     confirmPassword: yup
       .string()
       .oneOf([yup.ref("newpassword"), null], "Passwords must match")
@@ -49,8 +61,8 @@ const ChangePassword = () => {
   const passwordValue = watch("newpassword");
 
   // Handle toggle password
-  const toggleShowPassword = () => {
-    setShowPassword((prevShowPassword) => !prevShowPassword);
+  const togglePasswordVisibility = (field) => {
+    setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
   // Set password errors
@@ -65,9 +77,10 @@ const ChangePassword = () => {
         throw new Error("Token not found");
       }
 
-      const response = await axios.post(`${APP_URL}/logout`, null, {
+      const response = await axios.post(`${APP_URL}/admin-logout`, null, {
         headers: {
           Authorization: `Bearer ${token}`,
+          "X-App-Secret": `${SECRET_KEY}`,
         },
       });
       if (response.status === 200) {
@@ -94,14 +107,19 @@ const ChangePassword = () => {
     try {
       const formData = new FormData();
       formData.append("old_password", data.old_password);
-      formData.append("newpassword", data.newpassword);
-      formData.append("confirmpassword", data.confirmPassword);
+      formData.append("new_password", data.newpassword);
+      formData.append("confirm_password", data.confirmPassword);
 
-      const res = await axios.post(`${APP_URL}/change-password`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.post(
+        `${APP_URL}/admin-change-password`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "X-App-Secret": `${SECRET_KEY}`,
+          },
+        }
+      );
       if (res.status === 200) {
         toast.success(res.data.message);
         await handleLogout();
@@ -134,7 +152,9 @@ const ChangePassword = () => {
                 <div className="form-floating">
                   <input
                     type={showPassword ? "text" : "password"}
-                    className={`form-control ${errors.old_password ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.old_password ? "is-invalid" : ""
+                    }`}
                     id="old_password"
                     {...register("old_password")}
                     placeholder="Current Password"
@@ -143,10 +163,12 @@ const ChangePassword = () => {
                   <div
                     className="position-absolute top-50 end-0 translate-middle-y pe-3"
                     style={{ cursor: "pointer" }}
-                    onClick={toggleShowPassword}
+                    onClick={() => togglePasswordVisibility("old")}
                   >
                     <i
-                      className={`bi ${showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"}`}
+                      className={`bi ${
+                        showPassword.old ? "bi-eye-fill" : "bi-eye-slash-fill"
+                      }`}
                     ></i>
                   </div>
                   <label htmlFor="old_password">Current Password</label>
@@ -159,11 +181,15 @@ const ChangePassword = () => {
               </div>
               <div className="col-md-4">
                 <div
-                  className={`form-floating ${errors.newpassword ? "is-invalid" : ""}`}
+                  className={`form-floating ${
+                    errors.newpassword ? "is-invalid" : ""
+                  }`}
                 >
                   <input
                     type={showPassword ? "text" : "password"}
-                    className={`form-control ${errors.newpassword ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.newpassword ? "is-invalid" : ""
+                    }`}
                     id="newpassword"
                     {...register("newpassword")}
                     placeholder="New Password"
@@ -173,10 +199,12 @@ const ChangePassword = () => {
                   <div
                     className="position-absolute top-50 end-0 translate-middle-y pe-3"
                     style={{ cursor: "pointer" }}
-                    onClick={toggleShowPassword}
+                    onClick={() => togglePasswordVisibility("new")}
                   >
                     <i
-                      className={`bi ${showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"}`}
+                      className={`bi ${
+                        showPassword.new ? "bi-eye-fill" : "bi-eye-slash-fill"
+                      }`}
                     ></i>
                   </div>
                 </div>
@@ -199,7 +227,9 @@ const ChangePassword = () => {
                 <div className="form-floating">
                   <input
                     type={showPassword ? "text" : "password"}
-                    className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.confirmPassword ? "is-invalid" : ""
+                    }`}
                     id="confirmPassword"
                     {...register("confirmPassword")}
                     placeholder="Confirm Password"
@@ -208,10 +238,14 @@ const ChangePassword = () => {
                   <div
                     className="position-absolute top-50 end-0 translate-middle-y pe-3"
                     style={{ cursor: "pointer" }}
-                    onClick={toggleShowPassword}
+                    onClick={() => togglePasswordVisibility("confirm")}
                   >
                     <i
-                      className={`bi ${showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"}`}
+                      className={`bi ${
+                        showPassword.confirm
+                          ? "bi-eye-fill"
+                          : "bi-eye-slash-fill"
+                      }`}
                     ></i>
                   </div>
                   <label htmlFor="confirmPassword">Confirm Password</label>

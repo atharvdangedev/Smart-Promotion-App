@@ -90,7 +90,9 @@ const AddTemplate = () => {
                 <div className="form-floating">
                   <input
                     type="text"
-                    className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.title ? "is-invalid" : ""
+                    }`}
                     {...register("title")}
                     placeholder="Template Name"
                     tabIndex="1"
@@ -109,7 +111,9 @@ const AddTemplate = () => {
                 <div className="form-floating">
                   <input
                     type="text"
-                    className={`form-control ${errors.template_slug ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.template_slug ? "is-invalid" : ""
+                    }`}
                     {...register("template_slug")}
                     placeholder="Template slug"
                     tabIndex="2"

@@ -5,15 +5,51 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
+import { handleApiError } from "../utils/handleApiError";
+import axios from "axios";
 
 const Commissions = () => {
+  // Access token
+  const token = localStorage.getItem("jwtToken");
+
+  // API URL
+  const APP_URL = import.meta.env.VITE_API_URL;
+
+  // State initialization
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  //fetch commission
+  useEffect(() => {
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${APP_URL}/commission`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.status === 200) {
+          setData(response.data.commission);
+        } else if (response.status === 204) {
+          setData([]);
+        }
+      } catch (error) {
+        setData([]);
+        handleApiError(error, "fetching", "commission");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [APP_URL, token]);
 
   const columns = useMemo(
     () => [
@@ -30,45 +66,46 @@ const Commissions = () => {
       },
       {
         Header: "Plan",
-        accessor: (row) => `${row.plan_name} ${row.plan_type}`,
+        accessor: (row) => `${row.plan_title} ${row.plan_type}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>{row.original.plan_name}</span>
+              <span>{row.original.plan_title}</span>
               <span>{row.original.plan_type}</span>
             </div>
           </div>
         ),
       },
       {
-        Header: "User",
-        accessor: (row) => `${row.firstname} ${row.lastname}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              {row.original.firstname
-                ? `${row.original.firstname} ${row.original.lastname}`
-                : "No User"}
-            </div>
-          </div>
-        ),
-      },
-      {
         Header: "Vendor",
-        accessor: (row) => `${row.vendor_firstname} ${row.vendor_lastname}`,
+        accessor: (row) => `${row.first_name} ${row.last_name}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              {row.original.vendor_firstname
-                ? `${row.original.vendor_firstname} ${row.original.vendor_lastname}`
+              {row.original.first_name
+                ? `${row.original.first_name} ${row.original.last_name}`
                 : "No Vendor"}
             </div>
           </div>
         ),
       },
       {
+        Header: "Business",
+        accessor: "business_name",
+      },
+      {
         Header: "Commission",
         accessor: "commission",
+        Cell: ({ row }) => {
+          return (
+            <div>
+              {Number(row.original.commission).toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR",
+              })}
+            </div>
+          );
+        },
       },
       {
         Header: "Payout Balance",
@@ -164,12 +201,13 @@ const Commissions = () => {
                 data={rows.map((row) => row.original)}
                 fileName="Commissions"
                 fields={[
-                  "firstname",
-                  "lastname",
-                  "email",
-                  "contact_no",
-                  "role",
-                  "status",
+                  "plan_title",
+                  "plan_type",
+                  "first_name",
+                  "last_name",
+                  "business_name",
+                  "commission",
+                  "payout_balance",
                 ]}
               />
               <div className="d-flex align-items-center">
@@ -232,7 +270,7 @@ const Commissions = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {isLoading ? (
+                {loading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading commissions..." />

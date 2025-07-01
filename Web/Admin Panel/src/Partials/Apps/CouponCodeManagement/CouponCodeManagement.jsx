@@ -5,15 +5,97 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
+import axios from "axios";
+import { handleApiError } from "../utils/handleApiError";
+import ApproveModal from "../ApproveModal/ApproveModal";
+import toast, { Toaster } from "react-hot-toast";
 
 const CouponCodeManagement = () => {
+  // Access token
+  const token = localStorage.getItem("jwtToken");
+
+  // API URL
+  const APP_URL = import.meta.env.VITE_API_URL;
+
+  // State initialization
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [couponToApprove, setCouponToApprove] = useState(null);
+  const [isApproving, setIsApproving] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  //fetch plans
+  useEffect(() => {
+    setLoading(true);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${APP_URL}/coupons`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.status === 200) {
+          setData(response.data.coupons);
+        } else if (response.status === 204) {
+          setData([]);
+        }
+      } catch (error) {
+        setData([]);
+        handleApiError(error, "fetching", "coupons");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [APP_URL, token]);
+
+  // Handle approve callback
+  const handleApprove = useCallback((coupon_code, id) => {
+    setCouponToApprove({ coupon_code, id });
+    setIsApproveModalOpen(true);
+  }, []);
+
+  // Handle approve functionality
+  const handleConfirmApprove = async () => {
+    if (couponToApprove) {
+      setIsApproving(true);
+      try {
+        const response = await axios.put(
+          `${APP_URL}/approve-coupon/${couponToApprove.id}`,
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json;",
+            },
+          }
+        );
+        if (response.status === 200) {
+          toast.success(response.data.message);
+          setData((prevData) =>
+            prevData.map((coupon) =>
+              coupon.id === couponToApprove.id
+                ? { ...coupon, approve: coupon.approve === "1" ? "0" : "1" }
+                : coupon
+            )
+          );
+        }
+      } catch (error) {
+        handleApiError(error, "approving", "coupon");
+      } finally {
+        setIsApproving(false);
+        setIsApproveModalOpen(false);
+        setCouponToApprove(null);
+      }
+    }
+  };
 
   const columns = useMemo(
     () => [
@@ -30,11 +112,11 @@ const CouponCodeManagement = () => {
       },
       {
         Header: "Plan",
-        accessor: (row) => `${row.plan_name} ${row.plan_type}`,
+        accessor: (row) => `${row.title} ${row.plan_type}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>{row.original.plan_name}</span>
+              <span>{row.original.title}</span>
               <span>{row.original.plan_type}</span>
             </div>
           </div>
@@ -42,13 +124,25 @@ const CouponCodeManagement = () => {
       },
       {
         Header: "User",
-        accessor: (row) => `${row.firstname} ${row.lastname}`,
+        accessor: (row) => `${row.first_name} ${row.last_name}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              {row.original.firstname
-                ? `${row.original.firstname} ${row.original.lastname}`
+              {row.original.first_name
+                ? `${row.original.first_name} ${row.original.last_name}`
                 : "No User"}
+            </div>
+          </div>
+        ),
+      },
+      {
+        Header: "Plan Validity",
+        accessor: (row) => `${row.valid_from} ${row.valid_till}`,
+        Cell: ({ row }) => (
+          <div className="d-flex align-items-center">
+            <div className="d-flex flex-column">
+              from <span>{row.original.valid_from}</span> to
+              <span>{row.original.valid_till}</span>
             </div>
           </div>
         ),
@@ -74,39 +168,30 @@ const CouponCodeManagement = () => {
         ),
       },
       {
-        Header: "Plan Validity",
-        accessor: (row) => `${row.plan_start_date} ${row.plan_end_date}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              <span>{row.original.plan_start_date}</span>
-              <span>{row.original.plan_end_date}</span>
-            </div>
-          </div>
-        ),
-      },
-      {
         Header: "Action",
         accessor: "action",
         Cell: ({ row }) => {
           return (
             <div>
-              {row.original.payout_balance > 0 && (
-                <button
-                  className="btn text-success px-2 me-1"
-                  data-toggle="tooltip"
-                  data-placement="bottom"
-                  title="Approve Request"
-                >
-                  Approve
-                </button>
-              )}
+              <button
+                className="btn btn-success px-2 me-1"
+                data-toggle="tooltip"
+                type="button"
+                disabled={row.original.approve === "1"}
+                onClick={() =>
+                  handleApprove(row.original.coupon_code, row.original.id)
+                }
+                data-placement="bottom"
+                title={row.original.approve === "0" ? "Approve Request" : ""}
+              >
+                {row.original.approve === "0" ? "Approve" : "Approved"}
+              </button>
             </div>
           );
         },
       },
     ],
-    []
+    [handleApprove]
   );
 
   // Use the useTable hook to build the table
@@ -151,6 +236,7 @@ const CouponCodeManagement = () => {
 
   return (
     <div className="px-4 py-3 page-body">
+      <Toaster />
       <div className="col-lg-12 col-md-12">
         <div className="card mb-3 p-3">
           <div className="table-responsive">
@@ -165,12 +251,15 @@ const CouponCodeManagement = () => {
                 data={rows.map((row) => row.original)}
                 fileName="Coupon Codes"
                 fields={[
-                  "firstname",
-                  "lastname",
-                  "email",
-                  "contact_no",
-                  "role",
+                  "coupon_code",
+                  "title",
+                  "plan_type",
+                  "first_name",
+                  "last_name",
+                  "valid_from",
+                  "valid_till",
                   "status",
+                  "approve",
                 ]}
               />
               <div className="d-flex align-items-center">
@@ -200,6 +289,16 @@ const CouponCodeManagement = () => {
                 </div>
               </div>
             </div>
+
+            {couponToApprove && (
+              <ApproveModal
+                isOpen={isApproveModalOpen}
+                onClose={() => setIsApproveModalOpen(false)}
+                onConfirm={handleConfirmApprove}
+                message={`Are you sure you want to approve coupon ${couponToApprove.coupon_code}?`}
+                isLoading={isApproving}
+              />
+            )}
 
             <table
               {...getTableProps()}
@@ -233,7 +332,7 @@ const CouponCodeManagement = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {isLoading ? (
+                {loading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading coupon codes..." />

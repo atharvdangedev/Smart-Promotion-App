@@ -21,7 +21,6 @@ const Signin = lazyLoad(() =>
 const UserActivation = lazyLoad(() =>
   import("./Partials/Pages/Authentication/UserActivation/UserActivation")
 );
-
 const PasswordReset = lazyLoad(() =>
   import("./Partials/Pages/Authentication/PasswordReset/PasswordReset")
 );
@@ -38,11 +37,6 @@ const Index = lazyLoad(() => import("./Partials/Workspace/Dashboard/Index"));
 const MyWallet = lazyLoad(() =>
   import("./Partials/Workspace/MyWallet/MyWallet")
 );
-const ClientsList = lazyLoad(() =>
-  import("./Partials/Apps/MyProjects/ClientsList/ClientsList")
-);
-const Adduser = lazyLoad(() => import("./Partials/Apps/AddUser/Adduser"));
-const EditUser = lazyLoad(() => import("./Partials/Apps/EditUser/EditUser"));
 const Agents = lazyLoad(() => import("./Partials/Apps/Agents/Agents"));
 const AddAgent = lazyLoad(() => import("./Partials/Apps/Agents/AddAgent"));
 const EditAgent = lazyLoad(() => import("./Partials/Apps/Agents/EditAgent"));
@@ -56,6 +50,8 @@ const EditTemplate = lazyLoad(() =>
 const Contacts = lazyLoad(() => import("./Partials/Apps/Contacts/Contacts"));
 import CouponCodeManagement from "./Partials/Apps/CouponCodeManagement/CouponCodeManagement";
 import Commissions from "./Partials/Apps/Commissions/Commissions";
+import AddCouponCode from "./Partials/Apps/CouponCodeManagement/AddCouponCode";
+import EditCouponCode from "./Partials/Apps/CouponCodeManagement/EditCouponCode";
 
 const AppRoutes = () => {
   return (
@@ -73,57 +69,50 @@ const AppRoutes = () => {
           <AuthWrapper>
             <Routes>
               {/* Root route */}
-              <Route
-                path="/"
-                element={<Navigate to="/vendor/index" replace />}
-              />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               {/* Protected routes */}
-              <Route path="/vendor/index" element={<Index />} />
-              <Route path="/vendor/payments" element={<MyWallet />} />
-              <Route path="/vendor/app/orders" element={<Invoices />} />
+              <Route path="/dashboard" element={<Index />} />
+              <Route path="/payments" element={<MyWallet />} />
+              <Route path="/orders" element={<Invoices />} />
               <Route
-                path="/vendor/app/orders/:orderId"
+                path="/order-details/:orderId"
                 element={<OrderDetails />}
               />
 
-              <Route path="/vendor/app/invoice" element={<InvoiceDetails />} />
-              <Route path="/vendor/users" element={<ClientsList />} />
-              <Route path="/vendor/user/my-profile" element={<MyProfile />} />
-              <Route path="/vendor/user/add-user" element={<Adduser />} />
-              <Route
-                path="/vendor/user/edit-user/:userId"
-                element={<EditUser />}
-              />
-              <Route
-                path="/vendor/user/change-password"
-                element={<ChangePassword />}
-              />
+              <Route path="/invoice" element={<InvoiceDetails />} />
+              <Route path="/my-profile" element={<MyProfile />} />
+              <Route path="/change-password" element={<ChangePassword />} />
 
               {/* Agent Management */}
-              <Route path="/vendor/agents" element={<Agents />} />
-              <Route path="/vendor/agents/add-agent" element={<AddAgent />} />
+              <Route path="/agents" element={<Agents />} />
+              <Route path="/agents/add-agent" element={<AddAgent />} />
               <Route
-                path="/vendor/agents/edit-agent/:agentId"
+                path="/agents/edit-agent/:agentId"
                 element={<EditAgent />}
               />
 
               {/* Coupon Code Management */}
+              <Route path="/coupon-codes" element={<CouponCodeManagement />} />
               <Route
-                path="/vendor/coupon-codes"
-                element={<CouponCodeManagement />}
+                path="/coupon-codes/add-coupon"
+                element={<AddCouponCode />}
+              />
+              <Route
+                path="/coupon-codes/edit-coupon/:couponId"
+                element={<EditCouponCode />}
               />
 
               {/* Comissions */}
-              <Route path="/vendor/commissions" element={<Commissions />} />
+              <Route path="/commissions" element={<Commissions />} />
 
               {/* Contacts */}
-              <Route path="/vendor/contacts" element={<Contacts />} />
+              <Route path="/contacts" element={<Contacts />} />
 
               {/* Template Management */}
-              <Route path="/vendor/templates" element={<Templates />} />
-              <Route path="/vendor/addTemplate" element={<AddTemplate />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/templates/add-template" element={<AddTemplate />} />
               <Route
-                path="/vendor/editTemplate/:templateName/:templateId"
+                path="/templates/edit-template/:templateId"
                 element={<EditTemplate />}
               />
               {/* Catch-all for undefined routes */}

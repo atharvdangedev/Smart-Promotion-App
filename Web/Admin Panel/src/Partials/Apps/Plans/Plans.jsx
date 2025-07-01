@@ -6,58 +6,57 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import { Link, useNavigate } from "react-router-dom";
-import ExportButtons from "../../ExportButtons/ExportButtons";
-import Modal from "../../StatusModal/Modal";
+import ExportButtons from "../ExportButtons/ExportButtons";
 import axios from "axios";
+import LoadingFallback from "../LoadingFallback/LoadingFallback";
+import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
+import { handleApiError } from "../utils/handleApiError";
 import toast, { Toaster } from "react-hot-toast";
-import DeleteModal from "../../DeleteModal/DeleteModal";
-import ResponsivePagination from "../../ResponsivePagination/ResponsivePagination";
-import LoadingFallback from "../../LoadingFallback/LoadingFallback";
-import { handleApiError } from "../../utils/handleApiError";
+import Modal from "../StatusModal/Modal";
+import { Link, useNavigate } from "react-router-dom";
+import DeleteModal from "../DeleteModal/DeleteModal";
 
-const ClientsList = () => {
+const Plans = () => {
   // Navigate function
   const navigate = useNavigate();
 
   // Access token
   const token = localStorage.getItem("jwtToken");
 
-  // API URLs
+  // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
-  const Img_url = import.meta.env.VITE_IMG_URL;
 
   // State initialization
-  const [pageSize, setPageSize] = useState(10);
-  const [clientsData, setClientsData] = useState([]);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [recordToUpdate, setRecordToUpdate] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
+  const [planToDelete, setPlanToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch user data
+  //fetch plans
   useEffect(() => {
+    setLoading(true);
     const fetchData = async () => {
-      setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/users`, {
+        const response = await axios.get(`${APP_URL}/plans`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json;",
+            "Content-Type": "application/json",
           },
         });
         if (response.status === 200) {
-          setClientsData(response.data.users);
+          setData(response.data.plans);
         } else if (response.status === 204) {
-          setClientsData([]);
+          setData([]);
         }
       } catch (error) {
-        setClientsData([]);
-        handleApiError(error, "fetching", "users");
+        setData([]);
+        handleApiError(error, "fetching", "plans");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
@@ -66,25 +65,25 @@ const ClientsList = () => {
 
   // Handle edit page navigation
   const handleEdit = useCallback(
-    async (firstname, id) => {
-      navigate(`/admin/user/edit-user/${id}`, { state: { firstname } });
+    async (id) => {
+      navigate(`/admin/plans/edit-plan/${id}`);
     },
     [navigate]
   );
 
   // Handle delete callback
-  const handleDelete = useCallback((first_name, id) => {
-    setUserToDelete({ first_name, id });
+  const handleDelete = useCallback((title, id) => {
+    setPlanToDelete({ title, id });
     setIsDeleteModalOpen(true);
   }, []);
 
   // Handle delete functionality
   const handleConfirmDelete = async () => {
-    if (userToDelete) {
+    if (planToDelete) {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/users/${userToDelete.id}`,
+          `${APP_URL}/plans/${planToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -94,16 +93,16 @@ const ClientsList = () => {
         );
         if (response.status === 200) {
           toast.success(response.data.message);
-          setClientsData((prevData) =>
-            prevData.filter((user) => user.id !== userToDelete.id)
+          setData((prevData) =>
+            prevData.filter((plan) => plan.id !== planToDelete.id)
           );
         }
       } catch (error) {
-        handleApiError(error, "deleting", "user");
+        handleApiError(error, "deleting", "plans");
       } finally {
         setIsDeleting(false);
         setIsDeleteModalOpen(false);
-        setUserToDelete(null);
+        setPlanToDelete(null);
       }
     }
   };
@@ -118,7 +117,7 @@ const ClientsList = () => {
   const handleConfirmStatus = async (id) => {
     try {
       const response = await axios.put(
-        `${APP_URL}/update-user-status/${id}`,
+        `${APP_URL}/update-plan-status/${id}`,
         null,
         {
           headers: {
@@ -129,17 +128,17 @@ const ClientsList = () => {
       );
       if (response.status === 200) {
         toast.success(response.data.message);
-        setClientsData((prevData) =>
-          prevData.map((user) =>
-            user.id === id
-              ? { ...user, status: user.status === "1" ? "0" : "1" }
-              : user
+        setData((prevData) =>
+          prevData.map((plan) =>
+            plan.id === id
+              ? { ...plan, status: plan.status === "1" ? "0" : "1" }
+              : plan
           )
         );
         setIsStatusModalOpen(false);
       }
     } catch (error) {
-      handleApiError(error, "updating", "user status");
+      handleApiError(error, "updating", "plan status");
     }
   };
 
@@ -147,41 +146,40 @@ const ClientsList = () => {
   const columns = useMemo(
     () => [
       {
-        Header: "SR. NO.",
-        id: "serialNumber",
+        Header: "SR NO",
+        accessor: "serialNumber",
         Cell: ({ row }) => {
           return <div>{row.index + 1}</div>;
         },
       },
       {
         Header: "NAME",
-        id: "fullName",
-        accessor: (row) => `${row.first_name} ${row.last_name}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <img
-              src={
-                row.original.profile_pic
-                  ? `${Img_url}/profile/${row.original.profile_pic}`
-                  : `${Img_url}/default/list/user.webp`
-              }
-              alt={row.original.first_name || "User profile"}
-              className="me-2 avatar rounded-circle lg"
-              onError={(e) => {
-                e.target.src = `${Img_url}/default/list/user.webp`;
-              }}
-            />
-            <div className="d-flex flex-column">
-              {row.original.first_name} {row.original.last_name}
-            </div>
-          </div>
-        ),
+        accessor: "title",
       },
-      { Header: "EMAIL", accessor: "email" },
-      { Header: "CONTACT", accessor: "contact_no" },
       {
-        Header: "ROLE",
-        accessor: "role_name",
+        Header: "TYPE",
+        accessor: "plan_type",
+      },
+      {
+        Header: "VALIDITY",
+        accessor: "validity",
+        Cell: ({ row }) => {
+          return <div>{row.original.validity} days</div>;
+        },
+      },
+      {
+        Header: "PRICE",
+        accessor: "price",
+        Cell: ({ row }) => {
+          return (
+            <div>
+              {Number(row.original.price).toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR",
+              })}
+            </div>
+          );
+        },
       },
       {
         Header: "STATUS",
@@ -211,18 +209,14 @@ const ClientsList = () => {
           <div>
             <button
               type="button"
-              onClick={() =>
-                handleEdit(row.original.first_name, row.original.id)
-              }
+              onClick={() => handleEdit(row.original.id)}
               className="btn text-info px-2 me-1"
             >
               <i className="bi bi-pencil"></i>
             </button>
             <button
               type="button"
-              onClick={() =>
-                handleDelete(row.original.first_name, row.original.id)
-              }
+              onClick={() => handleDelete(row.original.title, row.original.id)}
               className="btn text-danger px-2"
             >
               <i className="fa fa-trash"></i>
@@ -231,7 +225,7 @@ const ClientsList = () => {
         ),
       },
     ],
-    [Img_url, handleStatusClick, handleEdit, handleDelete]
+    [handleDelete, handleEdit, handleStatusClick]
   );
 
   // Use the useTable hook to build the table
@@ -254,7 +248,7 @@ const ClientsList = () => {
   } = useTable(
     {
       columns,
-      data: clientsData,
+      data,
       initialState: { pageIndex: 0, pageSize },
     },
     useGlobalFilter,
@@ -273,7 +267,6 @@ const ClientsList = () => {
     setPageSize(newPageSize);
     setTablePageSize(newPageSize);
   };
-
   return (
     <div className="px-4 py-3 page-body">
       <Toaster />
@@ -282,26 +275,18 @@ const ClientsList = () => {
           <div className="table-responsive">
             <div className="mb-3 d-flex justify-content-between">
               <h4 className="title-font">
-                <strong>Users List</strong>
+                <strong>Plans</strong>
               </h4>
-              <Link className="btn btn-primary" to="/admin/user/add-user">
-                Add New User
+              <Link className="btn btn-primary" to="/admin/plans/add-plan">
+                Add New Plan
               </Link>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
               <ExportButtons
                 data={rows.map((row) => row.original)}
-                fileName="Users"
-                fields={[
-                  "first_name",
-                  "last_name",
-                  "email",
-                  "contact_no",
-                  "role_name",
-                  "status",
-                  "activated",
-                ]}
+                fileName="Plans"
+                fields={["title", "plan_type", "validity", "price", "status"]}
               />
               <div className="d-flex align-items-center">
                 <div className="me-2">
@@ -338,17 +323,17 @@ const ClientsList = () => {
                 onConfirm={() => handleConfirmStatus(recordToUpdate.id)}
                 message={`Are you sure you want to ${
                   recordToUpdate?.status === "1" ? "deactivate" : "activate"
-                } user ${recordToUpdate.first_name}?`}
+                } plan ${recordToUpdate.title}?`}
                 status={recordToUpdate?.status}
               />
             )}
 
-            {userToDelete && (
+            {planToDelete && (
               <DeleteModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
-                message={`Are you sure you want to delete user ${userToDelete.first_name}?`}
+                message={`Are you sure you want to delete plan ${planToDelete.title}?`}
                 isLoading={isDeleting}
               />
             )}
@@ -385,16 +370,16 @@ const ClientsList = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {isLoading ? (
+                {loading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
-                      <LoadingFallback message="Loading users..." />
+                      <LoadingFallback message="Loading plans..." />
                     </td>
                   </tr>
-                ) : clientsData.length === 0 ? (
+                ) : data.length === 0 ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
-                      No users available.
+                      No plans available.
                     </td>
                   </tr>
                 ) : page.length === 0 ? (
@@ -425,7 +410,7 @@ const ClientsList = () => {
             </table>
           </div>
 
-          {clientsData.length > 0 && (
+          {data.length > 0 && (
             <ResponsivePagination
               pageIndex={pageIndex}
               pageOptions={pageOptions}
@@ -442,4 +427,4 @@ const ClientsList = () => {
   );
 };
 
-export default ClientsList;
+export default Plans;

@@ -15,6 +15,9 @@ import EditAffiliate from "./Partials/Apps/Affiliates/EditAffiliate";
 import CouponCodeManagement from "./Partials/Apps/CouponCodeManagement/CouponCodeManagement";
 import Commissions from "./Partials/Apps/Commissions/Commissions";
 import Contacts from "./Partials/Apps/Contacts/Contacts";
+import AddPlan from "./Partials/Apps/Plans/AddPlan";
+import EditPlan from "./Partials/Apps/Plans/EditPlan";
+import VendorContacts from "./Partials/Apps/VendorContacts/VendorContacts";
 
 // Lazy loaded components using custom lazyLoad
 const NotFound = lazyLoad(() => import("./NotFound/NotFound"));
@@ -62,6 +65,7 @@ const ClientsList = lazyLoad(() =>
 );
 const Adduser = lazyLoad(() => import("./Partials/Apps/AddUser/Adduser"));
 const EditUser = lazyLoad(() => import("./Partials/Apps/EditUser/EditUser"));
+const Plans = lazyLoad(() => import("./Partials/Apps/Plans/Plans"));
 
 const AppRoutes = () => {
   return (
@@ -94,6 +98,14 @@ const AppRoutes = () => {
               <Route
                 path="/admin/app/subscriptions"
                 element={<Subscriptions />}
+              />
+
+              {/* Plan Routes */}
+              <Route path="/admin/plans" element={<Plans />} />
+              <Route path="/admin/plans/add-plan" element={<AddPlan />} />
+              <Route
+                path="/admin/plans/edit-plan/:planId"
+                element={<EditPlan />}
               />
 
               {/* logged in user profile */}
@@ -152,6 +164,10 @@ const AppRoutes = () => {
 
               {/* Contacts */}
               <Route path="/admin/contacts" element={<Contacts />} />
+              <Route
+                path="/admin/contacts/vendor/:vendorId"
+                element={<VendorContacts />}
+              />
 
               {/* template management */}
               <Route path="/admin/templates" element={<Templates />} />

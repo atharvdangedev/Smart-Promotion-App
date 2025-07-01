@@ -44,7 +44,7 @@ const EditTemplate = () => {
     mode: "onChange",
   });
 
-  //fetch area details
+  //fetch template details
   useEffect(() => {
     const fetchTemplateDetails = async () => {
       try {

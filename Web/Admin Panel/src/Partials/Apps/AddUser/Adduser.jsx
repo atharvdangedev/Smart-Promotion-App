@@ -10,6 +10,8 @@ import ImagePreview from "../utils/ImagePreview";
 import { evaluatePasswordStrength } from "../utils/evaluatePasswordStrength";
 import { handleApiError } from "../utils/handleApiError";
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 // Schema definition
 const schema = yup.object().shape({
   firstname: yup
@@ -24,18 +26,22 @@ const schema = yup.object().shape({
     .max(50, "Maximum 50 characters allowed.")
     .matches(/^[A-Za-z]+$/, "Last name must contain only alphabets.")
     .required("Last name is required"),
-  email: yup.string().email("Invalid email").required("Email is required"),
-  contact_no: yup.string().required("Contact number is required"),
-  password: yup
+  email: yup
     .string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
+    .required("Email is required")
+    .matches(emailRegex, "Invalid email address"),
+  contact_no: yup
+    .string()
+    .min(10, "Contact number must be minimun 10 digits")
+    .required("Contact number is required"),
+  password: yup.string().required("Password is required"),
   cnfPassword: yup
     .string()
     .oneOf([yup.ref("password"), null], "Passwords must match")
     .required("Confirm password is required"),
   profile_pic: yup.mixed().notRequired(),
   role: yup.string().required("User role is required"),
+  address: yup.string().notRequired(),
 });
 
 const AddUser = () => {
@@ -96,7 +102,7 @@ const AddUser = () => {
         if (response.status === 200) {
           const roleOptions = response.data.roles.map((role) => ({
             value: role.id,
-            label: role.role_name,
+            label: role.rolename,
           }));
           setRoles(roleOptions);
         }
@@ -119,23 +125,23 @@ const AddUser = () => {
     try {
       const formData = new FormData();
 
-      formData.append("firstname", data.firstname);
-      formData.append("lastname", data.lastname);
+      formData.append("first_name", data.firstname);
+      formData.append("last_name", data.lastname);
+      formData.append("address", data.address);
       formData.append("email", data.email);
       formData.append("contact_no", data.contact_no);
       formData.append("password", data.password);
-      formData.append("cnfPassword", data.cnfPassword);
       if (data.profile_pic && data.profile_pic[0] instanceof File)
         formData.append("profile_pic", data.profile_pic[0]);
       formData.append("role", data.role);
 
-      const res = await axios.post(`${APP_URL}/add-user`, formData, {
+      const res = await axios.post(`${APP_URL}/users`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
-      if (res.status === 200) {
+      if (res.status === 201) {
         toast.success(res.data.message);
         setTimeout(() => {
           navigate("/admin/users");
@@ -186,7 +192,9 @@ const AddUser = () => {
                 <div className="form-floating">
                   <input
                     type="text"
-                    className={`form-control ${errors.firstname ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.firstname ? "is-invalid" : ""
+                    }`}
                     id="firstname"
                     {...register("firstname")}
                     placeholder="First Name"
@@ -204,7 +212,9 @@ const AddUser = () => {
                 <div className="form-floating">
                   <input
                     type="text"
-                    className={`form-control ${errors.lastname ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.lastname ? "is-invalid" : ""
+                    }`}
                     id="lastname"
                     {...register("lastname")}
                     placeholder="Last Name"
@@ -221,8 +231,10 @@ const AddUser = () => {
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
-                    type="email"
-                    className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                    type="text"
+                    className={`form-control ${
+                      errors.email ? "is-invalid" : ""
+                    }`}
                     id="email"
                     {...register("email")}
                     placeholder="Email"
@@ -245,7 +257,9 @@ const AddUser = () => {
                     onInput={(e) =>
                       (e.target.value = e.target.value.replace(/\D+/g, ""))
                     }
-                    className={`form-control ${errors.contact_no ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.contact_no ? "is-invalid" : ""
+                    }`}
                     id="contact_no"
                     {...register("contact_no")}
                     placeholder="Contact"
@@ -261,11 +275,15 @@ const AddUser = () => {
               </div>
               <div className="col-md-4">
                 <div
-                  className={`form-floating ${errors.password ? "is-invalid" : ""}`}
+                  className={`form-floating ${
+                    errors.password ? "is-invalid" : ""
+                  }`}
                 >
                   <input
                     type={showPassword ? "text" : "password"}
-                    className={`form-control ${errors.password ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.password ? "is-invalid" : ""
+                    }`}
                     id="password"
                     {...register("password")}
                     placeholder="Password"
@@ -278,7 +296,9 @@ const AddUser = () => {
                     onClick={toggleShowPassword}
                   >
                     <i
-                      className={`bi ${showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"}`}
+                      className={`bi ${
+                        showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"
+                      }`}
                     ></i>
                   </div>
                 </div>
@@ -301,7 +321,9 @@ const AddUser = () => {
                 <div className="form-floating">
                   <input
                     type={showPassword ? "text" : "password"}
-                    className={`form-control ${errors.cnfPassword ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.cnfPassword ? "is-invalid" : ""
+                    }`}
                     id="cnfPassword"
                     {...register("cnfPassword")}
                     placeholder="Confirm Password"
@@ -313,7 +335,9 @@ const AddUser = () => {
                     onClick={toggleShowPassword}
                   >
                     <i
-                      className={`bi ${showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"}`}
+                      className={`bi ${
+                        showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"
+                      }`}
                     ></i>
                   </div>
                   <label htmlFor="cnfPassword">Confirm Password</label>
@@ -329,7 +353,9 @@ const AddUser = () => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    className={`form-control ${errors.profile_pic ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.profile_pic ? "is-invalid" : ""
+                    }`}
                     id="profile_pic"
                     {...register("profile_pic")}
                     onChange={handleProfilePic}
@@ -354,6 +380,26 @@ const AddUser = () => {
               </div>
               <div className="col-md-4">
                 <div className="form-floating">
+                  <textarea
+                    type="text"
+                    className={`form-control ${
+                      errors.address ? "is-invalid" : ""
+                    }`}
+                    id="address"
+                    {...register("address")}
+                    placeholder="Address"
+                    tabIndex="8"
+                  />
+                  <label htmlFor="address">Address</label>
+                  {errors.address && (
+                    <div className="invalid-feedback">
+                      {errors.address.message}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="col-md-4">
+                <div className="form-floating">
                   <Controller
                     name="role"
                     control={control}
@@ -362,8 +408,10 @@ const AddUser = () => {
                       <Select
                         {...field}
                         options={roles}
-                        tabIndex="8"
-                        className={`basic-single ${errors.role ? "is-invalid" : ""}`}
+                        tabIndex="9"
+                        className={`basic-single ${
+                          errors.role ? "is-invalid" : ""
+                        }`}
                         classNamePrefix="select"
                         isClearable={true}
                         isSearchable={true}
@@ -415,14 +463,14 @@ const AddUser = () => {
               </div>
               <div className="col-12">
                 <button
-                  tabIndex="9"
+                  tabIndex="10"
                   className="me-1 btn btn-primary"
                   type="submit"
                 >
                   Add User
                 </button>
                 <button
-                  tabIndex="10"
+                  tabIndex="11"
                   className="btn btn-outline-secondary"
                   type="button"
                   onClick={handleCancel}

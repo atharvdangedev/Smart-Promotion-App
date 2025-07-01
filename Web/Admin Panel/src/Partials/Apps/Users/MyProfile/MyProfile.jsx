@@ -8,23 +8,32 @@ import toast, { Toaster } from "react-hot-toast";
 import UploadProgress from "../../utils/UploadProgress";
 import { handleApiError } from "../../utils/handleApiError";
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 // Schema definition
 const schema = yup.object().shape({
-  firstname: yup
+  first_name: yup
     .string()
     .min(2, "Minimum 2 characters required.")
     .max(50, "Maximum 50 characters allowed.")
     .matches(/^[A-Za-z]+$/, "First name must contain only alphabets.")
     .required("First name is required"),
-  lastname: yup
+  last_name: yup
     .string()
     .min(2, "Minimum 2 characters required.")
     .max(50, "Maximum 50 characters allowed.")
     .matches(/^[A-Za-z]+$/, "Last name must contain only alphabets.")
     .required("Last name is required"),
-  email: yup.string().email("Invalid email").required("Email is required"),
-  contact_no: yup.string().required("Contact number is required"),
+  email: yup
+    .string()
+    .required("Email is required")
+    .matches(emailRegex, "Invalid email address"),
+  contact_no: yup
+    .string()
+    .min(10, "Contact number must be minimun 10 digits")
+    .required("Contact number is required"),
   role: yup.string().required("User role is required"),
+  role_id: yup.string().notRequired(),
 });
 
 const MyProfile = () => {
@@ -37,7 +46,7 @@ const MyProfile = () => {
 
   // User details from token
   const decoded = jwtDecode(token);
-  const { user_id } = decoded.data;
+  const { id } = decoded.data;
 
   // State initialisation
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -50,16 +59,19 @@ const MyProfile = () => {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
 
+  const formValues = watch();
+
   //fetch user data
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`${APP_URL}/user-details/${user_id}`, {
+        const res = await axios.get(`${APP_URL}/users/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -67,11 +79,11 @@ const MyProfile = () => {
         });
         if (res.status === 200) {
           setUserData(res.data.user);
-          setValue("firstname", res.data.user.firstname);
-          setValue("lastname", res.data.user.lastname);
+          setValue("first_name", res.data.user.first_name);
+          setValue("last_name", res.data.user.last_name);
           setValue("email", res.data.user.email);
-          setValue("role", res.data.user.role);
-          setValue("role_id", res.data.user.role_id);
+          setValue("role", res.data.user.role_name);
+          setValue("role_id", res.data.user.role);
           setValue("contact_no", res.data.user.contact_no);
           setValue("old_profile_pic", res.data.user.profile_pic);
         }
@@ -82,7 +94,7 @@ const MyProfile = () => {
 
     fetchUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user_id, token, updated, APP_URL]);
+  }, [id, token, updated, APP_URL]);
 
   // Handle profile picture click
   const handleProfilePicClick = () => {
@@ -99,7 +111,7 @@ const MyProfile = () => {
 
     try {
       const res = await axios.post(
-        `${APP_URL}/update-profile-pic/${user_id}`,
+        `${APP_URL}/update-profile-pic/${id}`,
         formData,
         {
           headers: {
@@ -130,28 +142,25 @@ const MyProfile = () => {
   const onSubmit = async (data) => {
     const formData = new FormData();
 
-    if (data.firstname) formData.append("firstname", data.firstname);
-    if (data.lastname) formData.append("lastname", data.lastname);
+    if (data.first_name) formData.append("first_name", data.first_name);
+    if (data.last_name) formData.append("last_name", data.last_name);
     if (data.email) formData.append("email", data.email);
     if (data.contact_no) formData.append("contact_no", data.contact_no);
     if (data.old_profile_pic)
       formData.append("old_profile_pic", data.old_profile_pic);
-    formData.append("role", data.role_id);
+
+    formData.append("role", formValues.role_id);
 
     try {
-      const res = await axios.post(
-        `${APP_URL}/edit-user/${user_id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await axios.post(`${APP_URL}/users/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
       if (res.status === 200) {
         toast.success(res.data.message);
-        setUpdated(true);
+        setUpdated((prev) => !prev);
       }
     } catch (error) {
       handleApiError(error, "updating", "user");
@@ -172,10 +181,10 @@ const MyProfile = () => {
               <img
                 src={
                   userData?.profile_pic
-                    ? `${Img_url}/profile/list/${userData.profile_pic}`
+                    ? `${Img_url}/profile/${userData.profile_pic}`
                     : `${Img_url}/default/list/user.webp`
                 }
-                alt={userData?.firstname || "User profile"}
+                alt={userData?.first_name || "User profile"}
                 className="avatar rounded xl"
                 onError={(e) => {
                   e.target.src = `${Img_url}/default/list/user.webp`;
@@ -206,7 +215,7 @@ const MyProfile = () => {
             </div>
             <div className="media-body ms-md-5 m-0 mt-4 mt-md-0 text-md-start text-center">
               <h4 className="mb-1">
-                {userData.firstname} {userData.lastname}
+                {userData.first_name} {userData.last_name}
               </h4>
               <p>{userData.email}</p>
             </div>
@@ -220,17 +229,17 @@ const MyProfile = () => {
                   <input
                     type="text"
                     className={`form-control ${
-                      errors.firstname ? "is-invalid" : ""
+                      errors.first_name ? "is-invalid" : ""
                     }`}
-                    id="firstname"
-                    {...register("firstname")}
+                    id="first_name"
+                    {...register("first_name")}
                     placeholder="First Name"
                     tabIndex="1"
                   />
-                  <label htmlFor="firstname">First Name</label>
-                  {errors.firstname && (
+                  <label htmlFor="first_name">First Name</label>
+                  {errors.first_name && (
                     <div className="invalid-feedback">
-                      {errors.firstname.message}
+                      {errors.first_name.message}
                     </div>
                   )}
                 </div>
@@ -240,17 +249,17 @@ const MyProfile = () => {
                   <input
                     type="text"
                     className={`form-control ${
-                      errors.lastname ? "is-invalid" : ""
+                      errors.last_name ? "is-invalid" : ""
                     }`}
-                    id="lastname"
-                    {...register("lastname")}
+                    id="last_name"
+                    {...register("last_name")}
                     placeholder="Last Name"
                     tabIndex="2"
                   />
-                  <label htmlFor="lastname">Last Name</label>
-                  {errors.lastname && (
+                  <label htmlFor="last_name">Last Name</label>
+                  {errors.last_name && (
                     <div className="invalid-feedback">
-                      {errors.lastname.message}
+                      {errors.last_name.message}
                     </div>
                   )}
                 </div>
@@ -258,7 +267,7 @@ const MyProfile = () => {
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
-                    type="email"
+                    type="text"
                     className={`form-control ${
                       errors.email ? "is-invalid" : ""
                     }`}

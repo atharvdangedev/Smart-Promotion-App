@@ -13,7 +13,7 @@ const UserActivation = () => {
   const [message, setMessage] = useState("");
   const [countdown, setCountdown] = useState(5);
 
-  setPageTitle("User Activation | Vendor Panel");
+  setPageTitle("User Activation");
 
   // Extract token from URL
   useEffect(() => {
@@ -54,14 +54,10 @@ const UserActivation = () => {
 
   // Function to handle user activation
   const activateUser = async () => {
-    const params = new URLSearchParams();
-    params.append("activate_token", activateToken);
+    const formData = new FormData();
+    formData.append("activate_token", activateToken);
     try {
-      const response = await axios.post(`${APP_URL}/ActivateUser`, params, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
+      const response = await axios.post(`${APP_URL}/ActivateUser`, formData);
       if (response.status === 200) {
         setMessage(
           "User activation successful! Redirecting to sign in page..."

@@ -28,8 +28,8 @@ const Index = memo(() => {
     const fetchUser = async () => {
       try {
         const decoded = jwtDecode(token);
-        const { user_id } = decoded.data;
-        const res = await axios.get(`${APP_URL}/user-details/${user_id}`, {
+        const { id } = decoded.data;
+        const res = await axios.get(`${APP_URL}/users/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -165,8 +165,8 @@ const Index = memo(() => {
           icon: category.category_name.includes("Review")
             ? Mail
             : category.category_name.includes("Business")
-              ? CreditCard
-              : ShoppingBag,
+            ? CreditCard
+            : ShoppingBag,
         })),
       ]
     : [];
@@ -342,10 +342,10 @@ const Index = memo(() => {
                 <img
                   src={
                     userData?.profile_pic
-                      ? `${Img_url}/profile/list/${userData.profile_pic}`
+                      ? `${Img_url}/profile/${userData.profile_pic}`
                       : `${Img_url}/default/list/user.webp`
                   }
-                  alt={userData?.firstname || "User profile"}
+                  alt={userData?.first_name || "User profile"}
                   className="me-2 avatar rounded-circle xl"
                   onError={(e) => {
                     e.target.src = `${Img_url}/default/list/user.webp`;
@@ -355,11 +355,13 @@ const Index = memo(() => {
                   <h4 className="mb-0 text-gradient title-font">
                     Hello,{" "}
                     {userData
-                      ? `${userData.firstname} ${userData.lastname}`
+                      ? `${userData.first_name} ${userData.last_name}`
                       : "User"}
                     !
                   </h4>
-                  <span className="text-muted small">{userData?.email}</span>
+                  <span className="text-muted small">
+                    {userData?.email || ""}
+                  </span>
                 </div>
               </div>
             </div>

@@ -87,7 +87,7 @@ const InvoiceDetails = () => {
             </p>
             <p>
               <strong>
-                Vendor: {invoiceData.firstname} {invoiceData.lastname}
+                Vendor: {invoiceData.first_name} {invoiceData.last_name}
               </strong>
             </p>
             {invoiceData.gst_number && (

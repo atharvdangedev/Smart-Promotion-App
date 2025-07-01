@@ -63,6 +63,9 @@ const App = () => {
     "/admin/app/orders/:orderId": "OrderDetails",
     "/admin/app/invoice": "InvoiceDetails",
     "/admin/app/subscriptions": "Subscriptions",
+    "/admin/plans": "Plans",
+    "/admin/plans/add-plan": "AddPlan",
+    "/admin/plans/edit-plan": "EditPlan",
     "/admin/users": "ClientsList",
     "/admin/user/my-profile": "MyProfile",
     "/admin/user/add-user": "Adduser",
@@ -73,13 +76,14 @@ const App = () => {
     "/admin/vendor/edit-vendor": "EditVendor",
     "/admin/vendor/agents": "Agents",
     "/admin/vendor/agents/add-agent": "AddAgent",
-    "/admin/vendor/agents/edit-agent/:agentId": "EditAgent",
+    "/admin/vendor/agents/edit-agent": "EditAgent",
     "/admin/affiliates": "Affiliates",
     "/admin/affiliates/add-affiliate": "AddAffiliate",
     "/admin/affiliates/edit-affiliate": "EditAffiliates",
     "/admin/coupon-codes": "CouponCodeManagement",
     "/admin/commissions": "Commissions",
     "/admin/contacts": "Contacts",
+    "/admin/contacts/vendor": "VendorContacts",
     "/admin/templates": "Templates",
     "/admin/addTemplate": "AddTemplate",
     "/admin/editTemplate": "EditTemplate",
@@ -99,8 +103,8 @@ const App = () => {
 
   if (authError) {
     console.log("Session expired or invalid.");
-    localStorage.removeItem("jwtToken");
-    window.location.href = "/signin";
+    // localStorage.removeItem("jwtToken");
+    // window.location.href = "/signin";
   }
 
   return (

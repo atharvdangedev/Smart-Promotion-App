@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 
-const DeleteModal = ({ isOpen, onClose, onConfirm, message, isLoading }) => {
+const ApproveModal = ({ isOpen, onClose, onConfirm, message, isLoading }) => {
   if (!isOpen) return null;
 
   return (
@@ -26,15 +26,15 @@ const DeleteModal = ({ isOpen, onClose, onConfirm, message, isLoading }) => {
           textAlign: "center",
         }}
       >
-        <div style={{ fontSize: "48px", color: "#F44336" }}>!</div>
-        <h2>Delete Confirmation</h2>
+        <div style={{ fontSize: "48px", color: "#28a745" }}>!</div>
+        <h2>Coupon Approval</h2>
         <p>{message}</p>
         <div>
           <button
             onClick={onConfirm}
             disabled={isLoading}
             style={{
-              backgroundColor: "#F44336",
+              backgroundColor: "#28a745",
               color: "white",
               border: "none",
               padding: "10px 20px",
@@ -44,7 +44,7 @@ const DeleteModal = ({ isOpen, onClose, onConfirm, message, isLoading }) => {
               opacity: isLoading ? 0.7 : 1,
             }}
           >
-            DELETE
+            APPROVE
           </button>
           <button
             onClick={onClose}
@@ -68,4 +68,4 @@ const DeleteModal = ({ isOpen, onClose, onConfirm, message, isLoading }) => {
   );
 };
 
-export default DeleteModal;
+export default ApproveModal;

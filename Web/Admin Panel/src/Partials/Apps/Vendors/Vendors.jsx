@@ -76,8 +76,8 @@ const Vendors = () => {
   );
 
   // Handle delete callback
-  const handleDelete = useCallback((firstname, id) => {
-    setUserToDelete({ firstname, id });
+  const handleDelete = useCallback((first_name, id) => {
+    setUserToDelete({ first_name, id });
     setIsDeleteModalOpen(true);
   }, []);
 
@@ -87,7 +87,7 @@ const Vendors = () => {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/delete-vendor/${userToDelete.id}`,
+          `${APP_URL}/vendors/${userToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -98,11 +98,11 @@ const Vendors = () => {
         if (response.status === 200) {
           toast.success(response.data.message);
           setData((prevData) =>
-            prevData.filter((user) => user.id !== userToDelete.id)
+            prevData.filter((vendor) => vendor.id !== userToDelete.id)
           );
         }
       } catch (error) {
-        handleApiError(error, "deleting", "user");
+        handleApiError(error, "deleting", "vendor");
       } finally {
         setIsDeleting(false);
         setIsDeleteModalOpen(false);
@@ -142,7 +142,7 @@ const Vendors = () => {
         setIsStatusModalOpen(false);
       }
     } catch (error) {
-      handleApiError(error, "updating", "user status");
+      handleApiError(error, "updating", "vendor status");
     }
   };
 
@@ -155,15 +155,14 @@ const Vendors = () => {
   // Handle user activation functionality (via email)
   const handleUserActivationConfirm = async () => {
     try {
-      const params = new URLSearchParams();
-      params.append("email", recordToUpdate.email);
+      const formData = new FormData();
+      formData.append("email", recordToUpdate.email);
       const response = await axios.post(
-        `${APP_URL}/SendActivationToken`,
-        params,
+        `${APP_URL}/SendActivationToken/${recordToUpdate.id}`,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/x-www-form-urlencoded",
           },
         }
       );
@@ -171,7 +170,7 @@ const Vendors = () => {
         toast.success(response.data.message);
       }
     } catch (error) {
-      handleApiError(error, "sending activation mail to", "user");
+      handleApiError(error, "sending activation mail to", "vendor");
     } finally {
       setIsUserActivationModalOpen(false);
     }
@@ -201,7 +200,7 @@ const Vendors = () => {
         );
       }
     } catch (error) {
-      handleApiError(error, "activating", "user");
+      handleApiError(error, "activating", "vendor");
     } finally {
       setIsUserActivationModalOpen(false);
     }
@@ -220,23 +219,23 @@ const Vendors = () => {
       {
         Header: "NAME",
         id: "fullName",
-        accessor: (row) => `${row.firstname} ${row.lastname}`,
+        accessor: (row) => `${row.first_name} ${row.last_name}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <img
               src={
-                row.original.profile
-                  ? `${Img_url}/profile/list/${row.original.profile}`
+                row.original.profile_pic
+                  ? `${Img_url}/profile/${row.original.profile_pic}`
                   : `${Img_url}/default/list/user.webp`
               }
-              alt={row.original.firstname || "User profile"}
+              alt={row.original.first_name || "User profile"}
               className="me-2 avatar rounded-circle lg"
               onError={(e) => {
                 e.target.src = `${Img_url}/default/list/user.webp`;
               }}
             />
             <div className="d-flex flex-column">
-              {row.original.firstname} {row.original.lastname}
+              {row.original.first_name} {row.original.last_name}
             </div>
           </div>
         ),
@@ -255,12 +254,12 @@ const Vendors = () => {
         ),
       },
       {
-        Header: "COMPANY NAME",
-        accessor: "company_name",
+        Header: "BUSINESS NAME",
+        accessor: "business_name",
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>{row.original.company_name}</span>
+              <span>{row.original.business_name}</span>
               <span>
                 {row.original.business_type || "Business type not provided"}
               </span>
@@ -283,7 +282,7 @@ const Vendors = () => {
       },
       {
         Header: "ROLE",
-        accessor: "role",
+        accessor: "rolename",
       },
       {
         Header: "STATUS",
@@ -321,7 +320,7 @@ const Vendors = () => {
             <button
               type="button"
               onClick={() =>
-                handleEdit(row.original.firstname, row.original.id)
+                handleEdit(row.original.first_name, row.original.id)
               }
               className="btn text-info px-2 me-1"
             >
@@ -330,7 +329,7 @@ const Vendors = () => {
             <button
               type="button"
               onClick={() =>
-                handleDelete(row.original.firstname, row.original.id)
+                handleDelete(row.original.first_name, row.original.id)
               }
               className="btn text-danger px-2"
             >
@@ -419,16 +418,16 @@ const Vendors = () => {
                 data={rows.map((row) => row.original)}
                 fileName="Vendors"
                 fields={[
-                  "firstname",
-                  "lastname",
+                  "first_name",
+                  "last_name",
                   "email",
                   "contact_no",
-                  "company_name",
+                  "business_name",
+                  "business_type",
                   "business_email",
                   "business_contact",
-                  "website_url",
-                  "company_address",
-                  "gst_number",
+                  "rolename",
+                  "activated",
                   "status",
                 ]}
               />
@@ -467,7 +466,7 @@ const Vendors = () => {
                 onConfirm={() => handleConfirmStatus(recordToUpdate.id)}
                 message={`Are you sure you want to ${
                   recordToUpdate?.status === "1" ? "deactivate" : "activate"
-                } vendor ${recordToUpdate.firstname}?`}
+                } vendor ${recordToUpdate.first_name}?`}
                 status={recordToUpdate?.status}
               />
             )}
@@ -479,7 +478,7 @@ const Vendors = () => {
                 viaEmail={handleUserActivationConfirm}
                 directly={handleUserActivationConfirmDirectly}
                 message={`This is an admin only action. Are you sure you want to manually activate ${
-                  recordToUpdate.firstname + " " + recordToUpdate.lastname
+                  recordToUpdate.first_name + " " + recordToUpdate.last_name
                 }?`}
                 isLoading={isLoading}
               />
@@ -490,7 +489,7 @@ const Vendors = () => {
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
-                message={`Are you sure you want to delete vendor ${userToDelete.firstname}?`}
+                message={`Are you sure you want to delete vendor ${userToDelete.first_name}?`}
                 isLoading={isDeleting}
               />
             )}

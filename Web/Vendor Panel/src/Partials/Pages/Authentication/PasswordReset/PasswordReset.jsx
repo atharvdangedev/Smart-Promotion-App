@@ -5,7 +5,6 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { setPageTitle } from "../../../Apps/utils/docTitle";
 
 const schema = yup.object().shape({
   email: yup
@@ -17,12 +16,11 @@ const schema = yup.object().shape({
 const PasswordReset = () => {
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
   // State Variables
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  setPageTitle("Forgot Password | Vendor Panel");
 
   // useForm hook initialization
   const {
@@ -39,7 +37,15 @@ const PasswordReset = () => {
     formdata.append("email", data.email);
 
     try {
-      const response = await axios.post(`${APP_URL}/SendToken`, formdata);
+      const response = await axios.post(
+        `${APP_URL}/forgot-password`,
+        formdata,
+        {
+          headers: {
+            "X-App-Secret": `${SECRET_KEY}`,
+          },
+        }
+      );
       if (response.status === 200) {
         setMessage(response.data.message);
       }
@@ -55,16 +61,14 @@ const PasswordReset = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <ul className="row g-3 list-unstyled li_animate">
           <li className="col-12">
-            <h1 className="h2 title-font">
-              Welcome to Smart WhatsApp Promotion
-            </h1>
-            <p>Your Vendor Dashboard</p>
+            <h1 className="h2 title-font">Welcome to Smart Promotion App</h1>
+            <p>Your Dashboard</p>
           </li>
 
           <li className="col-12">
             <div className="form-floating mb-4">
               <input
-                type="email"
+                type="text"
                 className={`form-control ${errors.email ? "is-invalid" : ""}`}
                 id="email"
                 {...register("email")}
