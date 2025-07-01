@@ -29,10 +29,7 @@ const schema = yup.object().shape({
   discount_type: yup.string().required("Discount Type is required"),
   discount: yup.string().required("Discount is required"),
   is_recurring: yup.boolean().required("Is recurring is required"),
-  valid_from: yup
-    .date()
-    .required("Coupon validity start date is required")
-    .min(new Date(), "Coupon validity start date cannot be in the past"),
+  valid_from: yup.date().required("Coupon validity start date is required"),
   valid_till: yup.date().required("Coupon validity end date is required"),
 });
 
@@ -49,8 +46,8 @@ const AddCouponCode = () => {
   const [plans, setPlans] = useState([]);
 
   const discountOptions = [
-    { value: "%", label: "%" },
-    { value: "Flat", label: "Flat" },
+    { value: "percent", label: "Percentage" },
+    { value: "flat", label: "Flat" },
   ];
 
   // Quill modules configuration
@@ -79,7 +76,7 @@ const AddCouponCode = () => {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const response = await axios.get(`${APP_URL}/affiliate/active-plans`, {
+        const response = await axios.get(`${APP_URL}/vendor/active-plans`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json;",

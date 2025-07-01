@@ -116,7 +116,7 @@ const CouponCodeManagement = () => {
     setLoading(true);
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${APP_URL}/affiliate/coupons`, {
+        const response = await axios.get(`${APP_URL}/vendor/coupons`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

@@ -50,8 +50,8 @@ const EditCouponCode = () => {
   const [couponName, setCouponName] = useState("");
 
   const discountOptions = [
-    { value: "%", label: "%" },
-    { value: "Flat", label: "Flat" },
+    { value: "percent", label: "Percentage" },
+    { value: "flat", label: "Flat" },
   ];
 
   // Quill modules configuration

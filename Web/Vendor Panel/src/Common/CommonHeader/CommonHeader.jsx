@@ -190,7 +190,7 @@ const CommonHeader = memo(() => {
               <img
                 src={
                   userData?.profile_pic
-                    ? `${Img_url}/profile/list/${userData.profile_pic}`
+                    ? `${Img_url}/profile/${userData.profile_pic}`
                     : `${Img_url}/default/list/user.webp`
                 }
                 alt={userData?.first_name || "User profile"}

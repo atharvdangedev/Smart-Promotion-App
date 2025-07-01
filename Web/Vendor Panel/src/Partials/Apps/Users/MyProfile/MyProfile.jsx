@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-escape */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { Controller, useForm } from "react-hook-form";
@@ -77,6 +77,7 @@ const MyProfile = () => {
 
   // Access token
   const token = localStorage.getItem("jwtToken");
+
   // User details from token
   const decoded = jwtDecode(token);
   const { id } = decoded.data;
@@ -106,6 +107,9 @@ const MyProfile = () => {
 
   // State initialisation
   // const [uploadProgress, setUploadProgress] = useState(0);
+  // State initialization
+  const profilePicRef = useRef();
+  const [profilePicPreview, setProfilePicPreview] = useState(null);
   const [userData, setUserData] = useState({});
   const [updated, setUpdated] = useState(false);
 
@@ -151,6 +155,14 @@ const MyProfile = () => {
             setValue("business_address", res.data.vendor.business_address);
           if (res.data.vendor.business_type)
             setValue("business_type", res.data.vendor.business_type);
+
+          // Set profile image if available
+          if (res.data.vendor.profile_pic) {
+            setValue("profile_pic", res.data.vendor.profile_pic);
+            setProfilePicPreview(
+              `${Img_url}/profile/${res.data.vendor.profile_pic}`
+            );
+          }
         }
       } catch (error) {
         handleApiError(error, "fetching", "vendor details");
@@ -159,6 +171,13 @@ const MyProfile = () => {
 
     fetchUser();
   }, [id, token, updated, APP_URL, setValue, Img_url]);
+
+  const handleProfilePic = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePicPreview(URL.createObjectURL(file));
+    }
+  };
 
   // Handle profile picture click
   // const handleProfilePicClick = () => {
@@ -222,7 +241,12 @@ const MyProfile = () => {
       formData.append("business_email", data.business_email);
     if (data.business_contact)
       formData.append("business_contact", data.business_contact);
-    if (data.website_url) formData.append("website", data.website_url);
+
+    if (data.profile_pic && data.profile_pic[0] instanceof File)
+      formData.append("profile_pic", data.profile_pic[0]);
+
+    if (data.old_profile_pic)
+      formData.append("old_profile_pic", data.old_profile_pic);
 
     try {
       const res = await axios.post(`${APP_URL}/vendors/${id}`, formData, {
@@ -236,7 +260,7 @@ const MyProfile = () => {
         setUpdated((prev) => !prev);
       }
     } catch (error) {
-      handleApiError(error, "updating", "user");
+      handleApiError(error, "updating", "vendor");
     }
   };
 
@@ -254,7 +278,7 @@ const MyProfile = () => {
               <img
                 src={
                   userData?.profile_pic
-                    ? `${Img_url}/profile/list/${userData.profile_pic}`
+                    ? `${Img_url}/profile/${userData.profile_pic}`
                     : `${Img_url}/default/list/user.webp`
                 }
                 alt={userData?.first_name || "User profile"}
@@ -378,6 +402,46 @@ const MyProfile = () => {
                   {errors.contact_no && (
                     <div className="invalid-feedback">
                       {errors.contact_no.message}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {profilePicPreview && (
+                <div className="col-md-1">
+                  <img
+                    src={profilePicPreview}
+                    alt="Vendor Logo"
+                    className="img-thumbnail"
+                    style={{ maxWidth: "100%", height: "60px" }}
+                  />
+                </div>
+              )}
+              <div className={`${profilePicPreview ? "col-md-3" : "col-md-4"}`}>
+                <div className="form-floating">
+                  <input
+                    type="file"
+                    ref={profilePicRef}
+                    className={`form-control ${
+                      errors.profile_pic ? "is-invalid" : ""
+                    }`}
+                    id="profile_pic"
+                    {...register("profile_pic")}
+                    accept="image/*"
+                    onChange={handleProfilePic}
+                    tabIndex="5"
+                  />
+                  <input
+                    type="hidden"
+                    name="old_profile_pic"
+                    id="old_profile_pic"
+                    {...register("old_profile_pic")}
+                  />
+                  <label htmlFor="profile_pic">
+                    Profile Picture (Optional)
+                  </label>
+                  {errors.profile_pic && (
+                    <div className="invalid-feedback">
+                      {errors.profile_pic.message}
                     </div>
                   )}
                 </div>
