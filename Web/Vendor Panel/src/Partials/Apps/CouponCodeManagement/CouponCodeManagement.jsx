@@ -352,11 +352,15 @@ const CouponCodeManagement = () => {
       formData.append("upi_id", data.upi_id);
       if (data.gst_number) formData.append("gst_number", data.gst_number);
 
-      const res = await axios.post(`${APP_URL}/become-an-affiliate`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.post(
+        `${APP_URL}/vendor/become-an-affiliate`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (res.status === 200) {
         toast.success(res.data.message);
       }
