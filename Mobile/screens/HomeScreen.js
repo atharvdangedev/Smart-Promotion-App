@@ -88,7 +88,7 @@ export default function DashboardScreen({ navigation }) {
                         color: (opacity = 1) => `rgba(2, 132, 199, ${opacity})`,
                         labelColor: () => "#000",
                         propsForDots: {
-                            r: "5",
+                            r: "4",
                             strokeWidth: "2",
                             stroke: "#0284c7",
                         },
