@@ -37,7 +37,7 @@ export default function WelcomeScreen({ navigation }) {
 
                 <TouchableOpacity
                     className="bg-zinc-800 px-6 py-3 rounded-md w-full">
-                    <Text className="text-center text-white font-semibold">SIGN IN WITH ENTERPRISE</Text>
+                    <Text className="text-center text-white font-semibold">SIGN UP WITH ENTERPRISE</Text>
                 </TouchableOpacity>
             </View>
 

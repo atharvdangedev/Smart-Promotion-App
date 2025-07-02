@@ -1,4 +1,4 @@
-import { Navigation, User } from 'lucide-react-native';
+import { User } from 'lucide-react-native';
 import React, { useState, useCallback } from 'react';
 import { View, Text, ScrollView, RefreshControl, Dimensions, TouchableOpacity } from 'react-native';
 import { LineChart, StackedBarChart } from 'react-native-chart-kit';
