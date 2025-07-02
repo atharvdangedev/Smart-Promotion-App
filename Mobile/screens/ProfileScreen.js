@@ -1,4 +1,3 @@
-// ... same imports
 import React, { useState } from 'react';
 import {
     View,
@@ -10,12 +9,15 @@ import {
     ImageBackground,
     KeyboardAvoidingView,
     Platform,
+    Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Camera } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from '../utils/api';
 
-// ✅ Input Component
+// Input Component
 const Input = ({ label, placeholder, name, formData, handleChange, errors }) => {
     const [focused, setFocused] = useState(false);
     const error = errors[name];
@@ -38,7 +40,7 @@ const Input = ({ label, placeholder, name, formData, handleChange, errors }) => 
     );
 };
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }) {
     const [profilePic, setProfilePic] = useState(null);
 
     const [formData, setFormData] = useState({
@@ -157,6 +159,58 @@ export default function ProfileScreen() {
                     >
                         <Text className="text-black text-center font-semibold">Save Profile</Text>
                     </TouchableOpacity>
+                    {/* Logout Button */}
+
+                    <TouchableOpacity
+                        onPress={() => {
+                            Alert.alert(
+                                'Logout',
+                                'Are you sure you want to logout?',
+                                [
+                                    { text: 'Cancel', style: 'cancel' },
+                                    {
+                                        text: 'Logout',
+                                        style: 'destructive',
+                                        onPress: async () => {
+                                            try {
+                                                const token = await AsyncStorage.getItem('token');
+
+                                                if (token) {
+                                                    await api.post(
+                                                        'admin-logout',
+                                                        {},
+                                                        {
+                                                            headers: {
+                                                                Authorization: `Bearer ${token}`,
+                                                            },
+                                                        }
+                                                    );
+                                                }
+
+                                                await AsyncStorage.removeItem('token');
+                                                navigation.reset({
+                                                    index: 0,
+                                                    routes: [{ name: 'SignIn' }],
+                                                });
+                                            } catch (error) {
+                                                console.error('Logout Error:', error);
+                                                await AsyncStorage.removeItem('token'); // fallback
+                                                navigation.reset({
+                                                    index: 0,
+                                                    routes: [{ name: 'SignIn' }],
+                                                });
+                                            }
+                                        },
+                                    },
+                                ],
+                                { cancelable: true }
+                            );
+                        }}
+                        className="bg-black border border-white rounded-xl py-3 mb-6"
+                    >
+                        <Text className="text-white text-center font-semibold">Logout</Text>
+                    </TouchableOpacity>
+
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
