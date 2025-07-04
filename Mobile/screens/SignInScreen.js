@@ -21,11 +21,12 @@ export default function LoginScreen({ navigation }) {
 
         setLoading(true);
         try {
-            const res = await api.post('admin-login', {
+            const res = await api.post('login', {
                 email,
                 password,
                 remember: rememberMe ? 1 : 0,
             });
+
 
             console.log('Login Response:', JSON.stringify(res.data, null, 2));
 
