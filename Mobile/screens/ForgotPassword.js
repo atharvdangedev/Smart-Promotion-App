@@ -20,7 +20,7 @@ export default function ForgotPassword({ navigation }) {
         setSuccessMsg('');
 
         try {
-            const res = await api.post('admin-forgot-password', { email });
+            const res = await api.post('forgot-password', { email });
 
             console.log('Forgot Password Response:', res.data);
 

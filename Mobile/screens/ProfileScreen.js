@@ -49,6 +49,8 @@ export default function ProfileScreen({ navigation }) {
         email: '',
         contact: '',
         vendorId: '',
+        address: '',
+        password: '',
         // businessName: '',
         // businessType: '',
         // businessEmail: '',
@@ -67,7 +69,8 @@ export default function ProfileScreen({ navigation }) {
 
     const validate = () => {
         const newErrors = {};
-        const requiredFields = ['firstName', 'lastName', 'email', 'contact', 'vendorId'];
+        const requiredFields = ['firstName', 'lastName', 'email', 'contact', 'vendorId', 'address', 'password'];
+
 
         requiredFields.forEach((field) => {
             if (!formData[field]) {
@@ -79,11 +82,46 @@ export default function ProfileScreen({ navigation }) {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSave = () => {
-        if (validate()) {
-            console.log('Form submitted:', formData);
+    const handleSave = async () => {
+        if (!validate()) return;
+
+        try {
+            const token = await AsyncStorage.getItem('token');
+
+            const payload = {
+                first_name: formData.firstName,
+                last_name: formData.lastName,
+                email: formData.email,
+                address: 'N/A', // Add actual field if needed
+                contact_no: formData.contact,
+                password: 'Agent@123', // Choose logic to generate/set password
+                vendor_id: formData.vendorId,
+            };
+
+            if (profilePic) {
+                payload.profile_pic = profilePic; // base64 or URL if required
+            }
+
+            const res = await api.post('vendor/agents', payload, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (res.data?.status === true) {
+                Alert.alert('Success', 'Agent profile created successfully');
+                console.log('Response:', res.data);
+            } else {
+                Alert.alert('Error', res.data?.message || 'Failed to create agent');
+            }
+        } catch (err) {
+            console.error('Create Agent Error:', err.response?.data || err.message);
+            Alert.alert('Error', 'Failed to create agent profile');
         }
     };
+
+
 
     const handleSelectImage = () => {
         const options = {
@@ -151,6 +189,8 @@ export default function ProfileScreen({ navigation }) {
                     <Input name="email" label="Email" placeholder="Enter email" {...{ formData, handleChange, errors }} />
                     <Input name="contact" label="Contact No" placeholder="Enter contact number" {...{ formData, handleChange, errors }} />
                     <Input name="vendorId" label="Vendor ID" placeholder="Enter vendor ID" {...{ formData, handleChange, errors }} />
+                    <Input name="address" label="Address" placeholder="Enter address" {...{ formData, handleChange, errors }} />
+                    <Input name="password" label="Password" placeholder="Enter password" {...{ formData, handleChange, errors }} />
 
                     {/* Save Button */}
                     <TouchableOpacity
@@ -158,6 +198,12 @@ export default function ProfileScreen({ navigation }) {
                         className="mt-6 bg-white border border-white rounded-xl py-3 mb-6"
                     >
                         <Text className="text-black text-center font-semibold">Save Profile</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('ChangePassword')}
+                        className="bg-white border border-white rounded-xl py-3 mb-6"
+                    >
+                        <Text className="text-black text-center font-semibold">Change Password</Text>
                     </TouchableOpacity>
                     {/* Logout Button */}
 
@@ -177,7 +223,7 @@ export default function ProfileScreen({ navigation }) {
 
                                                 if (token) {
                                                     await api.post(
-                                                        'admin-logout',
+                                                        'logout',
                                                         {},
                                                         {
                                                             headers: {
