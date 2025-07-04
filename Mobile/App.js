@@ -14,6 +14,7 @@ import PlansPricingScreen from './screens/PlansPricing';
 import ProfileScreen from './screens/ProfileScreen';
 import ContactLogScreen from './screens/ContactLogScreen';
 import ChangePasswordScreen from './screens/ChangePasswordScreen';
+import TemplateDetailScreen from './screens/TemplateDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -48,6 +49,7 @@ export default function App() {
         <Stack.Screen name='ProfileScreen' component={ProfileScreen} options={{ headerShown: false }} />
         <Stack.Screen name='ContactLogScreen' component={ContactLogScreen} options={{ headerShown: false }} />
         <Stack.Screen name='ChangePassword' component={ChangePasswordScreen} options={{ headerShown: false }} />
+        <Stack.Screen name='TemplateDetails' component={TemplateDetailScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
