@@ -19,6 +19,7 @@
     "lucide-react-native": "^0.511.0",
     "nativewind": "^4.1.23",
     "react": "19.1.0",
+    "react-hook-form": "^7.60.0",
     "react-native": "0.80.0",
     "react-native-bootsplash": "^6.3.9",
     "react-native-chart-kit": "^6.12.0",
