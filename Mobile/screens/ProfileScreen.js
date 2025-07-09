@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -12,160 +12,111 @@ import {
     Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { launchImageLibrary } from 'react-native-image-picker';
 import { Camera } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api } from '../utils/api';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { useForm, Controller } from 'react-hook-form';
 
-// Input Component
-const Input = ({ label, placeholder, name, formData, handleChange, errors }) => {
-    const [focused, setFocused] = useState(false);
-    const error = errors[name];
+const vendorFields = [
+    { name: 'first_name', label: 'First Name' },
+    { name: 'last_name', label: 'Last Name' },
+    { name: 'email', label: 'Email' },
+    { name: 'address', label: 'Address' },
+    { name: 'contact_no', label: 'Contact No' },
+    { name: 'password', label: 'Password' },
+    { name: 'business_name', label: 'Business Name' },
+    { name: 'business_type', label: 'Business Type' },
+    { name: 'business_email', label: 'Business Email' },
+    { name: 'business_contact', label: 'Business Contact' },
+    { name: 'business_address', label: 'Business Address' },
+    { name: 'gst_number', label: 'GST Number' },
+    { name: 'website', label: 'Website' },
+];
 
-    return (
-        <View className="mb-4 mx-3">
-            <Text className="text-gray-300 mb-1">{label}</Text>
-            <TextInput
-                className={`px-4 py-2 rounded-xl bg-gray-800 text-white border ${focused ? 'border-white' : error ? 'border-red-500' : 'border-gray-700'
-                    }`}
-                placeholder={placeholder}
-                placeholderTextColor="#9ca3af"
-                value={formData[name] || ''}
-                onChangeText={(text) => handleChange(name, text)}
-                onFocus={() => setFocused(true)}
-                onBlur={() => setFocused(false)}
-            />
-            {error && <Text className="text-red-500 text-xs mt-1">{error}</Text>}
-        </View>
-    );
-};
+const agentFields = [
+    { name: 'first_name', label: 'First Name' },
+    { name: 'last_name', label: 'Last Name' },
+    { name: 'email', label: 'Email' },
+    { name: 'address', label: 'Address' },
+    { name: 'contact_no', label: 'Contact No' },
+    { name: 'password', label: 'Password' },
+    { name: 'vendor_id', label: 'Vendor ID' },
+];
 
 export default function ProfileScreen({ navigation }) {
+    const [userType, setUserType] = useState(null);
+    const [fields, setFields] = useState([]);
     const [profilePic, setProfilePic] = useState(null);
 
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        contact: '',
-        vendorId: '',
-        address: '',
-        password: '',
-        // businessName: '',
-        // businessType: '',
-        // businessEmail: '',
-        // businessContact: '',
-        // businessAddress: '',
-        // gst: '',
-        // website: '',
-    });
+    const { control, handleSubmit, reset } = useForm();
 
-    const [errors, setErrors] = useState({});
+    useEffect(() => {
+        const init = async () => {
+            const type = await AsyncStorage.getItem('user_type'); // 'vendor' or 'agent'
+            setUserType(type);
 
-    const handleChange = (name, value) => {
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        setErrors((prev) => ({ ...prev, [name]: '' }));
-    };
-
-    const validate = () => {
-        const newErrors = {};
-        const requiredFields = ['firstName', 'lastName', 'email', 'contact', 'vendorId', 'address', 'password'];
-
-
-        requiredFields.forEach((field) => {
-            if (!formData[field]) {
-                newErrors[field] = 'This field is required';
-            }
-        });
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSave = async () => {
-        if (!validate()) return;
-
-        try {
-            const token = await AsyncStorage.getItem('token');
-
-            const payload = {
-                first_name: formData.firstName,
-                last_name: formData.lastName,
-                email: formData.email,
-                address: 'N/A', // Add actual field if needed
-                contact_no: formData.contact,
-                password: 'Agent@123', // Choose logic to generate/set password
-                vendor_id: formData.vendorId,
-            };
-
-            if (profilePic) {
-                payload.profile_pic = profilePic; // base64 or URL if required
-            }
-
-            const res = await api.post('vendor/agents', payload, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (res.data?.status === true) {
-                Alert.alert('Success', 'Agent profile created successfully');
-                console.log('Response:', res.data);
+            if (type === 'vendor') {
+                setFields(vendorFields);
+                reset({
+                    first_name: 'Vendor',
+                    last_name: 'User',
+                    email: 'vendor@example.com',
+                    address: 'Vendor Lane',
+                    contact_no: '9876543210',
+                    password: '',
+                    business_name: 'Vendor Co.',
+                    business_type: 'Retail',
+                    business_email: 'biz@vendor.com',
+                    business_contact: '1234567890',
+                    business_address: '123 Vendor Street',
+                    gst_number: 'GST1234567',
+                    website: 'https://vendor.com',
+                });
             } else {
-                Alert.alert('Error', res.data?.message || 'Failed to create agent');
+                setFields(agentFields);
+                reset({
+                    first_name: 'Agent',
+                    last_name: 'User',
+                    email: 'agent@example.com',
+                    address: 'Agent Area',
+                    contact_no: '9123456789',
+                    password: '',
+                    vendor_id: 'VENDOR456',
+                });
             }
-        } catch (err) {
-            console.error('Create Agent Error:', err.response?.data || err.message);
-            Alert.alert('Error', 'Failed to create agent profile');
-        }
-    };
-
-
-
-    const handleSelectImage = () => {
-        const options = {
-            mediaType: 'photo',
-            quality: 0.7,
-            includeBase64: false,
         };
 
-        launchImageLibrary(options, (response) => {
-            if (response.didCancel) {
-                console.log('User cancelled image picker');
-            } else if (response.errorCode) {
-                console.log('ImagePicker Error: ', response.errorMessage);
-            } else if (response.assets && response.assets.length > 0) {
-                const uri = response.assets[0].uri;
-                setProfilePic(uri);
+        init();
+    }, []);
+
+    const handleSelectImage = () => {
+        launchImageLibrary(
+            { mediaType: 'photo', quality: 0.7 },
+            (response) => {
+                if (response.assets && response.assets.length > 0) {
+                    setProfilePic(response.assets[0].uri);
+                }
             }
-        });
+        );
+    };
+
+    const onSubmit = (data) => {
+        Alert.alert('Profile Saved', `${userType.toUpperCase()} data saved successfully!`);
+        console.log('Submitted Profile:', data);
     };
 
     return (
         <SafeAreaView className="flex-1 bg-black">
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                style={{ flex: 1 }}
-            >
-                <ScrollView
-                    className="flex-1 bg-black px-5 py-2"
-                    keyboardShouldPersistTaps="handled"
-                    contentContainerStyle={{ paddingBottom: 30 }}
-                >
-                    <Text className="text-3xl font-bold text-white mb-3 text-center">Profile</Text>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+                <ScrollView className="px-5 py-2" contentContainerStyle={{ paddingBottom: 30 }} keyboardShouldPersistTaps="handled">
+                    <Text className="text-3xl font-bold text-white mb-3 text-center">Profile ({userType})</Text>
 
-                    {/* Header with background image */}
+                    {/* Header and Profile Pic */}
                     <View className="relative mb-8">
-                        <ImageBackground
-                            source={require('../assets/header-bg.jpg')}
-                            resizeMode="cover"
-                            className="h-44 w-full rounded-b-3xl overflow-hidden"
-                        >
+                        <ImageBackground source={require('../assets/header-bg.jpg')} resizeMode="cover" className="h-44 w-full rounded-b-3xl overflow-hidden">
                             <View className="flex-1 bg-black/30 rounded-b-3xl" />
                         </ImageBackground>
 
-                        {/* Profile Picture */}
                         <View className="absolute top-28 left-1/2 -ml-12">
                             <TouchableOpacity
                                 onPress={handleSelectImage}
@@ -183,80 +134,59 @@ export default function ProfileScreen({ navigation }) {
                         </View>
                     </View>
 
-                    {/* Agent Fields Only */}
-                    <Input name="firstName" label="First Name" placeholder="Enter first name" {...{ formData, handleChange, errors }} />
-                    <Input name="lastName" label="Last Name" placeholder="Enter last name" {...{ formData, handleChange, errors }} />
-                    <Input name="email" label="Email" placeholder="Enter email" {...{ formData, handleChange, errors }} />
-                    <Input name="contact" label="Contact No" placeholder="Enter contact number" {...{ formData, handleChange, errors }} />
-                    <Input name="vendorId" label="Vendor ID" placeholder="Enter vendor ID" {...{ formData, handleChange, errors }} />
-                    <Input name="address" label="Address" placeholder="Enter address" {...{ formData, handleChange, errors }} />
-                    <Input name="password" label="Password" placeholder="Enter password" {...{ formData, handleChange, errors }} />
+                    {/* Form Inputs */}
+                    {fields.map(({ name, label }) => (
+                        <Controller
+                            key={name}
+                            control={control}
+                            name={name}
+                            rules={{ required: `${label} is required` }}
+                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                                <View className="mb-4 mx-3">
+                                    <Text className="text-gray-300 mb-1">{label}</Text>
+                                    <TextInput
+                                        value={value}
+                                        onChangeText={onChange}
+                                        placeholder={`Enter ${label.toLowerCase()}`}
+                                        placeholderTextColor="#9ca3af"
+                                        secureTextEntry={name === 'password'}
+                                        className={`px-4 py-2 rounded-xl bg-gray-800 text-white border ${error ? 'border-red-500' : 'border-gray-700'}`}
+                                    />
+                                    {error && <Text className="text-red-500 text-xs mt-1">{error.message}</Text>}
+                                </View>
+                            )}
+                        />
+                    ))}
 
-                    {/* Save Button */}
-                    <TouchableOpacity
-                        onPress={handleSave}
-                        className="mt-6 bg-white border border-white rounded-xl py-3 mb-6"
-                    >
+                    {/* Save */}
+                    <TouchableOpacity onPress={handleSubmit(onSubmit)} className="mt-6 bg-white border border-white rounded-xl py-3 mb-6">
                         <Text className="text-black text-center font-semibold">Save Profile</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('ChangePassword')}
-                        className="bg-white border border-white rounded-xl py-3 mb-6"
-                    >
+
+                    {/* Change Password */}
+                    <TouchableOpacity onPress={() => navigation.navigate('ChangePassword')} className="bg-white border border-white rounded-xl py-3 mb-6">
                         <Text className="text-black text-center font-semibold">Change Password</Text>
                     </TouchableOpacity>
-                    {/* Logout Button */}
 
+                    {/* Logout */}
                     <TouchableOpacity
-                        onPress={() => {
-                            Alert.alert(
-                                'Logout',
-                                'Are you sure you want to logout?',
-                                [
-                                    { text: 'Cancel', style: 'cancel' },
-                                    {
-                                        text: 'Logout',
-                                        style: 'destructive',
-                                        onPress: async () => {
-                                            try {
-                                                const token = await AsyncStorage.getItem('token');
-
-                                                if (token) {
-                                                    await api.post(
-                                                        'logout',
-                                                        {},
-                                                        {
-                                                            headers: {
-                                                                Authorization: `Bearer ${token}`,
-                                                            },
-                                                        }
-                                                    );
-                                                }
-
-                                                await AsyncStorage.removeItem('token');
-                                                navigation.reset({
-                                                    index: 0,
-                                                    routes: [{ name: 'SignIn' }],
-                                                });
-                                            } catch (error) {
-                                                console.error('Logout Error:', error);
-                                                await AsyncStorage.removeItem('token'); // fallback
-                                                navigation.reset({
-                                                    index: 0,
-                                                    routes: [{ name: 'SignIn' }],
-                                                });
-                                            }
-                                        },
+                        onPress={() =>
+                            Alert.alert('Logout', 'Are you sure you want to logout?', [
+                                { text: 'Cancel', style: 'cancel' },
+                                {
+                                    text: 'Logout',
+                                    style: 'destructive',
+                                    onPress: async () => {
+                                        await AsyncStorage.multiRemove(['token', 'user_type', 'user_id']);
+                                        navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
                                     },
-                                ],
-                                { cancelable: true }
-                            );
-                        }}
+                                },
+                            ])
+                        }
                         className="bg-black border border-white rounded-xl py-3 mb-6"
                     >
                         <Text className="text-white text-center font-semibold">Logout</Text>
                     </TouchableOpacity>
-
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>

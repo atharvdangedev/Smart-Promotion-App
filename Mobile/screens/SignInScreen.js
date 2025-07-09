@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
 import InputField from '../components/InputField';
 import { api } from '../utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,7 +18,6 @@ export default function LoginScreen({ navigation }) {
             return;
         }
 
-
         setLoading(true);
         try {
             const res = await api.post('login', {
@@ -27,11 +26,15 @@ export default function LoginScreen({ navigation }) {
                 remember: rememberMe ? 1 : 0,
             });
 
-
             console.log('Login Response:', JSON.stringify(res.data, null, 2));
 
             if (res.data?.status === true && res.data.token) {
-                await AsyncStorage.setItem('token', res.data.token);
+                const { token, user } = res.data;
+
+                await AsyncStorage.setItem('token', token);
+                await AsyncStorage.setItem('user_id', user.id);
+                await AsyncStorage.setItem('user_type', user.rolename); // <-- add this
+
                 navigation.navigate('HomeScreen');
             } else {
                 setFormError(res.data?.message || 'Invalid credentials');
@@ -44,11 +47,11 @@ export default function LoginScreen({ navigation }) {
             } else {
                 setFormError('Something went wrong. Please try again.');
             }
-        }
-        finally {
+        } finally {
             setLoading(false);
         }
     };
+
 
     const handleEmailChange = (text) => {
         setEmail(text);

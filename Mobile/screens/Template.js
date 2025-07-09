@@ -27,28 +27,29 @@ export default function TemplateScreen() {
     const webviewRef = useRef(null);
 
     useEffect(() => {
-        const fetchTemplates = async () => {
-            try {
-                const token = await AsyncStorage.getItem('token');
-                const response = await api.get('vendor/templates', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                    },
-                });
-                if (response.data.status && Array.isArray(response.data.templates)) {
-                    setTemplates(response.data.templates);
-                } else {
-                    console.error('Invalid API response', response.data);
-                }
-            } catch (error) {
-                console.error('Failed to load templates:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchTemplates();
     }, []);
+
+    const fetchTemplates = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            const response = await api.get('vendor/templates', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+            });
+            if (response.data.status && Array.isArray(response.data.templates)) {
+                setTemplates(response.data.templates);
+            } else {
+                console.error('Invalid API response', response.data);
+            }
+        } catch (error) {
+            console.error('Failed to load templates:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const openModal = (index = null) => {
         setEditIndex(index);
@@ -92,7 +93,15 @@ export default function TemplateScreen() {
                 return Alert.alert('Validation Error', 'Please select a call type');
             }
 
-            const response = await api.post('vendor/templates', {
+            const isEditing = editIndex !== null;
+            const templateId = isEditing ? templates[editIndex].id : null;
+
+            const url = isEditing
+                ? `vendor/templates/${templateId}`
+                : 'vendor/templates';
+
+
+            const response = await api.post(url, {
                 title: currentTemplate.title.trim(),
                 description: htmlContent,
                 template_type: currentTemplate.type.toLowerCase(),
@@ -105,22 +114,100 @@ export default function TemplateScreen() {
 
             if (response.data.status) {
                 if (Platform.OS === 'android') {
-                    ToastAndroid.show('Template saved successfully!', ToastAndroid.SHORT);
+                    ToastAndroid.show(
+                        isEditing ? 'Template updated successfully!' : 'Template saved successfully!',
+                        ToastAndroid.SHORT
+                    );
                 }
+
+                await fetchTemplates(); // this refreshes the list
+                setModalVisible(false);
+                setEditIndex(null);
+
+
                 setModalVisible(false);
                 setEditIndex(null);
             } else {
                 Alert.alert('Error', response.data.message || 'Failed to save template');
             }
         } catch (error) {
-            console.error('❌ Error saving template:', error);
-            Alert.alert('Error', 'Something went wrong while saving template');
+            console.error('Error saving/updating template:', error);
+            Alert.alert('Error', 'Something went wrong while saving/updating template');
         }
     };
 
+
     const handleDelete = (id) => {
-        setTemplates(templates.filter((t) => t.id !== id));
+        Alert.alert(
+            'Confirm Delete',
+            'Are you sure you want to delete this template?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => deleteTemplate(id),
+                },
+            ]
+        );
     };
+
+
+    const deleteTemplate = async (id) => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            const response = await api.delete(`vendor/templates/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+            });
+
+            if (response.data.status) {
+                if (Platform.OS === 'android') {
+                    ToastAndroid.show('Template deleted successfully!', ToastAndroid.SHORT);
+                }
+                await fetchTemplates(); // Refresh list
+            } else {
+                Alert.alert('Error', response.data.message || 'Failed to delete template');
+            }
+        } catch (error) {
+            console.error('❌ Error deleting template:', error);
+            Alert.alert('Error', 'Something went wrong while deleting template');
+        }
+    };
+
+
+    const toggleTemplateStatus = async (template) => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            const newStatus = template.status === '1' ? '0' : '1';
+
+            const response = await api.put(
+                `vendor/update-template-status/${template.id}`,
+                {}, // No body required
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
+                    },
+                }
+            );
+
+            if (response.data.status) {
+                if (Platform.OS === 'android') {
+                    ToastAndroid.show('Template status updated!', ToastAndroid.SHORT);
+                }
+                await fetchTemplates(); // Refresh the list
+            } else {
+                Alert.alert('Error', response.data.message || 'Failed to update status');
+            }
+        } catch (error) {
+            console.error('❌ Error updating template status:', error);
+            Alert.alert('Error', 'Something went wrong while updating status');
+        }
+    };
+
 
     return (
         <SafeAreaView className="flex-1 bg-black px-4 py-2">
@@ -137,9 +224,12 @@ export default function TemplateScreen() {
                             </View>
                             <View className="flex-row justify-between items-center mt-3">
                                 <View className="flex-row gap-2">
-                                    <Text className="text-xs px-2 py-1 bg-green-600 text-white rounded">
-                                        {template.status === '1' ? 'Enabled' : 'Disabled'}
-                                    </Text>
+                                    <TouchableOpacity onPress={() => toggleTemplateStatus(template)}>
+                                        <Text className={`text-xs px-2 py-1 rounded ${template.status === '1' ? 'bg-red-600' : 'bg-green-600'} text-white`}>
+                                            {template.status === '1' ? 'Disable' : 'Enable'}
+                                        </Text>
+                                    </TouchableOpacity>
+
                                     <Text className="text-xs px-2 py-1 bg-sky-700 text-white rounded">
                                         {template.template_type.toUpperCase()}
                                     </Text>
@@ -217,16 +307,16 @@ export default function TemplateScreen() {
                         </View>
 
                         {/* Active Toggle */}
-                        <View className="flex-row items-center justify-between mb-6">
+                        {/* <View className="flex-row items-center justify-between mb-6">
                             <Text className="text-white">Active</Text>
                             <Switch
                                 value={newTemplate.active}
                                 onValueChange={(val) => setNewTemplate({ ...newTemplate, active: val })}
                             />
-                        </View>
+                        </View> */}
 
                         {/* Buttons */}
-                        <View className="flex-row justify-between">
+                        <View className="flex-row justify-between my-3">
                             <TouchableOpacity
                                 onPress={() => {
                                     setModalVisible(false);
