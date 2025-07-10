@@ -336,7 +336,7 @@ const EditAgent = () => {
                   className="me-1 btn btn-primary"
                   type="submit"
                 >
-                  Add Agent
+                  Update
                 </button>
                 <button
                   tabIndex="11"
