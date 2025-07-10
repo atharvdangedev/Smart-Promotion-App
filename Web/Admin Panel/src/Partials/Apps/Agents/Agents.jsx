@@ -12,57 +12,162 @@ import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import toast, { Toaster } from "react-hot-toast";
 import { handleApiError } from "../utils/handleApiError";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import DeleteModal from "../DeleteModal/DeleteModal";
-import UserActivation from "../UserActivation/UserActivation";
 import Modal from "../StatusModal/Modal";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions.js";
+import { APP_PERMISSIONS } from "../utils/permissions.js";
+import Can from "../Can/Can.jsx";
 
 const Agents = () => {
   // Navigate function
   const navigate = useNavigate();
 
+  const location = useLocation();
+
+  const { vendorId } = useParams();
+
+  const { can, canAny } = usePermissions();
+
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URLs
   const APP_URL = import.meta.env.VITE_API_URL;
   const Img_url = import.meta.env.VITE_IMG_URL;
 
   // State initialization
+  const [userId, setUserId] = useState("");
   const [pageSize, setPageSize] = useState(10);
+  const [vendorData, setVendorData] = useState([]);
   const [clientsData, setClientsData] = useState([]);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [isUserActivationModalOpen, setIsUserActivationModalOpen] =
-    useState(false);
   const [recordToUpdate, setRecordToUpdate] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
+  const [agentToDelete, setAgentToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  //fetch agents
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/all-agents/${vendorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.status === 200) {
+          setClientsData(response.data.agents);
+        } else if (response.status === 204) {
+          setClientsData([]);
+        }
+      } catch (error) {
+        handleApiError(error, "fetching", "agents");
+        setClientsData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [APP_URL, token, user.rolename, vendorId]);
+
+  //fetch vendor data
+  useEffect(() => {
+    const fetchvendor = async () => {
+      try {
+        const res = await axios.get(
+          `${APP_URL}/${user.rolename}/vendors/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (res.status === 200) {
+          setVendorData(res.data.vendor);
+        }
+      } catch (error) {
+        handleApiError(error, "fetching", "vendor details");
+      }
+    };
+
+    if (userId) fetchvendor();
+  }, [vendorId, token, APP_URL, Img_url, user.rolename, userId]);
+
+  useEffect(() => {
+    if (location.state) {
+      const { userId } = location.state;
+      setUserId(userId);
+    }
+  }, [location.state]);
+
+  // Handle add page navigation
+  const handleAdd = useCallback(
+    async () => {
+      if (!can(APP_PERMISSIONS.AGENTS_CREATE)) {
+        toast.error("You do not have permission to add agents.");
+        return;
+      }
+      if (clientsData.length === vendorData.addon_count) {
+        toast.error(
+          `Agent count of ${vendorData.addon_count} reached. Purchase more add-ons to add more agents`
+        );
+        return;
+      }
+      if (userId) {
+        navigate(`/admin/vendor/agents/add-agent`, {
+          state: { vendorId, userId },
+        });
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [navigate, userId]
+  );
 
   // Handle edit page navigation
   const handleEdit = useCallback(
     async (firstname, id) => {
-      navigate(`/admin/vendor/agents/edit-agent/${id}`, {
-        state: { firstname },
-      });
+      if (!can(APP_PERMISSIONS.AGENTS_EDIT)) {
+        toast.error("You do not have permission to edit agents.");
+        return;
+      }
+      if (userId) {
+        navigate(`/admin/vendor/agents/edit-agent/${id}`, {
+          state: { firstname, vendorId, userId },
+        });
+      }
     },
-    [navigate]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [navigate, userId]
   );
 
   // Handle delete callback
   const handleDelete = useCallback((first_name, id) => {
-    setUserToDelete({ first_name, id });
+    if (!can(APP_PERMISSIONS.AGENTS_DELETE)) {
+      toast.error("You do not have permission to delete agents.");
+      return;
+    }
+    setAgentToDelete({ first_name, id });
     setIsDeleteModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle delete functionality
   const handleConfirmDelete = async () => {
-    if (userToDelete) {
+    if (agentToDelete) {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/delete-user/${userToDelete.id}`,
+          `${APP_URL}/${user.rolename}/agents/${agentToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -73,30 +178,35 @@ const Agents = () => {
         if (response.status === 200) {
           toast.success(response.data.message);
           setClientsData((prevData) =>
-            prevData.filter((user) => user.id !== userToDelete.id)
+            prevData.filter((agent) => agent.id !== agentToDelete.id)
           );
         }
       } catch (error) {
-        handleApiError(error, "deleting", "user");
+        handleApiError(error, "deleting", "agent");
       } finally {
         setIsDeleting(false);
         setIsDeleteModalOpen(false);
-        setUserToDelete(null);
+        setAgentToDelete(null);
       }
     }
   };
 
   // Handle status click callback
   const handleStatusClick = useCallback((record) => {
+    if (!can(APP_PERMISSIONS.AGENTS_CHANGE_STATUS)) {
+      toast.error("You do not have permission to change agent status.");
+      return;
+    }
     setRecordToUpdate(record);
     setIsStatusModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle status change functionality
   const handleConfirmStatus = async (id) => {
     try {
       const response = await axios.put(
-        `${APP_URL}/update-user-status/${id}`,
+        `${APP_URL}/${user.rolename}/update-user-status/${id}`,
         null,
         {
           headers: {
@@ -108,83 +218,29 @@ const Agents = () => {
       if (response.status === 200) {
         toast.success(response.data.message);
         setClientsData((prevData) =>
-          prevData.map((user) =>
-            user.id === id
-              ? { ...user, status: user.status === "1" ? "0" : "1" }
-              : user
+          prevData.map((agent) =>
+            agent.id === id
+              ? { ...agent, status: agent.status === "1" ? "0" : "1" }
+              : agent
           )
         );
         setIsStatusModalOpen(false);
       }
     } catch (error) {
-      handleApiError(error, "updating", "user status");
+      handleApiError(error, "updating", "agent status");
     }
   };
 
-  // Handle user activation callback
-  const handleUserActivationClick = useCallback((record) => {
-    setRecordToUpdate(record);
-    setIsUserActivationModalOpen(true);
-  }, []);
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
 
-  // Handle user activation functionality (via email)
-  const handleUserActivationConfirm = async () => {
-    try {
-      const params = new URLSearchParams();
-      params.append("email", recordToUpdate.email);
-      const response = await axios.post(
-        `${APP_URL}/SendActivationToken`,
-        params,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }
-      );
-      if (response.status === 200) {
-        toast.success(response.data.message);
-      }
-    } catch (error) {
-      handleApiError(error, "sending activation mail to", "user");
-    } finally {
-      setIsUserActivationModalOpen(false);
-    }
-  };
-
-  // Handle user activation functionality (directly)
-  const handleUserActivationConfirmDirectly = async () => {
-    try {
-      const response = await axios.post(
-        `${APP_URL}/activate-user/${recordToUpdate.id}`,
-        null,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.status === 200) {
-        toast.success(response.data.message);
-        setClientsData((prevData) =>
-          prevData.map((user) =>
-            user.id === recordToUpdate.id
-              ? { ...user, activated: "1", status: "1" }
-              : user
-          )
-        );
-      }
-    } catch (error) {
-      handleApiError(error, "activating", "user");
-    } finally {
-      setIsUserActivationModalOpen(false);
-    }
-  };
+  const canSeeActionsColumn = canAny([
+    APP_PERMISSIONS.AGENTS_EDIT,
+    APP_PERMISSIONS.AGENTS_DELETE,
+  ]);
 
   // Table configuration
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "SR. NO.",
         id: "serialNumber",
@@ -219,10 +275,6 @@ const Agents = () => {
       { Header: "EMAIL", accessor: "email" },
       { Header: "CONTACT", accessor: "contact_no" },
       {
-        Header: "ROLE",
-        accessor: "role",
-      },
-      {
         Header: "STATUS",
         accessor: "status",
         Cell: ({ value, row }) => (
@@ -243,51 +295,47 @@ const Agents = () => {
           </button>
         ),
       },
-      {
+    ];
+
+    if (canSeeActionsColumn)
+      baseColumns.push({
         Header: "ACTIONS",
         accessor: "activated",
-        Cell: ({ row, value }) => (
+        Cell: ({ row }) => (
           <div>
-            <button
-              type="button"
-              onClick={() =>
-                handleEdit(row.original.first_name, row.original.id)
-              }
-              className="btn text-info px-2 me-1"
-            >
-              <i className="bi bi-pencil"></i>
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                handleDelete(row.original.first_name, row.original.id)
-              }
-              className="btn text-danger px-2"
-            >
-              <i className="fa fa-trash"></i>
-            </button>
-            {value === "0" ? (
+            <Can do={APP_PERMISSIONS.AGENTS_EDIT}>
               <button
-                className="btn btn-sm"
-                onClick={() => handleUserActivationClick(row.original)}
+                type="button"
+                onClick={() =>
+                  handleEdit(row.original.first_name, row.original.id)
+                }
+                className="btn text-info px-2 me-1"
               >
-                <i className="bi bi-shield-lock"></i>
+                <i className="bi bi-pencil"></i>
               </button>
-            ) : (
-              ""
-            )}
+            </Can>
+            <Can do={APP_PERMISSIONS.AGENTS_DELETE}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleDelete(row.original.first_name, row.original.id)
+                }
+                className="btn text-danger px-2"
+              >
+                <i className="fa fa-trash"></i>
+              </button>
+            </Can>
           </div>
         ),
-      },
-    ],
-    [
-      Img_url,
-      handleStatusClick,
-      handleEdit,
-      handleDelete,
-      handleUserActivationClick,
-    ]
-  );
+      });
+    return baseColumns;
+  }, [
+    canSeeActionsColumn,
+    Img_url,
+    handleStatusClick,
+    handleEdit,
+    handleDelete,
+  ]);
 
   // Use the useTable hook to build the table
   const {
@@ -341,12 +389,11 @@ const Agents = () => {
               </h4>
 
               <div className="d-flex gap-2">
-                <Link
-                  className="btn btn-primary"
-                  to="/admin/vendor/agents/add-agent"
-                >
-                  Add New Agent
-                </Link>
+                <Can do={APP_PERMISSIONS.AGENTS_CREATE}>
+                  <button className="btn btn-primary" onClick={handleAdd}>
+                    Add New Agent
+                  </button>
+                </Can>
                 <Link
                   to={`/admin/vendors`}
                   className="btn btn-info text-white text-decoration-none"
@@ -356,19 +403,67 @@ const Agents = () => {
               </div>
             </div>
 
+            <div className="mb-4 p-3 border rounded bg-light">
+              <h5 className="mb-3">
+                <strong>Vendor Details</strong>
+              </h5>
+              <div className="row">
+                <div className="col-md-6">
+                  <p className="mb-1">
+                    <strong>Name:</strong> {vendorData.first_name}{" "}
+                    {vendorData.last_name}
+                  </p>
+                  <p className="mb-1">
+                    <strong>Business Name:</strong> {vendorData.business_name}
+                  </p>
+                  <p className="mb-1">
+                    <strong>Email:</strong>{" "}
+                    <a href={`mailto:${vendorData.business_email}`}>
+                      {vendorData.business_email}
+                    </a>
+                  </p>
+                </div>
+                <div className="col-md-6">
+                  <p className="mb-1">
+                    <strong>Contact:</strong>{" "}
+                    <a href={`tel:+91${vendorData.business_contact}`}>
+                      {vendorData.business_contact}
+                    </a>
+                  </p>
+                  <p className="mb-1">
+                    <strong>Website:</strong>{" "}
+                    <a
+                      href={vendorData.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {vendorData.website}
+                    </a>
+                  </p>
+                  <p className="mb-1">
+                    <strong>GST Number:</strong> {vendorData.gst_number}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Agents"
-                fields={[
-                  "first_name",
-                  "last_name",
-                  "email",
-                  "contact_no",
-                  "role",
-                  "status",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Agents"
+                  fields={[
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "contact_no",
+                    "role",
+                    "status",
+                    "vendor_id",
+                  ]}
+                />
+              )}
+
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input
@@ -409,25 +504,12 @@ const Agents = () => {
               />
             )}
 
-            {recordToUpdate && (
-              <UserActivation
-                isOpen={isUserActivationModalOpen}
-                onClose={() => setIsUserActivationModalOpen(false)}
-                viaEmail={handleUserActivationConfirm}
-                directly={handleUserActivationConfirmDirectly}
-                message={`This is an admin only action. Are you sure you want to manually activate ${
-                  recordToUpdate.first_name + " " + recordToUpdate.last_name
-                }?`}
-                isLoading={isLoading}
-              />
-            )}
-
-            {userToDelete && (
+            {agentToDelete && (
               <DeleteModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
-                message={`Are you sure you want to delete agent ${userToDelete.first_name}?`}
+                message={`Are you sure you want to delete agent ${agentToDelete.first_name}?`}
                 isLoading={isDeleting}
               />
             )}

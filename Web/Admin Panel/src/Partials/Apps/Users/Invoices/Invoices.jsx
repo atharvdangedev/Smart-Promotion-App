@@ -3,10 +3,11 @@ import CalenderTab from "../../../Widgets/CalenderTab/CalenderTab";
 import InvoicesTable from "./Components/InvoicesTable";
 import axios from "axios";
 import { handleApiError } from "../../utils/handleApiError";
+import { useSelector } from "react-redux";
 
 const Invoices = () => {
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -22,12 +23,15 @@ const Invoices = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/all-orders`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/all-orders`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setInvoiceData(response.data.orders);
           setFilteredOrders(response.data.orders);

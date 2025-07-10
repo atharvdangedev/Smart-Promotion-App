@@ -8,6 +8,7 @@ import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { handleApiError } from "../utils/handleApiError";
 import Select from "react-select";
+import { useSelector } from "react-redux";
 
 const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i;
 // const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
@@ -99,7 +100,7 @@ const EditAffiliate = () => {
   const navigate = useNavigate();
 
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -147,12 +148,15 @@ const EditAffiliate = () => {
   useEffect(() => {
     const fetchAffiliate = async () => {
       try {
-        const res = await axios.get(`${APP_URL}/affiliates/${affiliateId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const res = await axios.get(
+          `${APP_URL}/${user.rolename}/affiliates/${affiliateId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (res.status === 200) {
           setValue("firstname", res.data.affiliate.first_name);
           setValue("lastname", res.data.affiliate.last_name);
@@ -187,7 +191,7 @@ const EditAffiliate = () => {
       }
     };
     fetchAffiliate();
-  }, [affiliateId, token, APP_URL, Img_url, setValue]);
+  }, [affiliateId, token, APP_URL, Img_url, setValue, user.rolename]);
 
   // Handle submit
   const onSubmit = async (data) => {
@@ -211,7 +215,7 @@ const EditAffiliate = () => {
         formData.append("profile_pic", data.profile_pic[0]);
 
       const res = await axios.post(
-        `${APP_URL}/affiliates/${affiliateId}`,
+        `${APP_URL}/${user.rolename}/affiliates/${affiliateId}`,
         formData,
         {
           headers: {

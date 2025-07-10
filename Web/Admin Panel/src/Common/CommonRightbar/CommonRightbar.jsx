@@ -8,7 +8,7 @@ import { toast, Toaster } from "react-hot-toast";
 
 const CommonRightbar = () => {
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;

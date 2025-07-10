@@ -15,13 +15,18 @@ import toast, { Toaster } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import Modal from "../StatusModal/Modal";
 import DeleteModal from "../DeleteModal/DeleteModal";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions.js";
+import { APP_PERMISSIONS } from "../utils/permissions.js";
+import Can from "../Can/Can.jsx";
 
 const Templates = () => {
-  // Navigation function
+  const { can } = usePermissions();
+
   const navigate = useNavigate();
 
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -34,19 +39,22 @@ const Templates = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   //fetch templates
   useEffect(() => {
-    setLoading(true);
     const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/vendor/templates`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/templates`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setData(response.data.templates);
         } else if (response.status === 204) {
@@ -56,27 +64,37 @@ const Templates = () => {
         setData([]);
         handleApiError(error, "fetching", "templates");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
 
   // Handle edit page navigation
   const handleEdit = useCallback(
     (templateName, templateId) => {
+      if (!can(APP_PERMISSIONS.TEMPLATES_EDIT)) {
+        toast.error("You do not have permission to edit templates.");
+        return;
+      }
       navigate(`/templates/edit-template/${templateId}`, {
         state: { templateName },
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [navigate]
   );
 
   // Handle delete callback
   const handleDelete = useCallback((templateName, id) => {
+    if (!can(APP_PERMISSIONS.TEMPLATES_DELETE)) {
+      toast.error("You do not have permission to delete templates.");
+      return;
+    }
     setTemplateToDelete({ templateName, id });
     setIsDeleteModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle delete functionality
@@ -85,7 +103,7 @@ const Templates = () => {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/vendor/templates/${templateToDelete.id}`,
+          `${APP_URL}/${user.rolename}/templates/${templateToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -112,15 +130,20 @@ const Templates = () => {
 
   // Handle status click callback
   const handleStatusClick = useCallback((record) => {
+    if (!can(APP_PERMISSIONS.TEMPLATES_CHANGE_STATUS)) {
+      toast.error("You do not have permission to change template status.");
+      return;
+    }
     setRecordToUpdate(record);
     setIsModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle status change functionality
   const handleConfirm = async (id) => {
     try {
       const response = await axios.put(
-        `${APP_URL}/vendor/update-template-status/${id}`,
+        `${APP_URL}/${user.rolename}/update-template-status/${id}`,
         null,
         {
           headers: {
@@ -147,9 +170,15 @@ const Templates = () => {
     }
   };
 
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
+  const canSeeActionsColumn = can([
+    APP_PERMISSIONS.TEMPLATES_EDIT,
+    APP_PERMISSIONS.TEMPLATES_DELETE,
+  ]);
+
   // Table configuration
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "SR NO",
         accessor: "serialNumber",
@@ -186,30 +215,39 @@ const Templates = () => {
           </button>
         ),
       },
-      {
-        Header: "ACTIONS",
+    ];
+
+    if (canSeeActionsColumn)
+      baseColumns.push({
+        Header: "Actions",
+        accessor: "action",
         Cell: ({ row }) => (
           <div>
-            <button
-              type="button"
-              onClick={() => handleEdit(row.original.title, row.original.id)}
-              className="btn text-info px-2 me-1"
-            >
-              <i className="bi bi-pencil"></i>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDelete(row.original.title, row.original.id)}
-              className="btn text-danger px-2"
-            >
-              <i className="fa fa-trash"></i>
-            </button>
+            <Can do={APP_PERMISSIONS.TEMPLATES_EDIT}>
+              <button
+                type="button"
+                onClick={() => handleEdit(row.original.title, row.original.id)}
+                className="btn text-info px-2 me-1"
+              >
+                <i className="bi bi-pencil"></i>
+              </button>
+            </Can>
+            <Can do={APP_PERMISSIONS.TEMPLATES_DELETE}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleDelete(row.original.title, row.original.id)
+                }
+                className="btn text-danger px-2"
+              >
+                <i className="fa fa-trash"></i>
+              </button>
+            </Can>
           </div>
         ),
-      },
-    ],
-    [handleDelete, handleEdit, handleStatusClick]
-  );
+      });
+    return baseColumns;
+  }, [canSeeActionsColumn, handleDelete, handleEdit, handleStatusClick]);
 
   // Use the useTable hook to build the table
   const {
@@ -261,17 +299,21 @@ const Templates = () => {
               <h4 className="title-font">
                 <strong>Templates</strong>
               </h4>
-              <Link className="btn btn-primary" to="/templates/add-template">
-                Add New Template
-              </Link>
+              <Can do={APP_PERMISSIONS.TEMPLATES_CREATE}>
+                <Link className="btn btn-primary" to="/templates/add-template">
+                  Add New Template
+                </Link>
+              </Can>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Templates"
-                fields={["title", "status"]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Templates"
+                  fields={["title", "template_type", "status"]}
+                />
+              )}
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input
@@ -351,7 +393,7 @@ const Templates = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {loading ? (
+                {isLoading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading templates..." />

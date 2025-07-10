@@ -16,13 +16,19 @@ import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import LoadingFallback from "../LoadingFallback/LoadingFallback.jsx";
 import { handleApiError } from "../utils/handleApiError";
 import UserActivation from "../UserActivation/UserActivation.jsx";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions.js";
+import { APP_PERMISSIONS } from "../utils/permissions.js";
+import Can from "../Can/Can.jsx";
 
 const Vendors = () => {
-  // Navigation function
+  // Navigate function
   const navigate = useNavigate();
 
+  const { can, canAny } = usePermissions();
+
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -42,15 +48,18 @@ const Vendors = () => {
 
   //fetch vendors
   useEffect(() => {
-    setIsLoading(true);
     const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/vendors`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/vendors`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setData(response.data.vendors);
         } else if (response.status === 204) {
@@ -65,20 +74,50 @@ const Vendors = () => {
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
 
   // Handle edit page navigation
   const handleEdit = useCallback(
     async (firstname, id) => {
+      if (!can(APP_PERMISSIONS.VENDORS_EDIT)) {
+        toast.error("You do not have permission to edit vendors.");
+        return;
+      }
       navigate(`/admin/vendor/edit-vendor/${id}`, { state: { firstname } });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [navigate]
+  );
+
+  // Handle agents page navigation
+  const handleAgents = useCallback(
+    async (addonCount, vendorId, userId) => {
+      if (!can(APP_PERMISSIONS.VENDORS_VIEW_AGENTS)) {
+        toast.error("You do not have permission to view vendor agents.");
+        return;
+      }
+      if (addonCount === "0") {
+        toast.error(
+          "This vendor has not purchased any add-ons for agents. Please purchase an add-on to visit agents table"
+        );
+        return;
+      }
+
+      navigate(`/admin/vendor/agents/${vendorId}`, { state: { userId } });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [navigate]
   );
 
   // Handle delete callback
   const handleDelete = useCallback((first_name, id) => {
+    if (!can(APP_PERMISSIONS.VENDORS_DELETE)) {
+      toast.error("You do not have permission to delete vendors.");
+      return;
+    }
     setUserToDelete({ first_name, id });
     setIsDeleteModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle delete functionality
@@ -87,7 +126,7 @@ const Vendors = () => {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/vendors/${userToDelete.id}`,
+          `${APP_URL}/${user.rolename}/vendors/${userToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -113,15 +152,20 @@ const Vendors = () => {
 
   // Handle status click callback
   const handleStatusClick = useCallback((record) => {
+    if (!can(APP_PERMISSIONS.VENDORS_CHANGE_STATUS)) {
+      toast.error("You do not have permission to change vendor status.");
+      return;
+    }
     setRecordToUpdate(record);
     setIsStatusModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle status change functionality
   const handleConfirmStatus = async (id) => {
     try {
       const response = await axios.put(
-        `${APP_URL}/update-user-status/${id}`,
+        `${APP_URL}/${user.rolename}/update-user-status/${id}`,
         null,
         {
           headers: {
@@ -148,8 +192,13 @@ const Vendors = () => {
 
   // Handle user activation callback
   const handleUserActivationClick = useCallback((record) => {
+    if (!can(APP_PERMISSIONS.VENDORS_ACTIVATE)) {
+      toast.error("You do not have permission to activate vendor.");
+      return;
+    }
     setRecordToUpdate(record);
     setIsUserActivationModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle user activation functionality (via email)
@@ -206,9 +255,17 @@ const Vendors = () => {
     }
   };
 
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
+
+  const canSeeActionsColumn = canAny([
+    APP_PERMISSIONS.VENDORS_EDIT,
+    APP_PERMISSIONS.VENDORS_DELETE,
+    APP_PERMISSIONS.VENDORS_VIEW_AGENTS,
+  ]);
+
   // Table configuration
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "SR. NO.",
         id: "serialNumber",
@@ -305,58 +362,77 @@ const Vendors = () => {
           </button>
         ),
       },
-      {
+    ];
+
+    if (canSeeActionsColumn)
+      baseColumns.push({
         Header: "ACTIONS",
         accessor: "activated",
         Cell: ({ row, value }) => (
           <div>
-            <Link
-              to={"/admin/vendor/agents"}
-              className="btn text-success px-2"
-              title="Manage Agents"
-            >
-              <i className="bi bi-person"></i>
-            </Link>
-            <button
-              type="button"
-              onClick={() =>
-                handleEdit(row.original.first_name, row.original.id)
-              }
-              className="btn text-info px-2 me-1"
-            >
-              <i className="bi bi-pencil"></i>
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                handleDelete(row.original.first_name, row.original.id)
-              }
-              className="btn text-danger px-2"
-            >
-              <i className="fa fa-trash"></i>
-            </button>
-            {value === "0" ? (
+            <Can do={APP_PERMISSIONS.VENDORS_VIEW_AGENTS}>
               <button
-                className="btn btn-sm"
-                onClick={() => handleUserActivationClick(row.original)}
+                type="button"
+                onClick={() =>
+                  handleAgents(
+                    row.original.addon_count,
+                    row.original.vendor_id,
+                    row.original.id
+                  )
+                }
+                className="btn text-success px-2"
+                title="Manage Agents"
               >
-                <i className="bi bi-shield-lock"></i>
+                <i className="bi bi-person"></i>
               </button>
+            </Can>
+            <Can do={APP_PERMISSIONS.VENDORS_EDIT}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleEdit(row.original.first_name, row.original.id)
+                }
+                className="btn text-info px-2 me-1"
+              >
+                <i className="bi bi-pencil"></i>
+              </button>
+            </Can>
+            <Can do={APP_PERMISSIONS.VENDORS_DELETE}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleDelete(row.original.first_name, row.original.id)
+                }
+                className="btn text-danger px-2"
+              >
+                <i className="fa fa-trash"></i>
+              </button>
+            </Can>
+            {value === "0" ? (
+              <Can do={APP_PERMISSIONS.VENDORS_ACTIVATE}>
+                <button
+                  className="btn btn-sm"
+                  onClick={() => handleUserActivationClick(row.original)}
+                >
+                  <i className="bi bi-shield-lock"></i>
+                </button>
+              </Can>
             ) : (
               ""
             )}
           </div>
         ),
-      },
-    ],
-    [
-      Img_url,
-      handleDelete,
-      handleEdit,
-      handleStatusClick,
-      handleUserActivationClick,
-    ]
-  );
+      });
+    return baseColumns;
+  }, [
+    Img_url,
+    canSeeActionsColumn,
+    handleAgents,
+    handleDelete,
+    handleEdit,
+    handleStatusClick,
+    handleUserActivationClick,
+  ]);
 
   // Use the useTable hook to build the table
   const {
@@ -408,29 +484,34 @@ const Vendors = () => {
               <h4 className="title-font">
                 <strong>Vendors List</strong>
               </h4>
-              <Link className="btn btn-primary" to="/admin/vendor/add-vendor">
-                Add New Vendor
-              </Link>
+              <Can do={APP_PERMISSIONS.VENDORS_CREATE}>
+                <Link className="btn btn-primary" to="/admin/vendor/add-vendor">
+                  Add New Vendor
+                </Link>
+              </Can>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Vendors"
-                fields={[
-                  "first_name",
-                  "last_name",
-                  "email",
-                  "contact_no",
-                  "business_name",
-                  "business_type",
-                  "business_email",
-                  "business_contact",
-                  "rolename",
-                  "activated",
-                  "status",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Vendors"
+                  fields={[
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "contact_no",
+                    "business_name",
+                    "business_type",
+                    "business_email",
+                    "business_contact",
+                    "rolename",
+                    "activated",
+                    "status",
+                  ]}
+                />
+              )}
+
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input

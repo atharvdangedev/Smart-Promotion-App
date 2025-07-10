@@ -12,10 +12,15 @@ import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import axios from "axios";
 import { handleApiError } from "../utils/handleApiError";
 import { formatDateTime } from "../utils/formatDate";
+import { useSelector } from "react-redux";
+import { APP_PERMISSIONS } from "../utils/permissions";
+import usePermissions from "../../../hooks/usePermissions";
 
 const Subscriptions = () => {
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
+
+  const { can } = usePermissions();
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -30,12 +35,15 @@ const Subscriptions = () => {
     setLoading(true);
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${APP_URL}/subscriptions`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/subscriptions`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setData(response.data.subscriptions);
         } else if (response.status === 204) {
@@ -50,7 +58,9 @@ const Subscriptions = () => {
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
+
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
 
   const columns = useMemo(
     () => [
@@ -105,8 +115,8 @@ const Subscriptions = () => {
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>{formatDateTime(row.original.start_date)}</span> to
-              <span>{formatDateTime(row.original.end_date)}</span>
+              <span>{formatDateTime(row.original.start_date || "")}</span> to
+              <span>{formatDateTime(row.original.end_date || "")}</span>
             </div>
           </div>
         ),
@@ -181,20 +191,23 @@ const Subscriptions = () => {
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Subscriptions"
-                fields={[
-                  "plan_name",
-                  "plan_type",
-                  "business_name",
-                  "first_name",
-                  "last_name",
-                  "start_date",
-                  "end_date",
-                  "price",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Subscriptions"
+                  fields={[
+                    "plan_name",
+                    "plan_type",
+                    "business_name",
+                    "first_name",
+                    "last_name",
+                    "start_date",
+                    "end_date",
+                    "price",
+                  ]}
+                />
+              )}
+
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input

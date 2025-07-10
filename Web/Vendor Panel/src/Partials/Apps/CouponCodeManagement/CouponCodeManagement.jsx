@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-escape */
 /* eslint-disable react/prop-types */
 import {
   useGlobalFilter,
@@ -15,113 +14,45 @@ import axios from "axios";
 import { handleApiError } from "../utils/handleApiError";
 import toast, { Toaster } from "react-hot-toast";
 import DeleteModal from "../DeleteModal/DeleteModal";
-import { jwtDecode } from "jwt-decode";
-import { Controller, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import Select from "react-select";
-
-const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i;
-// const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
-const accountNumberRegex = /^[0-9]{9,18}$/;
-const upiRegex = /^[\w.\-]{2,256}@[a-zA-Z]{2,64}$/;
-
-// Schema definition
-const schema = yup.object().shape({
-  gst_number: yup
-    .string()
-    .required("GST Number is required")
-    .matches(gstRegex, "Invalid GST Number (e.g., 22AAAAA0000A1Z5)"),
-
-  account_holder: yup
-    .string()
-    .required("Account holder name is required")
-    .matches(
-      /^[A-Za-z\s]+$/,
-      "Account holder name must contain only alphabets and spaces."
-    )
-    .min(3, "Name must be at least 3 characters")
-    .max(100, "Name is too long"),
-
-  account_type: yup
-    .string()
-    .required("Account type is required")
-    .oneOf(
-      ["savings", "current"],
-      "Account type must be 'savings' or 'current'"
-    ),
-
-  bank_name: yup
-    .string()
-    .required("Bank name is required")
-    .min(3, "Bank name must be at least 3 characters"),
-
-  bank_account_no: yup
-    .string()
-    .required("Bank account number is required")
-    .matches(
-      accountNumberRegex,
-      "Invalid account number (must be 9–18 digits)"
-    ),
-
-  branch: yup
-    .string()
-    .required("Branch is required")
-    .min(3, "Branch name must be at least 3 characters"),
-
-  upi_id: yup
-    .string()
-    .required("UPI ID is required")
-    .matches(upiRegex, "Invalid UPI ID format (e.g., name@bank)"),
-
-  // ifsc_code: yup.string().notRequired(),
-});
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions.js";
+import { APP_PERMISSIONS } from "../utils/permissions.js";
+import Can from "../Can/Can.jsx";
 
 const CouponCodeManagement = () => {
   // Navigation function
   const navigate = useNavigate();
 
+  const { can } = usePermissions();
+
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
 
   // State initialization
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [couponToDelete, setCouponToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const decoded = jwtDecode(token);
-  const { role } = decoded.data;
-
-  const accountTypes = [
-    {
-      value: "savings",
-      label: "Savings",
-    },
-    {
-      value: "current",
-      label: "Current",
-    },
-  ];
+  const [isLoading, setIsLoading] = useState(false);
 
   //fetch coupons
   useEffect(() => {
-    setLoading(true);
     const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/vendor/coupons`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/coupons`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setData(response.data.coupons);
         } else if (response.status === 204) {
@@ -131,27 +62,37 @@ const CouponCodeManagement = () => {
         setData([]);
         handleApiError(error, "fetching", "coupons");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
 
   // Handle edit page navigation
   const handleEdit = useCallback(
     (couponName, couponId) => {
+      if (!can(APP_PERMISSIONS.COUPONS_EDIT)) {
+        toast.error("You do not have permission to edit coupons.");
+        return;
+      }
       navigate(`/coupon-codes/edit-coupon/${couponId}`, {
         state: { couponName },
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [navigate]
   );
 
   // Handle delete callback
   const handleDelete = useCallback((couponName, id) => {
+    if (!can(APP_PERMISSIONS.COUPONS_DELETE)) {
+      toast.error("You do not have permission to delete coupons.");
+      return;
+    }
     setCouponToDelete({ couponName, id });
     setIsDeleteModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle delete functionality
@@ -160,7 +101,7 @@ const CouponCodeManagement = () => {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/affiliate/coupons/${couponToDelete.id}`,
+          `${APP_URL}/${user.rolename}/coupons/${couponToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -185,8 +126,14 @@ const CouponCodeManagement = () => {
     }
   };
 
-  const columns = useMemo(
-    () => [
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
+  const canSeeActionsColumn = can([
+    APP_PERMISSIONS.COUPONS_EDIT,
+    APP_PERMISSIONS.COUPONS_DELETE,
+  ]);
+
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "SR. NO.",
         id: "serialNumber",
@@ -255,12 +202,14 @@ const CouponCodeManagement = () => {
           </div>
         ),
       },
-      {
-        Header: "Action",
+    ];
+    if (canSeeActionsColumn)
+      baseColumns.push({
+        Header: "Actions",
         accessor: "action",
-        Cell: ({ row }) => {
-          return (
-            <div>
+        Cell: ({ row }) => (
+          <div>
+            <Can do={APP_PERMISSIONS.COUPONS_EDIT}>
               <button
                 type="button"
                 onClick={() =>
@@ -270,6 +219,8 @@ const CouponCodeManagement = () => {
               >
                 <i className="bi bi-pencil"></i>
               </button>
+            </Can>
+            <Can do={APP_PERMISSIONS.COUPONS_DELETE}>
               <button
                 type="button"
                 onClick={() =>
@@ -279,13 +230,12 @@ const CouponCodeManagement = () => {
               >
                 <i className="fa fa-trash"></i>
               </button>
-            </div>
-          );
-        },
-      },
-    ],
-    [handleDelete, handleEdit]
-  );
+            </Can>
+          </div>
+        ),
+      });
+    return baseColumns;
+  }, [canSeeActionsColumn, handleDelete, handleEdit]);
 
   // Use the useTable hook to build the table
   const {
@@ -327,58 +277,6 @@ const CouponCodeManagement = () => {
     setTablePageSize(newPageSize);
   };
 
-  // Use form initialization
-  const {
-    register,
-    handleSubmit,
-    reset,
-    control,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(schema),
-    mode: "onChange",
-  });
-
-  // Handle submit
-  const onSubmit = async (data) => {
-    try {
-      const formData = new FormData();
-      setIsUpdating(true);
-      formData.append("account_holder", data.account_holder);
-      formData.append("account_type", data.account_type);
-      formData.append("bank_name", data.bank_name);
-      formData.append("bank_account_no", data.bank_account_no);
-      formData.append("branch", data.branch);
-      formData.append("upi_id", data.upi_id);
-      if (data.gst_number) formData.append("gst_number", data.gst_number);
-
-      const res = await axios.post(
-        `${APP_URL}/vendor/become-an-affiliate`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (res.status === 200) {
-        toast.success(res.data.message);
-      }
-    } catch (error) {
-      handleApiError(error, "becoming an", "affiliate");
-    } finally {
-      reset();
-      setIsUpdating(false);
-      setIsModalOpen(false);
-    }
-  };
-
-  // Handle cancel
-  const handleCancel = () => {
-    reset();
-    setIsModalOpen(false);
-  };
-
   return (
     <div className="px-4 py-3 page-body">
       <Toaster />
@@ -390,33 +288,34 @@ const CouponCodeManagement = () => {
                 <strong>Coupon Codes</strong>
               </h4>
               <div className="d-flex justify-content-between gap-2">
-                {role === "5" && (
-                  <button
-                    onClick={() => setIsModalOpen(true)}
+                <Can do={APP_PERMISSIONS.COUPONS_CREATE}>
+                  <Link
                     className="btn btn-primary"
+                    to="/coupon-codes/add-coupon"
                   >
-                    Become An Affiliate
-                  </button>
-                )}
-                <Link className="btn btn-primary" to="/coupon-codes/add-coupon">
-                  Add New Coupon
-                </Link>
+                    Add New Coupon
+                  </Link>
+                </Can>
               </div>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Coupon Codes"
-                fields={[
-                  "first_name",
-                  "last_name",
-                  "email",
-                  "contact_no",
-                  "role",
-                  "status",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Coupon Codes"
+                  fields={[
+                    "coupon_code",
+                    "title",
+                    "plan_type",
+                    "valid_from",
+                    "valid_till",
+                    "status",
+                    "approve",
+                  ]}
+                />
+              )}
+
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input
@@ -487,7 +386,7 @@ const CouponCodeManagement = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {loading ? (
+                {isLoading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading coupon codes..." />
@@ -526,260 +425,6 @@ const CouponCodeManagement = () => {
               </tbody>
             </table>
           </div>
-
-          {isModalOpen && (
-            <>
-              <div className="modal-backdrop show"></div>
-
-              <div className="modal show d-block" tabIndex="-1" role="dialog">
-                <div
-                  className="modal-dialog modal-dialog-centered modal-lg"
-                  role="document"
-                >
-                  <div className="modal-content">
-                    <div className="modal-header border-bottom-0">
-                      <button
-                        type="button"
-                        className="btn-close"
-                        onClick={() => setIsModalOpen(false)}
-                        aria-label="Close"
-                      />
-                    </div>
-
-                    <div className="modal-body pt-0">
-                      <h4 className="title-font">Become An Affiliate</h4>
-                      <p>Please fill up the following extra information</p>
-                      <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="row g-3">
-                          <div className="col-md-6">
-                            <div className="form-floating">
-                              <input
-                                type="text"
-                                className={`form-control ${
-                                  errors.account_holder ? "is-invalid" : ""
-                                }`}
-                                id="account_holder"
-                                {...register("account_holder")}
-                                placeholder="Account Holder Name"
-                                tabIndex="8"
-                              />
-                              <label htmlFor="account_holder">
-                                Account Holder Name
-                              </label>
-                              {errors.account_holder && (
-                                <div className="invalid-feedback">
-                                  {errors.account_holder.message}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="col-md-6">
-                            <div className="form-floating">
-                              <input
-                                type="text"
-                                className={`form-control ${
-                                  errors.bank_name ? "is-invalid" : ""
-                                }`}
-                                id="bank_name"
-                                {...register("bank_name")}
-                                placeholder="Bank Name"
-                                tabIndex="9"
-                              />
-                              <label htmlFor="bank_name">Bank Name</label>
-                              {errors.bank_name && (
-                                <div className="invalid-feedback">
-                                  {errors.bank_name.message}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="col-md-6">
-                            <div className="form-floating">
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                onInput={(e) =>
-                                  (e.target.value = e.target.value.replace(
-                                    /\D+/g,
-                                    ""
-                                  ))
-                                }
-                                className={`form-control ${
-                                  errors.bank_account_no ? "is-invalid" : ""
-                                }`}
-                                id="bank_account_no"
-                                {...register("bank_account_no")}
-                                placeholder="Bank Account No:"
-                                tabIndex="11"
-                              />
-                              <label htmlFor="bank_account_no">
-                                Bank Account No:
-                              </label>
-                              {errors.bank_account_no && (
-                                <div className="invalid-feedback">
-                                  {errors.bank_account_no.message}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="col-md-6">
-                            <div className="form-floating">
-                              <input
-                                type="text"
-                                className={`form-control ${
-                                  errors.branch ? "is-invalid" : ""
-                                }`}
-                                id="branch"
-                                {...register("branch")}
-                                placeholder="Branch"
-                                tabIndex="12"
-                              />
-                              <label htmlFor="branch">Branch</label>
-                              {errors.branch && (
-                                <div className="invalid-feedback">
-                                  {errors.branch.message}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="col-md-6">
-                            <div className="form-floating">
-                              <input
-                                type="text"
-                                className={`form-control ${
-                                  errors.upi_id ? "is-invalid" : ""
-                                }`}
-                                id="upi_id"
-                                {...register("upi_id")}
-                                placeholder="UPI ID"
-                                tabIndex="24"
-                              />
-                              <label htmlFor="upi_id">UPI ID</label>
-                              {errors.upi_id && (
-                                <div className="invalid-feedback">
-                                  {errors.upi_id.message}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="col-md-6">
-                            <div className="form-floating">
-                              <input
-                                type="text"
-                                maxLength={15}
-                                className={`form-control ${
-                                  errors.gst_number ? "is-invalid" : ""
-                                }`}
-                                id="gst_number"
-                                {...register("gst_number")}
-                                placeholder="GST Number"
-                                tabIndex="14"
-                              />
-                              <label htmlFor="gst_number">GST Number</label>
-                              {errors.gst_number && (
-                                <div className="invalid-feedback">
-                                  {errors.gst_number.message}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="col-md-6">
-                            <div className="form-floating">
-                              <Controller
-                                name="account_type"
-                                control={control}
-                                rules={{ required: "Account Type is required" }}
-                                render={({ field }) => (
-                                  <Select
-                                    {...field}
-                                    options={accountTypes}
-                                    tabIndex="15"
-                                    className={`basic-single ${
-                                      errors.account_type ? "is-invalid" : ""
-                                    }`}
-                                    classNamePrefix="select"
-                                    isClearable={true}
-                                    isSearchable={true}
-                                    placeholder="Select Account Type"
-                                    value={
-                                      accountTypes.find(
-                                        (type) => type.value === field.value
-                                      ) || null
-                                    }
-                                    onChange={(selectedOption) =>
-                                      field.onChange(
-                                        selectedOption
-                                          ? selectedOption.value
-                                          : ""
-                                      )
-                                    }
-                                    styles={{
-                                      control: (baseStyles) => ({
-                                        ...baseStyles,
-                                        height: "calc(3.5rem + 2px)",
-                                        borderRadius: "0.375rem",
-                                        border: "1px solid #ced4da",
-                                      }),
-                                      valueContainer: (baseStyles) => ({
-                                        ...baseStyles,
-                                        height: "100%",
-                                        padding: "0.7rem 0.6rem",
-                                      }),
-                                      placeholder: (baseStyles) => ({
-                                        ...baseStyles,
-                                        color: "#6c757d",
-                                      }),
-                                      input: (baseStyles) => ({
-                                        ...baseStyles,
-                                        margin: 0,
-                                        padding: 0,
-                                      }),
-                                      menu: (baseStyles) => ({
-                                        ...baseStyles,
-                                        zIndex: 9999,
-                                      }),
-                                    }}
-                                  />
-                                )}
-                              />
-                              {errors.account_type && (
-                                <div className="invalid-feedback">
-                                  {errors.account_type.message}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="col-12">
-                            <button
-                              className="me-1 btn btn-primary"
-                              type="submit"
-                              disabled={isUpdating}
-                            >
-                              {isUpdating ? "Processing..." : "Submit Details"}
-                            </button>
-                            <button
-                              className="btn btn-outline-secondary"
-                              type="button"
-                              onClick={handleCancel}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
 
           {data.length > 0 && (
             <ResponsivePagination

@@ -2,32 +2,10 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import { lazyLoad } from "./lazyLoad";
 import AuthWrapper from "./AuthWrapper";
-import Vendors from "./Partials/Apps/Vendors/Vendors";
-import AddVendor from "./Partials/Apps/Vendors/AddVendor";
-import EditVendor from "./Partials/Apps/Vendors/EditVendor";
-import Agents from "./Partials/Apps/Agents/Agents";
-import AddAgent from "./Partials/Apps/Agents/AddAgent";
-import EditAgent from "./Partials/Apps/Agents/EditAgent";
-import Subscriptions from "./Partials/Apps/Subscriptions/Subscriptions";
-import Affiliates from "./Partials/Apps/Affiliates/Affiliates";
-import AddAffiliate from "./Partials/Apps/Affiliates/AddAffiliate";
-import EditAffiliate from "./Partials/Apps/Affiliates/EditAffiliate";
-import CouponCodeManagement from "./Partials/Apps/CouponCodeManagement/CouponCodeManagement";
-import Commissions from "./Partials/Apps/Commissions/Commissions";
-import Contacts from "./Partials/Apps/Contacts/Contacts";
-import AddPlan from "./Partials/Apps/Plans/AddPlan";
-import EditPlan from "./Partials/Apps/Plans/EditPlan";
-import VendorContacts from "./Partials/Apps/VendorContacts/VendorContacts";
 
 // Lazy loaded components using custom lazyLoad
 const NotFound = lazyLoad(() => import("./NotFound/NotFound"));
 const Templates = lazyLoad(() => import("./Partials/Apps/Templates/Templates"));
-const AddTemplate = lazyLoad(() =>
-  import("./Partials/Apps/Templates/AddTemplate")
-);
-const EditTemplate = lazyLoad(() =>
-  import("./Partials/Apps/Templates/EditTemplate")
-);
 const OrderDetails = lazyLoad(() =>
   import("./Partials/Apps/Users/Invoices/OrderDetails")
 );
@@ -43,7 +21,6 @@ const Signin = lazyLoad(() =>
 const UserActivation = lazyLoad(() =>
   import("./Partials/Pages/Authentication/UserActivation/UserActivation")
 );
-
 const PasswordReset = lazyLoad(() =>
   import("./Partials/Pages/Authentication/PasswordReset/PasswordReset")
 );
@@ -66,6 +43,36 @@ const ClientsList = lazyLoad(() =>
 const Adduser = lazyLoad(() => import("./Partials/Apps/AddUser/Adduser"));
 const EditUser = lazyLoad(() => import("./Partials/Apps/EditUser/EditUser"));
 const Plans = lazyLoad(() => import("./Partials/Apps/Plans/Plans"));
+const AddPlan = lazyLoad(() => import("./Partials/Apps/Plans/AddPlan"));
+const EditPlan = lazyLoad(() => import("./Partials/Apps/Plans/EditPlan"));
+const Contacts = lazyLoad(() => import("./Partials/Apps/Contacts/Contacts"));
+const Vendors = lazyLoad(() => import("./Partials/Apps/Vendors/Vendors"));
+const AddVendor = lazyLoad(() => import("./Partials/Apps/Vendors/AddVendor"));
+const EditVendor = lazyLoad(() => import("./Partials/Apps/Vendors/EditVendor"));
+const Agents = lazyLoad(() => import("./Partials/Apps/Agents/Agents"));
+const AddAgent = lazyLoad(() => import("./Partials/Apps/Agents/AddAgent"));
+const EditAgent = lazyLoad(() => import("./Partials/Apps/Agents/EditAgent"));
+const Subscriptions = lazyLoad(() =>
+  import("./Partials/Apps/Subscriptions/Subscriptions")
+);
+const CouponCodeManagement = lazyLoad(() =>
+  import("./Partials/Apps/CouponCodeManagement/CouponCodeManagement")
+);
+const Affiliates = lazyLoad(() =>
+  import("./Partials/Apps/Affiliates/Affiliates")
+);
+const AddAffiliate = lazyLoad(() =>
+  import("./Partials/Apps/Affiliates/AddAffiliate")
+);
+const EditAffiliate = lazyLoad(() =>
+  import("./Partials/Apps/Affiliates/EditAffiliate")
+);
+const Commissions = lazyLoad(() =>
+  import("./Partials/Apps/Commissions/Commissions")
+);
+const VendorContacts = lazyLoad(() =>
+  import("./Partials/Apps/VendorContacts/VendorContacts")
+);
 
 const AppRoutes = () => {
   return (
@@ -132,7 +139,7 @@ const AppRoutes = () => {
               />
 
               {/* agent management */}
-              <Route path="/admin/vendor/agents" element={<Agents />} />
+              <Route path="/admin/vendor/agents/:vendorId" element={<Agents />} />
               <Route
                 path="/admin/vendor/agents/add-agent"
                 element={<AddAgent />}
@@ -171,11 +178,7 @@ const AppRoutes = () => {
 
               {/* template management */}
               <Route path="/admin/templates" element={<Templates />} />
-              <Route path="/admin/addTemplate" element={<AddTemplate />} />
-              <Route
-                path="/admin/editTemplate/:templateName/:templateId"
-                element={<EditTemplate />}
-              />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthWrapper>

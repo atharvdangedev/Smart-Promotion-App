@@ -5,13 +5,14 @@ import LoadingFallback from "../../LoadingFallback/LoadingFallback";
 import ImagePopup from "./ImagePopup";
 import { handleApiError } from "../../utils/handleApiError";
 import { formatDate } from "../../utils/formatDate";
+import { useSelector } from "react-redux";
 
 /* eslint-disable react/prop-types */
 const OrderDetails = () => {
   const { orderId } = useParams();
 
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -40,7 +41,7 @@ const OrderDetails = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${APP_URL}/order-details/${orderId}`,
+          `${APP_URL}/${user.rolename}/order-details/${orderId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

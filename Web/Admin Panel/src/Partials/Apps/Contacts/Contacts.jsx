@@ -12,13 +12,18 @@ import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import axios from "axios";
 import { handleApiError } from "../utils/handleApiError";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions.js";
+import { APP_PERMISSIONS } from "../utils/permissions.js";
 
 const Contacts = () => {
-  // Navigation Function
+  // Navigate function
   const navigate = useNavigate();
 
+  const { can } = usePermissions();
+
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -26,19 +31,22 @@ const Contacts = () => {
   // State initialization
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   //fetch contacts
   useEffect(() => {
-    setLoading(true);
     const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/contacts`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/contacts`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setData(response.data.contacts);
         } else if (response.status === 204) {
@@ -48,12 +56,12 @@ const Contacts = () => {
         setData([]);
         handleApiError(error, "fetching", "contacts");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
 
   const handleView = useCallback(
     async (vendorId, vendorName) => {
@@ -63,6 +71,8 @@ const Contacts = () => {
     },
     [navigate]
   );
+
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
 
   // Table configuration
   const columns = useMemo(
@@ -168,16 +178,19 @@ const Contacts = () => {
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Contacts"
-                fields={[
-                  "business_name",
-                  "first_name",
-                  "last_name",
-                  "total_contacts",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Contacts"
+                  fields={[
+                    "business_name",
+                    "first_name",
+                    "last_name",
+                    "total_contacts",
+                  ]}
+                />
+              )}
+
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input
@@ -238,7 +251,7 @@ const Contacts = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {loading ? (
+                {isLoading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading contacts..." />

@@ -1,0 +1,71 @@
+export const APP_PERMISSIONS = {
+  // Agent Management
+  AGENTS_VIEW: "agents:view",
+  AGENTS_CREATE: "agents:create",
+  AGENTS_EDIT: "agents:edit",
+  AGENTS_CHANGE_STATUS: "agents:change_status",
+  AGENTS_DELETE: "agents:delete",
+
+  // Coupon Code Management
+  COUPONS_VIEW: "coupons:view",
+  COUPONS_CREATE: "coupons:create",
+  COUPONS_EDIT: "coupons:edit",
+  COUPONS_DELETE: "coupons:delete",
+
+  // Commissions Management
+  COMMISSIONS_VIEW: "commissions:view",
+
+  // Contacts Management
+  CONTACTS_VIEW: "contacts:view",
+  CONTACTS_EDIT: "contacts:edit",
+  CONTACTS_DELETE: "contacts:delete",
+
+  // Template Management
+  TEMPLATES_VIEW: "templates:view",
+  TEMPLATES_CREATE: "templates:create",
+  TEMPLATES_EDIT: "templates:edit",
+  TEMPLATES_CHANGE_STATUS: "templates:change_status",
+  TEMPLATES_DELETE: "templates:delete",
+
+  // Exports Management
+  EXPORTS: "data:export_data",
+};
+
+export const ROLE_PERMISSIONS = {
+  5: [
+    APP_PERMISSIONS.AGENTS_VIEW,
+    APP_PERMISSIONS.AGENTS_CREATE,
+    APP_PERMISSIONS.AGENTS_EDIT,
+    APP_PERMISSIONS.AGENTS_CHANGE_STATUS,
+    APP_PERMISSIONS.AGENTS_DELETE,
+
+    APP_PERMISSIONS.CONTACTS_VIEW,
+    APP_PERMISSIONS.CONTACTS_EDIT,
+    APP_PERMISSIONS.CONTACTS_DELETE,
+
+    APP_PERMISSIONS.TEMPLATES_VIEW,
+    APP_PERMISSIONS.TEMPLATES_CREATE,
+    APP_PERMISSIONS.TEMPLATES_EDIT,
+    APP_PERMISSIONS.TEMPLATES_CHANGE_STATUS,
+    APP_PERMISSIONS.TEMPLATES_DELETE,
+
+    APP_PERMISSIONS.EXPORTS,
+  ],
+  6: [
+    APP_PERMISSIONS.CONTACTS_VIEW,
+    APP_PERMISSIONS.CONTACTS_EDIT,
+    APP_PERMISSIONS.CONTACTS_DELETE,
+
+    APP_PERMISSIONS.TEMPLATES_VIEW,
+
+    APP_PERMISSIONS.EXPORTS,
+  ],
+  7: [
+    APP_PERMISSIONS.COUPONS_VIEW,
+    APP_PERMISSIONS.COUPONS_CREATE,
+    APP_PERMISSIONS.COUPONS_EDIT,
+    APP_PERMISSIONS.COUPONS_DELETE,
+
+    APP_PERMISSIONS.COMMISSIONS_VIEW,
+  ],
+};

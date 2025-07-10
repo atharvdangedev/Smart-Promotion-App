@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useGlobalFilter,
   usePagination,
@@ -11,11 +11,20 @@ import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import { handleApiError } from "../utils/handleApiError";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions";
+import { APP_PERMISSIONS } from "../utils/permissions";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Contacts = () => {
+  // Navigate function
+  const navigate = useNavigate();
+
+  const { can } = usePermissions();
+
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -27,6 +36,23 @@ const Contacts = () => {
   const [loading, setLoading] = useState(false);
 
   const useServerPagination = true;
+
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
+
+  // Handle edit page navigation
+  const handleEdit = useCallback(
+    async (firstname, id) => {
+      if (!can(APP_PERMISSIONS.CONTACTS_EDIT)) {
+        toast.error("You do not have permission to edit contacts.");
+        return;
+      }
+      navigate(`/contacts/edit-contact/${id}`, {
+        state: { firstname },
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [navigate]
+  );
 
   // Table configuration
   const columns = useMemo(
@@ -51,7 +77,7 @@ const Contacts = () => {
         accessor: "contact_email",
       },
       {
-        Header: "CONTACT BRITHDATE",
+        Header: "CONTACT BIRTHDATE",
         accessor: "contact_birthdate",
       },
     ],
@@ -95,10 +121,8 @@ const Contacts = () => {
 
     const fetchData = async () => {
       try {
-        const decoded = jwtDecode(token);
-        const { id } = decoded.data;
         const response = await axios.get(
-          `${APP_URL}/vendor/contact/vendor/${id}`,
+          `${APP_URL}/${user.rolename}/contact/vendor/${user.id}`,
           {
             params: { page: pageIndex + 1, limit: pageSize },
             headers: {
@@ -115,14 +139,22 @@ const Contacts = () => {
         }
       } catch (error) {
         setData([]);
-        handleApiError(error, "fetching", "vendor contacts");
+        handleApiError(error, "fetching", "contacts");
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [APP_URL, pageIndex, pageSize, token, useServerPagination]);
+  }, [
+    APP_URL,
+    pageIndex,
+    pageSize,
+    token,
+    useServerPagination,
+    user.id,
+    user.rolename,
+  ]);
 
   // Handle search function
   const handleGlobalFilterChange = (e) => {
@@ -148,16 +180,18 @@ const Contacts = () => {
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Contacts"
-                fields={[
-                  "contact_name",
-                  "contact_no",
-                  "contact_email",
-                  "contact_birthdate",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Contacts"
+                  fields={[
+                    "contact_name",
+                    "contact_no",
+                    "contact_email",
+                    "contact_birthdate",
+                  ]}
+                />
+              )}
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input

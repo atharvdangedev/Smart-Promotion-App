@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import logoImg from "../../assets/images/mcards.webp";
 import MenuItem from "./MenuItem";
 import { memo } from "react";
+import { APP_PERMISSIONS } from "../../Partials/Apps/utils/permissions";
+import Can from "../../Partials/Apps/Can/Can";
 
 const CommonSidebar = memo(({ iconColor }) => {
   return (
@@ -58,36 +60,46 @@ const CommonSidebar = memo(({ iconColor }) => {
                 icon={<i className="bi bi-cart"></i>}
                 menuItems={[]}
               />
-              <MenuItem
-                title="Agents"
-                link="agents"
-                icon={<i className="bi bi-person"></i>}
-                menuItems={[]}
-              />
-              <MenuItem
-                title="Coupon Codes"
-                link="coupon-codes"
-                icon={<i className="bi bi-cash-stack"></i>}
-                menuItems={[]}
-              />
-              <MenuItem
-                title="Commissions"
-                link="commissions"
-                icon={<i className="bi bi-cash"></i>}
-                menuItems={[]}
-              />
-              <MenuItem
-                title="Templates"
-                link="templates"
-                icon={<i className="bi bi-file-earmark-richtext"></i>}
-                menuItems={[]}
-              />
-              <MenuItem
-                title="Contacts"
-                link="contacts"
-                icon={<i className="bi bi-person-lines-fill"></i>}
-                menuItems={[]}
-              />
+              <Can do={APP_PERMISSIONS.AGENTS_VIEW}>
+                <MenuItem
+                  title="Agents"
+                  link="agents"
+                  icon={<i className="bi bi-person"></i>}
+                  menuItems={[]}
+                />
+              </Can>
+              <Can do={APP_PERMISSIONS.COUPONS_VIEW}>
+                <MenuItem
+                  title="Coupon Codes"
+                  link="coupon-codes"
+                  icon={<i className="bi bi-cash-stack"></i>}
+                  menuItems={[]}
+                />
+              </Can>
+              <Can do={APP_PERMISSIONS.COMMISSIONS_VIEW}>
+                <MenuItem
+                  title="Commissions"
+                  link="commissions"
+                  icon={<i className="bi bi-cash"></i>}
+                  menuItems={[]}
+                />
+              </Can>
+              <Can do={APP_PERMISSIONS.TEMPLATES_VIEW}>
+                <MenuItem
+                  title="Templates"
+                  link="templates"
+                  icon={<i className="bi bi-file-earmark-richtext"></i>}
+                  menuItems={[]}
+                />
+              </Can>
+              <Can do={APP_PERMISSIONS.CONTACTS_VIEW}>
+                <MenuItem
+                  title="Contacts"
+                  link="contacts"
+                  icon={<i className="bi bi-person-lines-fill"></i>}
+                  menuItems={[]}
+                />
+              </Can>
             </ul>
           </div>
         </div>

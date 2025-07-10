@@ -8,6 +8,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { handleApiError } from "../utils/handleApiError";
 import Select from "react-select";
+import { useSelector } from "react-redux";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -76,7 +77,7 @@ const EditVendor = () => {
   const location = useLocation();
 
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -140,12 +141,15 @@ const EditVendor = () => {
   useEffect(() => {
     const fetchvendor = async () => {
       try {
-        const res = await axios.get(`${APP_URL}/vendors/${vendorId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const res = await axios.get(
+          `${APP_URL}/${user.rolename}/vendors/${vendorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (res.status === 200) {
           setValue("firstname", res.data.vendor.first_name);
           setValue("lastname", res.data.vendor.last_name);
@@ -158,8 +162,10 @@ const EditVendor = () => {
             setValue("business_email", res.data.vendor.business_email);
           if (res.data.vendor.business_contact)
             setValue("business_contact", res.data.vendor.business_contact);
-          if (res.data.vendor.website_url)
+          if (res.data.vendor.website)
             setValue("website_url", res.data.vendor.website);
+          if (res.data.vendor.gst_number)
+            setValue("gst_number", res.data.vendor.gst_number);
           if (res.data.vendor.business_address)
             setValue("business_address", res.data.vendor.business_address);
           if (res.data.vendor.business_type)
@@ -178,7 +184,7 @@ const EditVendor = () => {
       }
     };
     fetchvendor();
-  }, [vendorId, token, APP_URL, Img_url, setValue]);
+  }, [vendorId, token, APP_URL, Img_url, setValue, user.rolename]);
 
   // Handle submit
   const onSubmit = async (data) => {
@@ -209,12 +215,16 @@ const EditVendor = () => {
       formData.append("old_profile_pic", data.old_profile_pic);
 
     try {
-      const res = await axios.post(`${APP_URL}/vendors/${vendorId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.post(
+        `${APP_URL}/${user.rolename}/vendors/${vendorId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       if (res.status === 200) {
         toast.success(res.data.message);
         setTimeout(() => {
@@ -491,11 +501,7 @@ const EditVendor = () => {
                 <div className="form-floating">
                   <input
                     type="text"
-                    inputMode="numeric"
                     maxLength={15}
-                    onInput={(e) =>
-                      (e.target.value = e.target.value.replace(/\D+/g, ""))
-                    }
                     className={`form-control ${
                       errors.gst_number ? "is-invalid" : ""
                     }`}

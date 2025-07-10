@@ -13,10 +13,16 @@ import axios from "axios";
 import { handleApiError } from "../utils/handleApiError";
 import ApproveModal from "../ApproveModal/ApproveModal";
 import toast, { Toaster } from "react-hot-toast";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions.js";
+import { APP_PERMISSIONS } from "../utils/permissions.js";
+import Can from "../Can/Can.jsx";
 
 const CouponCodeManagement = () => {
+  const { can } = usePermissions();
+
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -27,19 +33,22 @@ const CouponCodeManagement = () => {
   const [isApproving, setIsApproving] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  //fetch plans
+  //fetch coupons
   useEffect(() => {
-    setLoading(true);
     const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/coupons`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/coupons`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setData(response.data.coupons);
         } else if (response.status === 204) {
@@ -49,17 +58,22 @@ const CouponCodeManagement = () => {
         setData([]);
         handleApiError(error, "fetching", "coupons");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
 
   // Handle approve callback
   const handleApprove = useCallback((coupon_code, id) => {
+    if (!can(APP_PERMISSIONS.COUPONS_APPROVE)) {
+      toast.error("You do not have permission to approve coupons.");
+      return;
+    }
     setCouponToApprove({ coupon_code, id });
     setIsApproveModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle approve functionality
@@ -68,7 +82,7 @@ const CouponCodeManagement = () => {
       setIsApproving(true);
       try {
         const response = await axios.put(
-          `${APP_URL}/approve-coupon/${couponToApprove.id}`,
+          `${APP_URL}/${user.rolename}/approve-coupon/${couponToApprove.id}`,
           null,
           {
             headers: {
@@ -97,8 +111,11 @@ const CouponCodeManagement = () => {
     }
   };
 
-  const columns = useMemo(
-    () => [
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
+  const canSeeActionsColumn = can(APP_PERMISSIONS.COUPONS_APPROVE);
+
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "SR. NO.",
         id: "serialNumber",
@@ -140,9 +157,9 @@ const CouponCodeManagement = () => {
         accessor: (row) => `${row.valid_from} ${row.valid_till}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              from <span>{row.original.valid_from}</span> to
-              <span>{row.original.valid_till}</span>
+            <div className="d-flex">
+              from <span className="mx-1">{row.original.valid_from}</span> to
+              <span className="mx-1">{row.original.valid_till}</span>
             </div>
           </div>
         ),
@@ -151,28 +168,27 @@ const CouponCodeManagement = () => {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
-          <button
-            className={`btn btn-sm ${
-              value === "1" ? "btn-success" : "btn-danger"
-            }`}
+          <div
+            className={`badge ${value === "1" ? "bg-success" : "bg-danger"}`}
             style={{
               backgroundColor: value === "1" ? "#28a745" : "#dc3545",
               borderColor: value === "1" ? "#28a745" : "#dc3545",
               color: "#fff",
-              width: "90px",
-              height: "35px",
             }}
           >
             {value === "1" ? "Active" : "Inactive"}
-          </button>
+          </div>
         ),
       },
-      {
-        Header: "Action",
+    ];
+
+    if (canSeeActionsColumn)
+      baseColumns.push({
+        Header: "Actions",
         accessor: "action",
-        Cell: ({ row }) => {
-          return (
-            <div>
+        Cell: ({ row }) => (
+          <div>
+            <Can do={APP_PERMISSIONS.COUPONS_APPROVE}>
               <button
                 className="btn btn-success px-2 me-1"
                 data-toggle="tooltip"
@@ -186,13 +202,12 @@ const CouponCodeManagement = () => {
               >
                 {row.original.approve === "0" ? "Approve" : "Approved"}
               </button>
-            </div>
-          );
-        },
-      },
-    ],
-    [handleApprove]
-  );
+            </Can>
+          </div>
+        ),
+      });
+    return baseColumns;
+  }, [canSeeActionsColumn, handleApprove]);
 
   // Use the useTable hook to build the table
   const {
@@ -247,21 +262,24 @@ const CouponCodeManagement = () => {
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Coupon Codes"
-                fields={[
-                  "coupon_code",
-                  "title",
-                  "plan_type",
-                  "first_name",
-                  "last_name",
-                  "valid_from",
-                  "valid_till",
-                  "status",
-                  "approve",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Coupon Codes"
+                  fields={[
+                    "coupon_code",
+                    "title",
+                    "plan_type",
+                    "first_name",
+                    "last_name",
+                    "valid_from",
+                    "valid_till",
+                    "status",
+                    "approve",
+                  ]}
+                />
+              )}
+
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input
@@ -332,7 +350,7 @@ const CouponCodeManagement = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {loading ? (
+                {isLoading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading coupon codes..." />

@@ -30,6 +30,7 @@ const TwoStep = () => {
 
   // State Variables
   const [showPassword, setShowPassword] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [resetToken, setResetToken] = useState("");
 
@@ -97,9 +98,7 @@ const TwoStep = () => {
       );
       if (res.status === 200) {
         toast.success(res.data.message);
-        setTimeout(() => {
-          navigate("/signin");
-        }, 2000);
+        setResetSuccess(true);
       }
     } catch (error) {
       handleApiError(error, "changing", "password");
@@ -113,116 +112,138 @@ const TwoStep = () => {
     <div className="px-xl-5 px-4 auth-body">
       <Toaster />
       <ul className="row g-3 list-unstyled li_animate">
-        <li className="col-12">
-          <h1 className="h2 title-font">Welcome to Smart Promotion App</h1>
-          <p>Your Dashboard</p>
-        </li>
+        {resetSuccess ? (
+          <div className="text-center">
+            <h2 className="text-success">🎉 Password Reset Successful!</h2>
+            <p>You can now log in using your new password.</p>
 
-        <li className="col-12">
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="row g-3">
-              <div className="col-md-6">
-                <div
-                  className={`form-floating ${
-                    errors.password ? "is-invalid" : ""
-                  }`}
-                >
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className={`form-control ${
-                      errors.password ? "is-invalid" : ""
-                    }`}
-                    id="password"
-                    {...register("password")}
-                    placeholder="Password"
-                    tabIndex="1"
-                  />
-                  <label htmlFor="password">Password</label>
-                  <div
-                    className="position-absolute top-50 end-0 translate-middle-y pe-3"
-                    style={{ cursor: "pointer" }}
-                    onClick={toggleShowPassword}
-                  >
-                    <i
-                      className={`bi ${
-                        showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"
-                      }`}
-                    ></i>
-                  </div>
-                </div>
-                {errors.password && (
-                  <div className="invalid-feedback">
-                    {errors.password.message}
-                  </div>
-                )}
-                {passwordValue && (
-                  <div className="invalid-feedback d-block">
-                    <ul className="list-unstyled mb-0">
-                      {passwordErrors.map((error, index) => (
-                        <li key={index}>{error}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              <div className="col-md-6">
-                <div className="form-floating">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className={`form-control ${
-                      errors.cnfPassword ? "is-invalid" : ""
-                    }`}
-                    id="cnfPassword"
-                    {...register("cnfPassword")}
-                    placeholder="Confirm Password"
-                    tabIndex="2"
-                  />
-                  <div
-                    className="position-absolute top-50 end-0 translate-middle-y pe-3"
-                    style={{ cursor: "pointer" }}
-                    onClick={toggleShowPassword}
-                  >
-                    <i
-                      className={`bi ${
-                        showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"
-                      }`}
-                    ></i>
-                  </div>
-                  <label htmlFor="cnfPassword">Confirm Password</label>
-                  {errors.cnfPassword && (
-                    <div className="invalid-feedback">
-                      {errors.cnfPassword.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-12">
-                <button
-                  tabIndex="3"
-                  className="me-1 btn btn-primary"
-                  type="submit"
-                >
-                  Reset Password
-                </button>
-                <button
-                  tabIndex="4"
-                  className="btn btn-outline-secondary"
-                  type="button"
-                  onClick={handleCancel}
-                >
-                  Cancel
-                </button>
-                <br />
-                <br />
-                <Link className="m-" to="/forgot-password">
-                  Haven't received it? Resend a new code
-                </Link>
-              </div>
+            <div className="d-flex justify-content-center gap-3 mt-4">
+              <Link to="/signin" className="btn btn-primary">
+                Login to Web Dashboard
+              </Link>
+              <span
+                // href="swp://login"
+                style={{ cursor: "default" }}
+                className="btn btn-outline-secondary"
+              >
+                You can open the app and login there.
+              </span>
             </div>
-          </form>
-        </li>
+          </div>
+        ) : (
+          <>
+            <li className="col-12">
+              <h1 className="h2 title-font">Welcome to Smart Promotion App</h1>
+              <p>Your Dashboard</p>
+            </li>
+
+            <li className="col-12">
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <div
+                      className={`form-floating ${
+                        errors.password ? "is-invalid" : ""
+                      }`}
+                    >
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        className={`form-control ${
+                          errors.password ? "is-invalid" : ""
+                        }`}
+                        id="password"
+                        {...register("password")}
+                        placeholder="Password"
+                        tabIndex="1"
+                      />
+                      <label htmlFor="password">Password</label>
+                      <div
+                        className="position-absolute top-50 end-0 translate-middle-y pe-3"
+                        style={{ cursor: "pointer" }}
+                        onClick={toggleShowPassword}
+                      >
+                        <i
+                          className={`bi ${
+                            showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"
+                          }`}
+                        ></i>
+                      </div>
+                    </div>
+                    {errors.password && (
+                      <div className="invalid-feedback">
+                        {errors.password.message}
+                      </div>
+                    )}
+                    {passwordValue && (
+                      <div className="invalid-feedback d-block">
+                        <ul className="list-unstyled mb-0">
+                          {passwordErrors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="col-md-6">
+                    <div className="form-floating">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        className={`form-control ${
+                          errors.cnfPassword ? "is-invalid" : ""
+                        }`}
+                        id="cnfPassword"
+                        {...register("cnfPassword")}
+                        placeholder="Confirm Password"
+                        tabIndex="2"
+                      />
+                      <div
+                        className="position-absolute top-50 end-0 translate-middle-y pe-3"
+                        style={{ cursor: "pointer" }}
+                        onClick={toggleShowPassword}
+                      >
+                        <i
+                          className={`bi ${
+                            showPassword ? "bi-eye-fill" : "bi-eye-slash-fill"
+                          }`}
+                        ></i>
+                      </div>
+                      <label htmlFor="cnfPassword">Confirm Password</label>
+                      {errors.cnfPassword && (
+                        <div className="invalid-feedback">
+                          {errors.cnfPassword.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-12">
+                    <button
+                      tabIndex="3"
+                      className="me-1 btn btn-primary"
+                      type="submit"
+                    >
+                      Reset Password
+                    </button>
+                    <button
+                      tabIndex="4"
+                      className="btn btn-outline-secondary"
+                      type="button"
+                      onClick={handleCancel}
+                    >
+                      Cancel
+                    </button>
+                    <br />
+                    <br />
+                    <Link className="m-" to="/forgot-password">
+                      Haven't received it? Resend a new code
+                    </Link>
+                  </div>
+                </div>
+              </form>
+            </li>
+          </>
+        )}
       </ul>
     </div>
   );

@@ -1,20 +1,24 @@
 /* eslint-disable no-useless-escape */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast, { Toaster } from "react-hot-toast";
-// import UploadProgress from "../../utils/UploadProgress";
 import { handleApiError } from "../../utils/handleApiError";
 import { setPageTitle } from "../../utils/docTitle";
 import Select from "react-select";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../../../../Redux/slices/authSlice";
 
+const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i;
+// const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+const accountNumberRegex = /^[0-9]{9,18}$/;
+const upiRegex = /^[\w.\-]{2,256}@[a-zA-Z]{2,64}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Schema definition
-const schema = yup.object().shape({
+const baseSchema = yup.object().shape({
   firstname: yup
     .string()
     .min(2, "Minimum 2 characters required.")
@@ -41,6 +45,10 @@ const schema = yup.object().shape({
 
   profile_pic: yup.mixed().notRequired(),
 
+  old_profile_pic: yup.string().notRequired(),
+});
+
+const vendorSchema = yup.object().shape({
   business_name: yup
     .string()
     .required("Business Name is required")
@@ -68,19 +76,69 @@ const schema = yup.object().shape({
     .string()
     .required("Business Address is required")
     .max(200, "Maximum 200 characters allowed."),
+});
 
-  old_profile_pic: yup.string().notRequired(),
+const affiliateSchema = yup.object().shape({
+  gst_number: yup
+    .string()
+    .required("GST Number is required")
+    .matches(gstRegex, "Invalid GST Number (e.g., 22AAAAA0000A1Z5)"),
+
+  account_holder: yup
+    .string()
+    .required("Account holder name is required")
+    .matches(
+      /^[A-Za-z\s]+$/,
+      "Account holder name must contain only alphabets and spaces."
+    )
+    .min(3, "Name must be at least 3 characters")
+    .max(100, "Name is too long"),
+
+  account_type: yup
+    .string()
+    .required("Account type is required")
+    .oneOf(
+      ["savings", "current"],
+      "Account type must be 'savings' or 'current'"
+    ),
+
+  bank_name: yup
+    .string()
+    .required("Bank name is required")
+    .min(3, "Bank name must be at least 3 characters"),
+
+  bank_account_no: yup
+    .string()
+    .required("Bank account number is required")
+    .matches(
+      accountNumberRegex,
+      "Invalid account number (must be 9–18 digits)"
+    ),
+
+  branch: yup
+    .string()
+    .required("Branch is required")
+    .min(3, "Branch name must be at least 3 characters"),
+
+  upi_id: yup
+    .string()
+    .required("UPI ID is required")
+    .matches(upiRegex, "Invalid UPI ID format (e.g., name@bank)"),
 });
 
 const MyProfile = () => {
   setPageTitle("My Profile");
 
-  // Access token
-  const token = localStorage.getItem("jwtToken");
+  const dispatch = useDispatch();
 
-  // User details from token
-  const decoded = jwtDecode(token);
-  const { id } = decoded.data;
+  const schemaMap = {
+    base: baseSchema,
+    vendor: baseSchema.concat(vendorSchema),
+    affiliate: baseSchema.concat(affiliateSchema),
+  };
+
+  // State initialisation
+  const { user: userData = {}, token } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -105,15 +163,29 @@ const MyProfile = () => {
     },
   ];
 
+  const accountTypes = [
+    {
+      value: "savings",
+      label: "Savings",
+    },
+    {
+      value: "current",
+      label: "Current",
+    },
+  ];
+
   // State initialisation
-  // const [uploadProgress, setUploadProgress] = useState(0);
-  // State initialization
   const profilePicRef = useRef();
   const [profilePicPreview, setProfilePicPreview] = useState(null);
-  const [userData, setUserData] = useState({});
   const [updated, setUpdated] = useState(false);
 
-  // const fileInputRef = useRef();
+  const formKey = userData?.rolename || "base";
+
+  const selectedSchema = useMemo(() => {
+    const role = userData?.rolename?.toLowerCase();
+    return schemaMap[role] ?? baseSchema;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData?.rolename]);
 
   // Use form initialisation
   const {
@@ -123,54 +195,81 @@ const MyProfile = () => {
     setValue,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(selectedSchema),
+    key: formKey,
   });
 
   //fetch user data
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`${APP_URL}/vendors/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const res = await axios.get(
+          `${APP_URL}/${userData?.rolename}/${userData?.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (res.status === 200) {
-          setUserData(res.data.vendor);
-          setValue("firstname", res.data.vendor.first_name);
-          setValue("lastname", res.data.vendor.last_name);
-          setValue("email", res.data.vendor.email);
-          setValue("contact_no", res.data.vendor.contact_no);
-          setValue("old_profile_pic", res.data.vendor.profile_pic);
-          if (res.data.vendor.business_name)
-            setValue("business_name", res.data.vendor.business_name);
-          if (res.data.vendor.business_email)
-            setValue("business_email", res.data.vendor.business_email);
-          if (res.data.vendor.business_contact)
-            setValue("business_contact", res.data.vendor.business_contact);
-          if (res.data.vendor.website_url)
-            setValue("website_url", res.data.vendor.website);
-          if (res.data.vendor.business_address)
-            setValue("business_address", res.data.vendor.business_address);
-          if (res.data.vendor.business_type)
-            setValue("business_type", res.data.vendor.business_type);
+          const user = res.data[userData?.rolename];
 
-          // Set profile image if available
-          if (res.data.vendor.profile_pic) {
-            setValue("profile_pic", res.data.vendor.profile_pic);
-            setProfilePicPreview(
-              `${Img_url}/profile/${res.data.vendor.profile_pic}`
-            );
+          dispatch(setUser(user));
+          setValue("firstname", user.first_name);
+          setValue("lastname", user.last_name);
+          setValue("email", user.email);
+          setValue("contact_no", user.contact_no);
+          setValue("old_profile_pic", user.profile_pic);
+          if (user.profile_pic) {
+            setValue("profile_pic", user.profile_pic);
+            setProfilePicPreview(`${Img_url}/profile/${user.profile_pic}`);
+          }
+
+          if (userData?.rolename === "vendor") {
+            if (user.business_name)
+              setValue("business_name", user.business_name);
+            if (user.business_email)
+              setValue("business_email", user.business_email);
+            if (user.business_contact)
+              setValue("business_contact", user.business_contact);
+            if (user.website_url) setValue("website_url", user.website);
+            if (user.business_address)
+              setValue("business_address", user.business_address);
+            if (user.business_type)
+              setValue("business_type", user.business_type);
+
+            if (user.gst_number) setValue("gst_number", user.gst_number);
+          }
+
+          if (userData?.rolename === "affiliate") {
+            if (user.account_holder)
+              setValue("account_holder", user.account_holder);
+            if (user.account_type) setValue("account_type", user.account_type);
+            if (user.bank_name) setValue("bank_name", user.bank_name);
+            if (user.bank_account_no)
+              setValue("bank_account_no", user.bank_account_no);
+            if (user.branch) setValue("branch", user.branch);
+            if (user.upi_id) setValue("upi_id", user.upi_id);
+            if (user.gst_number) setValue("gst_number", user.gst_number);
           }
         }
       } catch (error) {
-        handleApiError(error, "fetching", "vendor details");
+        handleApiError(error, "fetching", `${userData?.rolename} details`);
       }
     };
 
     fetchUser();
-  }, [id, token, updated, APP_URL, setValue, Img_url]);
+  }, [
+    token,
+    updated,
+    APP_URL,
+    setValue,
+    Img_url,
+    userData?.rolename,
+    userData?.id,
+    dispatch,
+  ]);
 
   const handleProfilePic = (e) => {
     const file = e.target.files[0];
@@ -179,88 +278,63 @@ const MyProfile = () => {
     }
   };
 
-  // Handle profile picture click
-  // const handleProfilePicClick = () => {
-  //   fileInputRef.current.click();
-  // };
-
-  // Handle profile picture change
-  // const handleProfilePicChange = async (event) => {
-  //   const file = event.target.files[0];
-  //   if (!file) return;
-
-  //   const formData = new FormData();
-  //   formData.append("profile_pic", file);
-
-  //   try {
-  //     const res = await axios.post(
-  //       `${APP_URL}/update-profile-pic/${id}`,
-  //       formData,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //           "Content-Type": "multipart/form-data",
-  //         },
-  //         onUploadProgress: (progressEvent) => {
-  //           const percentCompleted = Math.round(
-  //             (progressEvent.loaded * 100) / progressEvent.total
-  //           );
-  //           setUploadProgress(percentCompleted);
-  //         },
-  //       }
-  //     );
-
-  //     if (res.status === 200) {
-  //       toast.success(res.data.message);
-  //     }
-  //   } catch (error) {
-  //     handleApiError(error, "updating", "profile picture");
-  //   } finally {
-  //     setUpdated((prev) => !prev);
-  //     setUploadProgress(0);
-  //   }
-  // };
-
   // Handle submit
   const onSubmit = async (data) => {
     const formData = new FormData();
+
     formData.append("first_name", data.firstname);
     formData.append("last_name", data.lastname);
     formData.append("email", data.email);
     formData.append("contact_no", data.contact_no);
     formData.append("password", data.password);
     formData.append("role", "3");
-    formData.append("business_address", data.business_address);
-    formData.append("business_type", data.business_type);
-
-    if (data.gst_number) formData.append("gst_number", data.gst_number);
-    if (data.business_name)
-      formData.append("business_name", data.business_name);
-    if (data.website) formData.append("website", data.website_url);
-    if (data.business_email)
-      formData.append("business_email", data.business_email);
-    if (data.business_contact)
-      formData.append("business_contact", data.business_contact);
-
     if (data.profile_pic && data.profile_pic[0] instanceof File)
       formData.append("profile_pic", data.profile_pic[0]);
 
     if (data.old_profile_pic)
       formData.append("old_profile_pic", data.old_profile_pic);
 
+    if (userData?.rolename === "vendor") {
+      if (data.gst_number) formData.append("gst_number", data.gst_number);
+      if (data.business_name)
+        formData.append("business_name", data.business_name);
+      if (data.website) formData.append("website", data.website_url);
+      if (data.business_email)
+        formData.append("business_email", data.business_email);
+      if (data.business_contact)
+        formData.append("business_contact", data.business_contact);
+
+      formData.append("business_address", data.business_address);
+      formData.append("business_type", data.business_type);
+    }
+
+    if (userData?.rolename === "affiliate") {
+      formData.append("account_holder", data.account_holder);
+      formData.append("account_type", data.account_type);
+      formData.append("bank_name", data.bank_name);
+      formData.append("bank_account_no", data.bank_account_no);
+      formData.append("branch", data.branch);
+      formData.append("upi_id", data.upi_id);
+      if (data.gst_number) formData.append("gst_number", data.gst_number);
+    }
+
     try {
-      const res = await axios.post(`${APP_URL}/vendors/${id}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.post(
+        `${APP_URL}/${userData?.rolename}/${userData?.id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       if (res.status === 200) {
         toast.success(res.data.message);
         setUpdated((prev) => !prev);
       }
     } catch (error) {
-      handleApiError(error, "updating", "vendor");
+      handleApiError(error, "updating", `${userData?.rolename}`);
     }
   };
 
@@ -278,7 +352,7 @@ const MyProfile = () => {
               <img
                 src={
                   userData?.profile_pic
-                    ? `${Img_url}/profile/${userData.profile_pic}`
+                    ? `${Img_url}/profile/${userData?.profile_pic}`
                     : `${Img_url}/default/list/user.webp`
                 }
                 alt={userData?.first_name || "User profile"}
@@ -287,34 +361,12 @@ const MyProfile = () => {
                   e.target.src = `${Img_url}/default/list/user.webp`;
                 }}
               />
-              {/* <div
-                className="position-absolute bottom-0 end-0 bg-primary rounded px-1"
-                style={{
-                  cursor: "pointer",
-                  border: "0.5px solid #00B8D6",
-                  color: "white",
-                  fontSize: "14px",
-                }}
-                // onClick={handleProfilePicClick}
-              >
-                <i className="bi bi-pencil"></i>
-              </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                // onChange={handleProfilePicChange}
-                accept="image/*"
-              />
-              {uploadProgress > 0 && (
-                <UploadProgress uploadProgress={uploadProgress} />
-              )} */}
             </div>
             <div className="media-body ms-md-5 m-0 mt-md-0 text-md-start text-center">
               <h4 className="mb-1 mt-3">
-                {userData.first_name} {userData.last_name}
+                {userData?.first_name} {userData?.last_name}
               </h4>
-              <p>{userData.email}</p>
+              <p>{userData?.email}</p>
             </div>
           </div>
         </div>
@@ -450,208 +502,414 @@ const MyProfile = () => {
               {/* Additional Information */}
               <h4 className="mt-4">Additional Information</h4>
 
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <input
-                    type="text"
-                    className={`form-control ${
-                      errors.business_name ? "is-invalid" : ""
-                    }`}
-                    id="business_name"
-                    {...register("business_name")}
-                    placeholder="Business Name"
-                    tabIndex="8"
-                  />
-                  <label htmlFor="business_name">Business Name</label>
-                  {errors.business_name && (
-                    <div className="invalid-feedback">
-                      {errors.business_name.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <input
-                    type="text"
-                    className={`form-control ${
-                      errors.business_email ? "is-invalid" : ""
-                    }`}
-                    id="business_email"
-                    {...register("business_email")}
-                    placeholder="Business Email"
-                    tabIndex="10"
-                  />
-                  <label htmlFor="business_email">Business Email</label>
-                  {errors.business_email && (
-                    <div className="invalid-feedback">
-                      {errors.business_email.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={10}
-                    onInput={(e) =>
-                      (e.target.value = e.target.value.replace(/\D+/g, ""))
-                    }
-                    className={`form-control ${
-                      errors.business_contact ? "is-invalid" : ""
-                    }`}
-                    id="business_contact"
-                    {...register("business_contact")}
-                    placeholder="Business Contact"
-                    tabIndex="11"
-                  />
-                  <label htmlFor="business_contact">Business Contact</label>
-                  {errors.business_contact && (
-                    <div className="invalid-feedback">
-                      {errors.business_contact.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <input
-                    type="text"
-                    className={`form-control ${
-                      errors.website_url ? "is-invalid" : ""
-                    }`}
-                    id="website_url"
-                    {...register("website_url")}
-                    placeholder="Website"
-                    tabIndex="12"
-                  />
-                  <label htmlFor="website_url">
-                    Website (https://example.com)
-                  </label>
-                  {errors.website_url && (
-                    <div className="invalid-feedback">
-                      {errors.website_url.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <textarea
-                    type="text"
-                    className={`form-control ${
-                      errors.business_address ? "is-invalid" : ""
-                    }`}
-                    id="business_address"
-                    {...register("business_address")}
-                    placeholder="Business Address"
-                    tabIndex="13"
-                  />
-                  <label htmlFor="business_address">Business Address</label>
-                  {errors.business_address && (
-                    <div className="invalid-feedback">
-                      {errors.business_address.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={15}
-                    onInput={(e) =>
-                      (e.target.value = e.target.value.replace(/\D+/g, ""))
-                    }
-                    className={`form-control ${
-                      errors.gst_number ? "is-invalid" : ""
-                    }`}
-                    id="gst_number"
-                    {...register("gst_number")}
-                    placeholder="GST Number"
-                    tabIndex="14"
-                  />
-                  <label htmlFor="gst_number">GST Number</label>
-                  {errors.gst_number && (
-                    <div className="invalid-feedback">
-                      {errors.gst_number.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <Controller
-                    name="business_type"
-                    control={control}
-                    rules={{ required: "Business Type is required" }}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        options={businessTypes}
-                        tabIndex="15"
-                        className={`basic-single ${
-                          errors.business_type ? "is-invalid" : ""
+              {userData?.rolename === "vendor" && (
+                <>
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        className={`form-control ${
+                          errors.business_name ? "is-invalid" : ""
                         }`}
-                        classNamePrefix="select"
-                        isClearable={true}
-                        isSearchable={true}
-                        placeholder="Select Business type"
-                        value={
-                          businessTypes.find(
-                            (type) => type.value === field.value
-                          ) || null
-                        }
-                        onChange={(selectedOption) =>
-                          field.onChange(
-                            selectedOption ? selectedOption.value : ""
-                          )
-                        }
-                        styles={{
-                          control: (baseStyles) => ({
-                            ...baseStyles,
-                            height: "calc(3.5rem + 2px)",
-                            borderRadius: "0.375rem",
-                            border: "1px solid #ced4da",
-                          }),
-                          valueContainer: (baseStyles) => ({
-                            ...baseStyles,
-                            height: "100%",
-                            padding: "0.7rem 0.6rem",
-                          }),
-                          placeholder: (baseStyles) => ({
-                            ...baseStyles,
-                            color: "#6c757d",
-                          }),
-                          input: (baseStyles) => ({
-                            ...baseStyles,
-                            margin: 0,
-                            padding: 0,
-                          }),
-                          menu: (baseStyles) => ({
-                            ...baseStyles,
-                            zIndex: 9999,
-                          }),
-                        }}
+                        id="business_name"
+                        {...register("business_name")}
+                        placeholder="Business Name"
+                        tabIndex="8"
                       />
-                    )}
-                  />
-                  {errors.business_type && (
-                    <div className="invalid-feedback">
-                      {errors.business_type.message}
+                      <label htmlFor="business_name">Business Name</label>
+                      {errors.business_name && (
+                        <div className="invalid-feedback">
+                          {errors.business_name.message}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        className={`form-control ${
+                          errors.business_email ? "is-invalid" : ""
+                        }`}
+                        id="business_email"
+                        {...register("business_email")}
+                        placeholder="Business Email"
+                        tabIndex="10"
+                      />
+                      <label htmlFor="business_email">Business Email</label>
+                      {errors.business_email && (
+                        <div className="invalid-feedback">
+                          {errors.business_email.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={10}
+                        onInput={(e) =>
+                          (e.target.value = e.target.value.replace(/\D+/g, ""))
+                        }
+                        className={`form-control ${
+                          errors.business_contact ? "is-invalid" : ""
+                        }`}
+                        id="business_contact"
+                        {...register("business_contact")}
+                        placeholder="Business Contact"
+                        tabIndex="11"
+                      />
+                      <label htmlFor="business_contact">Business Contact</label>
+                      {errors.business_contact && (
+                        <div className="invalid-feedback">
+                          {errors.business_contact.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        className={`form-control ${
+                          errors.website_url ? "is-invalid" : ""
+                        }`}
+                        id="website_url"
+                        {...register("website_url")}
+                        placeholder="Website"
+                        tabIndex="12"
+                      />
+                      <label htmlFor="website_url">
+                        Website (https://example.com)
+                      </label>
+                      {errors.website_url && (
+                        <div className="invalid-feedback">
+                          {errors.website_url.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <textarea
+                        type="text"
+                        className={`form-control ${
+                          errors.business_address ? "is-invalid" : ""
+                        }`}
+                        id="business_address"
+                        {...register("business_address")}
+                        placeholder="Business Address"
+                        tabIndex="13"
+                      />
+                      <label htmlFor="business_address">Business Address</label>
+                      {errors.business_address && (
+                        <div className="invalid-feedback">
+                          {errors.business_address.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={15}
+                        onInput={(e) =>
+                          (e.target.value = e.target.value.replace(/\D+/g, ""))
+                        }
+                        className={`form-control ${
+                          errors.gst_number ? "is-invalid" : ""
+                        }`}
+                        id="gst_number"
+                        {...register("gst_number")}
+                        placeholder="GST Number"
+                        tabIndex="14"
+                      />
+                      <label htmlFor="gst_number">GST Number</label>
+                      {errors.gst_number && (
+                        <div className="invalid-feedback">
+                          {errors.gst_number.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <Controller
+                        name="business_type"
+                        control={control}
+                        rules={{ required: "Business Type is required" }}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            options={businessTypes}
+                            tabIndex="15"
+                            className={`basic-single ${
+                              errors.business_type ? "is-invalid" : ""
+                            }`}
+                            classNamePrefix="select"
+                            isClearable={true}
+                            isSearchable={true}
+                            placeholder="Select Business type"
+                            value={
+                              businessTypes.find(
+                                (type) => type.value === field.value
+                              ) || null
+                            }
+                            onChange={(selectedOption) =>
+                              field.onChange(
+                                selectedOption ? selectedOption.value : ""
+                              )
+                            }
+                            styles={{
+                              control: (baseStyles) => ({
+                                ...baseStyles,
+                                height: "calc(3.5rem + 2px)",
+                                borderRadius: "0.375rem",
+                                border: "1px solid #ced4da",
+                              }),
+                              valueContainer: (baseStyles) => ({
+                                ...baseStyles,
+                                height: "100%",
+                                padding: "0.7rem 0.6rem",
+                              }),
+                              placeholder: (baseStyles) => ({
+                                ...baseStyles,
+                                color: "#6c757d",
+                              }),
+                              input: (baseStyles) => ({
+                                ...baseStyles,
+                                margin: 0,
+                                padding: 0,
+                              }),
+                              menu: (baseStyles) => ({
+                                ...baseStyles,
+                                zIndex: 9999,
+                              }),
+                            }}
+                          />
+                        )}
+                      />
+                      {errors.business_type && (
+                        <div className="invalid-feedback">
+                          {errors.business_type.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {userData?.rolename === "affiliate" && (
+                <>
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        className={`form-control ${
+                          errors.account_holder ? "is-invalid" : ""
+                        }`}
+                        id="account_holder"
+                        {...register("account_holder")}
+                        placeholder="Account Holder Name"
+                        tabIndex="8"
+                      />
+                      <label htmlFor="account_holder">
+                        Account Holder Name
+                      </label>
+                      {errors.account_holder && (
+                        <div className="invalid-feedback">
+                          {errors.account_holder.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        className={`form-control ${
+                          errors.bank_name ? "is-invalid" : ""
+                        }`}
+                        id="bank_name"
+                        {...register("bank_name")}
+                        placeholder="Bank Name"
+                        tabIndex="9"
+                      />
+                      <label htmlFor="bank_name">Bank Name</label>
+                      {errors.bank_name && (
+                        <div className="invalid-feedback">
+                          {errors.bank_name.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        onInput={(e) =>
+                          (e.target.value = e.target.value.replace(/\D+/g, ""))
+                        }
+                        className={`form-control ${
+                          errors.bank_account_no ? "is-invalid" : ""
+                        }`}
+                        id="bank_account_no"
+                        {...register("bank_account_no")}
+                        placeholder="Bank Account No:"
+                        tabIndex="11"
+                      />
+                      <label htmlFor="bank_account_no">Bank Account No:</label>
+                      {errors.bank_account_no && (
+                        <div className="invalid-feedback">
+                          {errors.bank_account_no.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        className={`form-control ${
+                          errors.branch ? "is-invalid" : ""
+                        }`}
+                        id="branch"
+                        {...register("branch")}
+                        placeholder="Branch"
+                        tabIndex="12"
+                      />
+                      <label htmlFor="branch">Branch</label>
+                      {errors.branch && (
+                        <div className="invalid-feedback">
+                          {errors.branch.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        className={`form-control ${
+                          errors.upi_id ? "is-invalid" : ""
+                        }`}
+                        id="upi_id"
+                        {...register("upi_id")}
+                        placeholder="UPI ID"
+                        tabIndex="24"
+                      />
+                      <label htmlFor="upi_id">UPI ID</label>
+                      {errors.upi_id && (
+                        <div className="invalid-feedback">
+                          {errors.upi_id.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <input
+                        type="text"
+                        maxLength={15}
+                        className={`form-control ${
+                          errors.gst_number ? "is-invalid" : ""
+                        }`}
+                        id="gst_number"
+                        {...register("gst_number")}
+                        placeholder="GST Number"
+                        tabIndex="14"
+                      />
+                      <label htmlFor="gst_number">GST Number</label>
+                      {errors.gst_number && (
+                        <div className="invalid-feedback">
+                          {errors.gst_number.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-4">
+                    <div className="form-floating">
+                      <Controller
+                        name="account_type"
+                        control={control}
+                        rules={{ required: "Account Type is required" }}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            options={accountTypes}
+                            tabIndex="15"
+                            className={`basic-single ${
+                              errors.account_type ? "is-invalid" : ""
+                            }`}
+                            classNamePrefix="select"
+                            isClearable={true}
+                            isSearchable={true}
+                            placeholder="Select Account Type"
+                            value={
+                              accountTypes.find(
+                                (type) => type.value === field.value
+                              ) || null
+                            }
+                            onChange={(selectedOption) =>
+                              field.onChange(
+                                selectedOption ? selectedOption.value : ""
+                              )
+                            }
+                            styles={{
+                              control: (baseStyles) => ({
+                                ...baseStyles,
+                                height: "calc(3.5rem + 2px)",
+                                borderRadius: "0.375rem",
+                                border: "1px solid #ced4da",
+                              }),
+                              valueContainer: (baseStyles) => ({
+                                ...baseStyles,
+                                height: "100%",
+                                padding: "0.7rem 0.6rem",
+                              }),
+                              placeholder: (baseStyles) => ({
+                                ...baseStyles,
+                                color: "#6c757d",
+                              }),
+                              input: (baseStyles) => ({
+                                ...baseStyles,
+                                margin: 0,
+                                padding: 0,
+                              }),
+                              menu: (baseStyles) => ({
+                                ...baseStyles,
+                                zIndex: 9999,
+                              }),
+                            }}
+                          />
+                        )}
+                      />
+                      {errors.account_type && (
+                        <div className="invalid-feedback">
+                          {errors.account_type.message}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="col-12">
                 <button

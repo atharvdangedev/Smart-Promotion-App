@@ -1,21 +1,21 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import Chart from "react-apexcharts";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import { DollarSign, CreditCard, Mail, ShoppingBag } from "lucide-react";
+import LoadingFallback from "../../Apps/LoadingFallback/LoadingFallback";
 import { Link } from "react-router-dom";
 import { handleApiError } from "../../Apps/utils/handleApiError";
+import { useSelector } from "react-redux";
 import { setPageTitle } from "../../Apps/utils/docTitle";
-import LoadingFallback from "../../Apps/LoadingFallback/LoadingFallback";
 
 const Index = memo(() => {
   const Img_url = import.meta.env.VITE_IMG_URL;
   const APP_URL = import.meta.env.VITE_API_URL;
 
+  const { user: userData = {}, token } = useSelector((state) => state.auth);
+
   setPageTitle("Dashboard");
 
-  const token = localStorage.getItem("jwtToken");
-  const [userData, setUserData] = useState(null);
   const [monthlyAnalytics, setMonthlyAnalytics] = useState([]);
   const [orders, setOrders] = useState([]);
   const [payoutOrders, setPayoutOrders] = useState([]);
@@ -25,29 +25,6 @@ const Index = memo(() => {
     total_order_amount: "0",
     category_totals: [],
   });
-
-  //get user details
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const decoded = jwtDecode(token);
-        const { id } = decoded.data;
-        const res = await axios.get(`${APP_URL}/users/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (res.status === 200) {
-          setUserData(res.data.user);
-        }
-      } catch (error) {
-        handleApiError(error, "fetching", "user details");
-      }
-    };
-
-    if (token) fetchUser();
-  }, [APP_URL, token]);
 
   // Fetch all orders
   useEffect(() => {
@@ -335,6 +312,7 @@ const Index = memo(() => {
       data: ordersData,
     },
   ];
+
   return (
     <div className="px-4 py-3 page-body">
       <div className="card mb-3">
@@ -347,7 +325,7 @@ const Index = memo(() => {
                 <img
                   src={
                     userData?.profile_pic
-                      ? `${Img_url}/profile/${userData.profile_pic}`
+                      ? `${Img_url}/profile/${userData?.profile_pic}`
                       : `${Img_url}/default/list/user.webp`
                   }
                   alt={userData?.first_name || "User profile"}
@@ -360,11 +338,13 @@ const Index = memo(() => {
                   <h4 className="mb-0 text-gradient title-font">
                     Hello,{" "}
                     {userData
-                      ? `${userData.first_name} ${userData.last_name}`
+                      ? `${userData?.first_name} ${userData?.last_name}`
                       : "User"}
                     !
                   </h4>
-                  <span className="text-muted small">{userData?.email}</span>
+                  <span className="text-muted small">
+                    {userData?.email || ""}
+                  </span>
                 </div>
               </div>
             </div>

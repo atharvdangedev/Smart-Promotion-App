@@ -12,10 +12,15 @@ import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import axios from "axios";
 import { handleApiError } from "../utils/handleApiError";
 import { Link, useLocation, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions.js";
+import { APP_PERMISSIONS } from "../utils/permissions.js";
 
 const VendorContacts = () => {
+  const { can } = usePermissions();
+
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // Vendor ID from params
   const { vendorId } = useParams();
@@ -30,7 +35,7 @@ const VendorContacts = () => {
   const [totalRecords, setTotalRecords] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const useServerPagination = true;
 
@@ -40,6 +45,8 @@ const VendorContacts = () => {
       setVendorName(vendorname);
     }
   }, [location.state]);
+
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
 
   // Table configuration
   const columns = useMemo(
@@ -64,7 +71,7 @@ const VendorContacts = () => {
         accessor: "contact_email",
       },
       {
-        Header: "CONTACT BRITHDATE",
+        Header: "CONTACT BIRTHDATE",
         accessor: "contact_birthdate",
       },
     ],
@@ -109,7 +116,7 @@ const VendorContacts = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${APP_URL}/contact/vendor/${vendorId}`,
+          `${APP_URL}/${user.rolename}/contact/vendor/${vendorId}`,
           {
             params: { page: pageIndex + 1, limit: pageSize },
             headers: {
@@ -128,12 +135,20 @@ const VendorContacts = () => {
         setData([]);
         handleApiError(error, "fetching", "vendor contacts");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [APP_URL, pageIndex, pageSize, token, useServerPagination, vendorId]);
+  }, [
+    APP_URL,
+    pageIndex,
+    pageSize,
+    token,
+    useServerPagination,
+    user.rolename,
+    vendorId,
+  ]);
 
   // Handle search function
   const handleGlobalFilterChange = (e) => {
@@ -166,16 +181,19 @@ const VendorContacts = () => {
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Vendor Contacts"
-                fields={[
-                  "contact_name",
-                  "contact_no",
-                  "contact_email",
-                  "contact_birthdate",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Vendor Contacts"
+                  fields={[
+                    "contact_name",
+                    "contact_no",
+                    "contact_email",
+                    "contact_birthdate",
+                  ]}
+                />
+              )}
+
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input
@@ -236,7 +254,7 @@ const VendorContacts = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {loading ? (
+                {isLoading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading VendorContacts..." />
