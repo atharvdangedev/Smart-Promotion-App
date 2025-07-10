@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import LoadingFallback from "../../LoadingFallback/LoadingFallback";
-import ImagePopup from "./ImagePopup";
 import { handleApiError } from "../../utils/handleApiError";
 import { formatDate } from "../../utils/formatDate";
 import { setPageTitle } from "../../utils/docTitle";
@@ -19,14 +18,9 @@ const OrderDetails = () => {
 
   setPageTitle(`Order Details: ${orderId} | Vendor Panel`);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderData, setOrderData] = useState({ items: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [requiresShipping, setRequiresShipping] = useState(false);
-  const [popupDetails, setPopupDetails] = useState({
-    template: "",
-    cardId: "",
-  });
 
   const checkIfRequiresShipping = (items = []) =>
     items.some((item) => {
@@ -70,15 +64,6 @@ const OrderDetails = () => {
 
     fetchData();
   }, [APP_URL, orderId, token]);
-
-  const handleClosePopup = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleOpenPopup = (template, cardId) => {
-    setPopupDetails({ template, cardId });
-    setIsModalOpen(true);
-  };
 
   return (
     <div className="px-4 py-3 page-body">
@@ -257,25 +242,6 @@ const OrderDetails = () => {
                             currency: "INR",
                           })}
                         </td>
-                        <td className="text-center">
-                          <button
-                            className={`btn btn-sm btn-outline-success`}
-                            style={{
-                              cursor:
-                                item.category_name === "Digital Invitations"
-                                  ? "not-allowed"
-                                  : "pointer",
-                            }}
-                            onClick={() =>
-                              handleOpenPopup(
-                                item.category_name,
-                                item.pre_order_id
-                              )
-                            }
-                          >
-                            View Card
-                          </button>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -283,18 +249,6 @@ const OrderDetails = () => {
               </div>
             </div>
           </div>
-        </>
-      )}
-
-      {isModalOpen && (
-        <>
-          <div className="modal-backdrop show"></div>
-          <ImagePopup
-            onClose={handleClosePopup}
-            template={popupDetails.template}
-            cardId={popupDetails.cardId}
-            orderStatus={orderData.order_status}
-          />
         </>
       )}
     </div>
