@@ -10,6 +10,7 @@ import ImagePreview from "../utils/ImagePreview";
 import { evaluatePasswordStrength } from "../utils/evaluatePasswordStrength";
 import { handleApiError } from "../utils/handleApiError";
 import Select from "react-select";
+import { useSelector } from "react-redux";
 
 const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i;
 // const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
@@ -106,7 +107,7 @@ const AddAffiliate = () => {
   const navigate = useNavigate();
 
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -199,12 +200,16 @@ const AddAffiliate = () => {
       if (data.profile_pic && data.profile_pic[0] instanceof File)
         formData.append("profile_pic", data.profile_pic[0]);
 
-      const res = await axios.post(`${APP_URL}/affiliates`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.post(
+        `${APP_URL}/${user.rolename}/affiliates`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       if (res.status === 201) {
         toast.success(res.data.message);
         setTimeout(() => {

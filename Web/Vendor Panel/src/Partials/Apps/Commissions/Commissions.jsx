@@ -11,10 +11,15 @@ import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import axios from "axios";
 import { handleApiError } from "../utils/handleApiError";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions";
+import { APP_PERMISSIONS } from "../utils/permissions";
 
 const Commissions = () => {
+  const { can } = usePermissions();
+
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -22,19 +27,22 @@ const Commissions = () => {
   // State initialization
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   //fetch commission
   useEffect(() => {
-    setLoading(true);
     const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/vendor/commission`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/commission`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setData(response.data.commission);
         } else if (response.status === 204) {
@@ -44,12 +52,14 @@ const Commissions = () => {
         setData([]);
         handleApiError(error, "fetching", "commission");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
+
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
 
   const columns = useMemo(
     () => [
@@ -160,18 +170,18 @@ const Commissions = () => {
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Commissions"
-                fields={[
-                  "first_name",
-                  "last_name",
-                  "email",
-                  "contact_no",
-                  "role",
-                  "status",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Commissions"
+                  fields={[
+                    "plan_title",
+                    "plan_type",
+                    "commission",
+                    "payout_balance",
+                  ]}
+                />
+              )}
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input
@@ -232,7 +242,7 @@ const Commissions = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {loading ? (
+                {isLoading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading commissions..." />

@@ -44,4 +44,8 @@ export const routePatterns = [
     pattern: "contacts",
     title: "Contacts",
   },
+  {
+    pattern: "contacts/edit-contact/:contactId",
+    title: "Contacts / Edit Contact",
+  },
 ];

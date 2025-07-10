@@ -52,6 +52,7 @@ import CouponCodeManagement from "./Partials/Apps/CouponCodeManagement/CouponCod
 import Commissions from "./Partials/Apps/Commissions/Commissions";
 import AddCouponCode from "./Partials/Apps/CouponCodeManagement/AddCouponCode";
 import EditCouponCode from "./Partials/Apps/CouponCodeManagement/EditCouponCode";
+import EditContact from "./Partials/Apps/Contacts/EditContact";
 
 const AppRoutes = () => {
   return (
@@ -107,6 +108,10 @@ const AppRoutes = () => {
 
               {/* Contacts */}
               <Route path="/contacts" element={<Contacts />} />
+              <Route
+                path="/contacts/edit-contact/:contactId"
+                element={<EditContact />}
+              />
 
               {/* Template Management */}
               <Route path="/templates" element={<Templates />} />

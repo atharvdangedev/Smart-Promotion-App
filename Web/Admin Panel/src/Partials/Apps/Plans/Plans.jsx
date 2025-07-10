@@ -15,13 +15,19 @@ import toast, { Toaster } from "react-hot-toast";
 import Modal from "../StatusModal/Modal";
 import { Link, useNavigate } from "react-router-dom";
 import DeleteModal from "../DeleteModal/DeleteModal";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions";
+import Can from "../Can/Can";
+import { APP_PERMISSIONS } from "../utils/permissions";
 
 const Plans = () => {
   // Navigate function
   const navigate = useNavigate();
 
+  const { can, canAny } = usePermissions();
+
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -41,7 +47,7 @@ const Plans = () => {
     setLoading(true);
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${APP_URL}/plans`, {
+        const response = await axios.get(`${APP_URL}/${user.rolename}/plans`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -61,20 +67,30 @@ const Plans = () => {
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
 
   // Handle edit page navigation
   const handleEdit = useCallback(
     async (id) => {
+      if (!can(APP_PERMISSIONS.PLANS_EDIT)) {
+        toast.error("You do not have permission to edit plan.");
+        return;
+      }
       navigate(`/admin/plans/edit-plan/${id}`);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [navigate]
   );
 
   // Handle delete callback
   const handleDelete = useCallback((title, id) => {
+    if (!can(APP_PERMISSIONS.PLANS_DELETE)) {
+      toast.error("You do not have permission to delete plan.");
+      return;
+    }
     setPlanToDelete({ title, id });
     setIsDeleteModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle delete functionality
@@ -83,7 +99,7 @@ const Plans = () => {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/plans/${planToDelete.id}`,
+          `${APP_URL}/${user.rolename}/plans/${planToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -109,15 +125,20 @@ const Plans = () => {
 
   // Handle status click callback
   const handleStatusClick = useCallback((record) => {
+    if (!can(APP_PERMISSIONS.PLANS_CHANGE_STATUS)) {
+      toast.error("You do not have permission to change plan status.");
+      return;
+    }
     setRecordToUpdate(record);
     setIsStatusModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle status change functionality
   const handleConfirmStatus = async (id) => {
     try {
       const response = await axios.put(
-        `${APP_URL}/update-plan-status/${id}`,
+        `${APP_URL}/${user.rolename}/update-plan-status/${id}`,
         null,
         {
           headers: {
@@ -142,9 +163,16 @@ const Plans = () => {
     }
   };
 
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
+
+  const canSeeActionsColumn = canAny([
+    APP_PERMISSIONS.PLANS_EDIT,
+    APP_PERMISSIONS.PLANS_DELETE,
+  ]);
+
   // Table configuration
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "SR NO",
         accessor: "serialNumber",
@@ -202,31 +230,39 @@ const Plans = () => {
           </button>
         ),
       },
-      {
+    ];
+
+    if (canSeeActionsColumn)
+      baseColumns.push({
         Header: "ACTIONS",
         accessor: "activated",
         Cell: ({ row }) => (
           <div>
-            <button
-              type="button"
-              onClick={() => handleEdit(row.original.id)}
-              className="btn text-info px-2 me-1"
-            >
-              <i className="bi bi-pencil"></i>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDelete(row.original.title, row.original.id)}
-              className="btn text-danger px-2"
-            >
-              <i className="fa fa-trash"></i>
-            </button>
+            <Can do={APP_PERMISSIONS.PLANS_EDIT}>
+              <button
+                type="button"
+                onClick={() => handleEdit(row.original.id)}
+                className="btn text-info px-2 me-1"
+              >
+                <i className="bi bi-pencil"></i>
+              </button>
+            </Can>
+            <Can do={APP_PERMISSIONS.PLANS_DELETE}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleDelete(row.original.title, row.original.id)
+                }
+                className="btn text-danger px-2"
+              >
+                <i className="fa fa-trash"></i>
+              </button>
+            </Can>
           </div>
         ),
-      },
-    ],
-    [handleDelete, handleEdit, handleStatusClick]
-  );
+      });
+    return baseColumns;
+  }, [canSeeActionsColumn, handleDelete, handleEdit, handleStatusClick]);
 
   // Use the useTable hook to build the table
   const {
@@ -277,17 +313,21 @@ const Plans = () => {
               <h4 className="title-font">
                 <strong>Plans</strong>
               </h4>
-              <Link className="btn btn-primary" to="/admin/plans/add-plan">
-                Add New Plan
-              </Link>
+              <Can do={APP_PERMISSIONS.PLANS_CREATE}>
+                <Link className="btn btn-primary" to="/admin/plans/add-plan">
+                  Add New Plan
+                </Link>
+              </Can>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Plans"
-                fields={["title", "plan_type", "validity", "price", "status"]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Plans"
+                  fields={["title", "plan_type", "validity", "price", "status"]}
+                />
+              )}
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input

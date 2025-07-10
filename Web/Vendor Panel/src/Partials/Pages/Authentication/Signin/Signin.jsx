@@ -1,12 +1,12 @@
 // Library Imports
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast, { Toaster } from "react-hot-toast";
-import axios from "axios";
-import { handleApiError } from "../../../Apps/utils/handleApiError";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../../../Redux/slices/authSlice";
 
 // Validation schema
 const schema = yup.object().shape({
@@ -19,15 +19,16 @@ const schema = yup.object().shape({
 });
 
 const Signin = () => {
-  // API URL
-  const APP_URL = import.meta.env.VITE_API_URL;
-  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
-
   // Navigation
   const navigate = useNavigate();
 
+  // Redux Hooks
+  const dispatch = useDispatch();
+  const { isLoading, error, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+
   // State Variables
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   // useForm Initialization
@@ -45,35 +46,33 @@ const Signin = () => {
     setShowPassword((prev) => !prev);
   };
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      toast.success("Login successful!");
+      setTimeout(() => {
+        navigate("/dashboard", { replace: true });
+      }, 1000);
+    }
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
   // Handle Submit Function
   const onSubmit = async (data) => {
-    setIsLoading(true);
-
     const formdata = new FormData();
 
     formdata.append("email", data.email);
     formdata.append("password", data.password);
     formdata.append("remember", data.remember ? 1 : 0);
 
-    try {
-      const res = await axios.post(`${APP_URL}/login`, formdata, {
-        headers: {
-          "X-App-Secret": `${SECRET_KEY}`,
-        },
-      });
+    const resultAction = await dispatch(loginUser(formdata));
 
-      if (res.status === 200) {
-        const { token } = res.data;
-        localStorage.setItem("jwtToken", token);
-        toast.success(res.data.message);
-        setTimeout(() => {
-          navigate("dashboard");
-        }, 2000);
-      }
-    } catch (error) {
-      handleApiError(error, "logging in", "user");
-    } finally {
-      setIsLoading(false);
+    if (loginUser.rejected.match(resultAction)) {
+      console.error("Login failed:", resultAction.payload);
     }
   };
 

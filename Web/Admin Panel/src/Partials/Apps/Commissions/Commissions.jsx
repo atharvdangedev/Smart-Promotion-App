@@ -11,10 +11,16 @@ import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import { handleApiError } from "../utils/handleApiError";
 import axios from "axios";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions.js";
+import { APP_PERMISSIONS } from "../utils/permissions.js";
+import Can from "../Can/Can.jsx";
 
 const Commissions = () => {
+  const { can } = usePermissions();
+
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -22,19 +28,22 @@ const Commissions = () => {
   // State initialization
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  //fetch commission
+  //fetch commissions
   useEffect(() => {
-    setLoading(true);
     const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/commission`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/commission`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setData(response.data.commission);
         } else if (response.status === 204) {
@@ -42,17 +51,20 @@ const Commissions = () => {
         }
       } catch (error) {
         setData([]);
-        handleApiError(error, "fetching", "commission");
+        handleApiError(error, "fetching", "commissions");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
 
-  const columns = useMemo(
-    () => [
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
+  const canSeeActionsColumn = can(APP_PERMISSIONS.COMMISSIONS_PAY);
+
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "SR. NO.",
         id: "serialNumber",
@@ -121,29 +133,31 @@ const Commissions = () => {
           );
         },
       },
-      {
-        Header: "Action",
+    ];
+
+    if (canSeeActionsColumn)
+      baseColumns.push({
+        Header: "Actions",
         accessor: "action",
-        Cell: ({ row }) => {
-          return (
-            <div>
-              {row.original.payout_balance > 0 && (
+        Cell: ({ row }) => (
+          <div>
+            {row.original.payout_balance > 0 && (
+              <Can do={APP_PERMISSIONS.COMMISSIONS_PAY}>
                 <button
-                  className="btn text-success px-2 me-1"
+                  className="btn btn-success px-2 me-1"
                   data-toggle="tooltip"
                   data-placement="bottom"
                   title="Payout"
                 >
                   Pay
                 </button>
-              )}
-            </div>
-          );
-        },
-      },
-    ],
-    []
-  );
+              </Can>
+            )}
+          </div>
+        ),
+      });
+    return baseColumns;
+  }, [canSeeActionsColumn]);
 
   // Use the useTable hook to build the table
   const {
@@ -197,19 +211,22 @@ const Commissions = () => {
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Commissions"
-                fields={[
-                  "plan_title",
-                  "plan_type",
-                  "first_name",
-                  "last_name",
-                  "business_name",
-                  "commission",
-                  "payout_balance",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Commissions"
+                  fields={[
+                    "plan_title",
+                    "plan_type",
+                    "first_name",
+                    "last_name",
+                    "business_name",
+                    "commission",
+                    "payout_balance",
+                  ]}
+                />
+              )}
+
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input
@@ -270,7 +287,7 @@ const Commissions = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {loading ? (
+                {isLoading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading commissions..." />

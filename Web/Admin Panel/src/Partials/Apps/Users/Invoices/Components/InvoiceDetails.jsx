@@ -5,10 +5,11 @@ import LoadingFallback from "../../../LoadingFallback/LoadingFallback";
 import { generatePDF } from "../../../utils/generatePDF.js";
 import { handleApiError } from "../../../utils/handleApiError.js";
 import { formatDate } from "../../../utils/formatDate.js";
+import { useSelector } from "react-redux";
 
 const InvoiceDetails = () => {
   const { state } = useLocation();
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
   const APP_URL = import.meta.env.VITE_API_URL;
 
   const [invoiceId, setInvoiceId] = useState(null);
@@ -20,7 +21,7 @@ const InvoiceDetails = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${APP_URL}/invoice-details/${invoiceId}`,
+          `${APP_URL}/${user.rolename}/invoice-details/${invoiceId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -45,7 +46,7 @@ const InvoiceDetails = () => {
     if (invoiceId) {
       fetchData();
     }
-  }, [APP_URL, invoiceId, state, token]);
+  }, [APP_URL, invoiceId, state, token, user.rolename]);
 
   if (isLoading) return <LoadingFallback />;
 

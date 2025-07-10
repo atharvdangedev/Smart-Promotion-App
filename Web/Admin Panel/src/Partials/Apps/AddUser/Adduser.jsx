@@ -9,6 +9,7 @@ import Select from "react-select";
 import ImagePreview from "../utils/ImagePreview";
 import { evaluatePasswordStrength } from "../utils/evaluatePasswordStrength";
 import { handleApiError } from "../utils/handleApiError";
+import { useSelector } from "react-redux";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -48,8 +49,7 @@ const AddUser = () => {
   // Navigate function
   const navigate = useNavigate();
 
-  // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -93,12 +93,15 @@ const AddUser = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get(`${APP_URL}/user-all-roles`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json;",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/user-all-roles`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json;",
+            },
+          }
+        );
         if (response.status === 200) {
           const roleOptions = response.data.roles.map((role) => ({
             value: role.id,
@@ -112,7 +115,7 @@ const AddUser = () => {
     };
 
     fetchRoles();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
 
   // Handle submit
   const onSubmit = async (data) => {
@@ -135,12 +138,16 @@ const AddUser = () => {
         formData.append("profile_pic", data.profile_pic[0]);
       formData.append("role", data.role);
 
-      const res = await axios.post(`${APP_URL}/users`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.post(
+        `${APP_URL}/${user.rolename}/users`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       if (res.status === 201) {
         toast.success(res.data.message);
         setTimeout(() => {

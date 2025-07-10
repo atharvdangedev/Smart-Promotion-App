@@ -11,10 +11,15 @@ import axios from "axios";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import { handleApiError } from "../utils/handleApiError";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions.js";
+import { APP_PERMISSIONS } from "../utils/permissions.js";
 
 const Templates = () => {
+  const { can } = usePermissions();
+
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -22,19 +27,22 @@ const Templates = () => {
   // State initialization
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   //fetch templates
   useEffect(() => {
-    setLoading(true);
     const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/templates`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/templates`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setData(response.data.templates);
         } else if (response.status === 204) {
@@ -44,12 +52,14 @@ const Templates = () => {
         setData([]);
         handleApiError(error, "fetching", "templates");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
+
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
 
   // Table configuration
   const columns = useMemo(
@@ -138,17 +148,20 @@ const Templates = () => {
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Templates"
-                fields={[
-                  "title",
-                  "template_type",
-                  "first_name",
-                  "last_name",
-                  "status",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Templates"
+                  fields={[
+                    "title",
+                    "template_type",
+                    "first_name",
+                    "last_name",
+                    "status",
+                  ]}
+                />
+              )}
+
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input
@@ -209,7 +222,7 @@ const Templates = () => {
                 })}
               </thead>
               <tbody {...getTableBodyProps()}>
-                {loading ? (
+                {isLoading ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
                       <LoadingFallback message="Loading templates..." />

@@ -15,15 +15,21 @@ import DeleteModal from "../../DeleteModal/DeleteModal";
 import ResponsivePagination from "../../ResponsivePagination/ResponsivePagination";
 import LoadingFallback from "../../LoadingFallback/LoadingFallback";
 import { handleApiError } from "../../utils/handleApiError";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../../hooks/usePermissions";
+import { APP_PERMISSIONS } from "../../utils/permissions";
+import Can from "../../Can/Can";
 
 const ClientsList = () => {
   // Navigate function
   const navigate = useNavigate();
 
-  // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { can, canAny } = usePermissions();
 
-  // API URLs
+  // Access token
+  const { token, user } = useSelector((state) => state.auth);
+
+  // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
   const Img_url = import.meta.env.VITE_IMG_URL;
 
@@ -42,7 +48,7 @@ const ClientsList = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/users`, {
+        const response = await axios.get(`${APP_URL}/${user.rolename}/users`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json;",
@@ -62,20 +68,30 @@ const ClientsList = () => {
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
 
   // Handle edit page navigation
   const handleEdit = useCallback(
     async (firstname, id) => {
+      if (!can(APP_PERMISSIONS.USERS_EDIT)) {
+        toast.error("You do not have permission to edit users.");
+        return;
+      }
       navigate(`/admin/user/edit-user/${id}`, { state: { firstname } });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [navigate]
   );
 
   // Handle delete callback
   const handleDelete = useCallback((first_name, id) => {
+    if (!can(APP_PERMISSIONS.USERS_DELETE)) {
+      toast.error("You do not have permission to delete users.");
+      return;
+    }
     setUserToDelete({ first_name, id });
     setIsDeleteModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle delete functionality
@@ -84,7 +100,7 @@ const ClientsList = () => {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/users/${userToDelete.id}`,
+          `${APP_URL}/${user.rolename}/users/${userToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -110,15 +126,20 @@ const ClientsList = () => {
 
   // Handle status click callback
   const handleStatusClick = useCallback((record) => {
+    if (!can(APP_PERMISSIONS.USERS_CHANGE_STATUS)) {
+      toast.error("You do not have permission to change user status.");
+      return;
+    }
     setRecordToUpdate(record);
     setIsStatusModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle status change functionality
   const handleConfirmStatus = async (id) => {
     try {
       const response = await axios.put(
-        `${APP_URL}/update-user-status/${id}`,
+        `${APP_URL}/${user.rolename}/update-user-status/${id}`,
         null,
         {
           headers: {
@@ -143,9 +164,16 @@ const ClientsList = () => {
     }
   };
 
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
+
+  const canSeeActionsColumn = canAny([
+    APP_PERMISSIONS.USERS_EDIT,
+    APP_PERMISSIONS.USERS_DELETE,
+  ]);
+
   // Table configuration
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "SR. NO.",
         id: "serialNumber",
@@ -204,35 +232,46 @@ const ClientsList = () => {
           </button>
         ),
       },
-      {
+    ];
+    if (canSeeActionsColumn)
+      baseColumns.push({
         Header: "ACTIONS",
         accessor: "activated",
         Cell: ({ row }) => (
           <div>
-            <button
-              type="button"
-              onClick={() =>
-                handleEdit(row.original.first_name, row.original.id)
-              }
-              className="btn text-info px-2 me-1"
-            >
-              <i className="bi bi-pencil"></i>
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                handleDelete(row.original.first_name, row.original.id)
-              }
-              className="btn text-danger px-2"
-            >
-              <i className="fa fa-trash"></i>
-            </button>
+            <Can do={APP_PERMISSIONS.USERS_EDIT}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleEdit(row.original.first_name, row.original.id)
+                }
+                className="btn text-info px-2 me-1"
+              >
+                <i className="bi bi-pencil"></i>
+              </button>
+            </Can>
+            <Can do={APP_PERMISSIONS.USERS_DELETE}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleDelete(row.original.first_name, row.original.id)
+                }
+                className="btn text-danger px-2"
+              >
+                <i className="fa fa-trash"></i>
+              </button>
+            </Can>
           </div>
         ),
-      },
-    ],
-    [Img_url, handleStatusClick, handleEdit, handleDelete]
-  );
+      });
+    return baseColumns;
+  }, [
+    canSeeActionsColumn,
+    Img_url,
+    handleStatusClick,
+    handleEdit,
+    handleDelete,
+  ]);
 
   // Use the useTable hook to build the table
   const {
@@ -284,25 +323,30 @@ const ClientsList = () => {
               <h4 className="title-font">
                 <strong>Users List</strong>
               </h4>
-              <Link className="btn btn-primary" to="/admin/user/add-user">
-                Add New User
-              </Link>
+              <Can do={APP_PERMISSIONS.USERS_CREATE}>
+                <Link className="btn btn-primary" to="/admin/user/add-user">
+                  Add New User
+                </Link>
+              </Can>
             </div>
 
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Users"
-                fields={[
-                  "first_name",
-                  "last_name",
-                  "email",
-                  "contact_no",
-                  "role_name",
-                  "status",
-                  "activated",
-                ]}
-              />
+            <div className="d-flex justify-content-between align-items-center mx-1 mb-3">
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Users"
+                  fields={[
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "contact_no",
+                    "role_name",
+                    "status",
+                    "activated",
+                  ]}
+                />
+              )}
+
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input

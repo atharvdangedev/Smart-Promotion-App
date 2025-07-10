@@ -9,6 +9,7 @@ import Select from "react-select";
 import { useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { useSelector } from "react-redux";
 
 // Schema initialization
 const schema = yup.object().shape({
@@ -44,7 +45,7 @@ const EditPlan = () => {
   const navigate = useNavigate();
 
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -84,12 +85,15 @@ const EditPlan = () => {
   useEffect(() => {
     const fetchTemplateDetails = async () => {
       try {
-        const response = await axios.get(`${APP_URL}/plans/${planId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/plans/${planId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (response.status === 200) {
           setValue("title", response.data.plan.title);
           setValue("description", response.data.plan.description);
@@ -103,7 +107,7 @@ const EditPlan = () => {
     };
 
     fetchTemplateDetails();
-  }, [APP_URL, planId, setValue, token]);
+  }, [APP_URL, planId, setValue, token, user.rolename]);
 
   // Handle submit
   const onSubmit = async (data) => {
@@ -115,12 +119,16 @@ const EditPlan = () => {
     formData.append("plan_type", data.type);
 
     try {
-      const res = await axios.post(`${APP_URL}/plans/${planId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.post(
+        `${APP_URL}/${user.rolename}/plans/${planId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       if (res.status === 200) {
         toast.success(res.data.message);
         setTimeout(() => {

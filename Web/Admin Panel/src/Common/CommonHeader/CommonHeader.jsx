@@ -1,51 +1,24 @@
 import { memo, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setSelectedMod } from "../../Redux/actions/moreSettingsActions";
 import UserDropdown from "../../Partials/Widgets/UserDropdown/UserDropdown";
 import { Link } from "react-router-dom";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { handleApiError } from "../../Partials/Apps/utils/handleApiError";
 
 const CommonHeader = memo(() => {
   // Variable Declaration
   const dispatch = useDispatch();
 
-  // Access Token, API and Image URLs
-  const token = localStorage.getItem("jwtToken");
+  // Image URL
   const Img_url = import.meta.env.VITE_IMG_URL;
-  const APP_URL = import.meta.env.VITE_API_URL;
 
   // State Variables
   const [selectedMode, setSelectedMode] = useState("light");
-  const [userData, setUserData] = useState({});
+  const { user: userData = {} } = useSelector((state) => state.auth);
 
   // Set Theme mode
   const setThemeMode = (mode) => {
     setSelectedMode(mode);
   };
-
-  // Fetch userdata based on id upon component mount
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const decoded = jwtDecode(token);
-        const { id } = decoded.data;
-        const res = await axios.get(`${APP_URL}/users/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (res.status === 200) {
-          setUserData(res.data.user);
-        }
-      } catch (error) {
-        handleApiError(error, "fetching", "user details");
-      }
-    };
-
-    if (token) fetchUser();
-  }, [APP_URL, token]);
 
   let iconId;
   switch (selectedMode) {
@@ -189,7 +162,7 @@ const CommonHeader = memo(() => {
               <img
                 src={
                   userData?.profile_pic
-                    ? `${Img_url}/profile/${userData.profile_pic}`
+                    ? `${Img_url}/profile/${userData?.profile_pic}`
                     : `${Img_url}/default/list/user.webp`
                 }
                 alt={userData?.first_name || "User profile"}
@@ -199,7 +172,7 @@ const CommonHeader = memo(() => {
                 }}
               />
               <span className="ms-2 fs-6 d-none d-sm-inline-flex">
-                {userData.first_name}
+                {userData?.first_name}
               </span>
             </Link>
             <UserDropdown />

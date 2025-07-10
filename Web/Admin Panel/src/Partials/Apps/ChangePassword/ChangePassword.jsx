@@ -7,12 +7,13 @@ import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { evaluatePasswordStrength } from "../utils/evaluatePasswordStrength";
 import { handleApiError } from "../utils/handleApiError";
+import { useSelector } from "react-redux";
 
 const ChangePassword = () => {
   const navigate = useNavigate();
 
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;

@@ -6,10 +6,11 @@ import CalenderTab from "../../Widgets/CalenderTab/CalenderTab";
 import WalletTable from "./Components/WalletTable";
 import axios from "axios";
 import { DollarSign, CreditCard, Mail, ShoppingBag } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const MyWallet = () => {
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -131,8 +132,8 @@ const MyWallet = () => {
           icon: category.category_name.includes("Review")
             ? Mail
             : category.category_name.includes("Business")
-              ? CreditCard
-              : ShoppingBag,
+            ? CreditCard
+            : ShoppingBag,
         })),
       ]
     : [];

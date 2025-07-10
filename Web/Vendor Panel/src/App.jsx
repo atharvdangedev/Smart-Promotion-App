@@ -9,7 +9,6 @@ import ErrorComponent from "./Common/ErrorComponent/ErrorComponent";
 import { useSelector } from "react-redux";
 import { useLocation, Routes, Route, Navigate } from "react-router-dom";
 import React from "react";
-import useTokenValidation from "./hooks/useTokenValidation";
 import { lazyLoad } from "./lazyLoad";
 
 // ErrorBoundary Component
@@ -72,6 +71,7 @@ const App = () => {
     "/coupon-codes/edit-coupon": "EditCouponCode",
     "/commissions": "Commissions",
     "/contacts": "Contacts",
+    "/contacts/edit-contact": "EditContact",
     "/templates": "Templates",
     "/templates/add-template": "AddTemplate",
     "/templates/edit-template": "EditTemplate",
@@ -82,18 +82,6 @@ const App = () => {
   const isAdminRoute = Object.keys(adminTitleMapping).some((route) =>
     pathname.startsWith(route)
   );
-
-  const { isValidationComplete, authError } = useTokenValidation();
-
-  if (!isValidationComplete) {
-    console.log("Validating session...");
-  }
-
-  if (authError) {
-    console.log("Session expired or invalid.");
-    localStorage.removeItem("jwtToken");
-    window.location.href = "/signin";
-  }
 
   return (
     <ErrorBoundary>

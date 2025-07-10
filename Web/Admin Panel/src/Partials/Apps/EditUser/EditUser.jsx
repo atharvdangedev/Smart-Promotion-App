@@ -6,6 +6,7 @@ import * as yup from "yup";
 import toast, { Toaster } from "react-hot-toast";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { handleApiError } from "../utils/handleApiError";
+import { useSelector } from "react-redux";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -43,7 +44,7 @@ const EditUser = () => {
   const location = useLocation();
 
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -90,12 +91,15 @@ const EditUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`${APP_URL}/users/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const res = await axios.get(
+          `${APP_URL}/${user.rolename}/users/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (res.status === 200) {
           setValue("firstname", res.data.user.first_name);
           setValue("lastname", res.data.user.last_name);
@@ -117,7 +121,7 @@ const EditUser = () => {
       }
     };
     fetchUser();
-  }, [userId, token, APP_URL, Img_url, setValue]);
+  }, [userId, token, APP_URL, Img_url, setValue, user.rolename]);
 
   // Handle submit
   const onSubmit = async (data) => {
@@ -135,12 +139,16 @@ const EditUser = () => {
       formData.append("old_profile_pic", data.old_profile_pic);
 
     try {
-      const res = await axios.post(`${APP_URL}/users/${userId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.post(
+        `${APP_URL}/${user.rolename}/users/${userId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       if (res.status === 200) {
         toast.success(res.data.message);
         setTimeout(() => {

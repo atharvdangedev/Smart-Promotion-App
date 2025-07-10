@@ -16,15 +16,21 @@ import { Link, useNavigate } from "react-router-dom";
 import DeleteModal from "../DeleteModal/DeleteModal";
 import UserActivation from "../UserActivation/UserActivation";
 import Modal from "../StatusModal/Modal";
+import { useSelector } from "react-redux";
+import usePermissions from "../../../hooks/usePermissions.js";
+import { APP_PERMISSIONS } from "../utils/permissions.js";
+import Can from "../Can/Can.jsx";
 
 const Affiliates = () => {
   // Navigate function
   const navigate = useNavigate();
 
-  // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { can, canAny } = usePermissions();
 
-  // API URLs
+  // Access token
+  const { token, user } = useSelector((state) => state.auth);
+
+  // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
   const Img_url = import.meta.env.VITE_IMG_URL;
 
@@ -40,17 +46,20 @@ const Affiliates = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Fetch user data
+  // Fetch affiliate data
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${APP_URL}/affiliates`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json;",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${user.rolename}/affiliates`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json;",
+            },
+          }
+        );
         if (response.status === 200) {
           setClientsData(response.data.affiliates);
         } else if (response.status === 204) {
@@ -58,29 +67,39 @@ const Affiliates = () => {
         }
       } catch (error) {
         setClientsData([]);
-        handleApiError(error, "fetching", "users");
+        handleApiError(error, "fetching", "affiliates");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, user.rolename]);
 
   // Handle edit page navigation
   const handleEdit = useCallback(
     async (firstname, id) => {
+      if (!can(APP_PERMISSIONS.AFFILIATES_EDIT)) {
+        toast.error("You do not have permission to edit affiliates.");
+        return;
+      }
       navigate(`/admin/affiliates/edit-affiliate/${id}`, {
         state: { firstname },
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [navigate]
   );
 
   // Handle delete callback
   const handleDelete = useCallback((first_name, id) => {
+    if (!can(APP_PERMISSIONS.AFFILIATES_DELETE)) {
+      toast.error("You do not have permission to delete affiliates.");
+      return;
+    }
     setUserToDelete({ first_name, id });
     setIsDeleteModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle delete functionality
@@ -89,7 +108,7 @@ const Affiliates = () => {
       setIsDeleting(true);
       try {
         const response = await axios.delete(
-          `${APP_URL}/affiliates/${userToDelete.id}`,
+          `${APP_URL}/${user.rolename}/affiliates/${userToDelete.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -115,15 +134,20 @@ const Affiliates = () => {
 
   // Handle status click callback
   const handleStatusClick = useCallback((record) => {
+    if (!can(APP_PERMISSIONS.AFFILIATES_CHANGE_STATUS)) {
+      toast.error("You do not have permission to change affiliate status.");
+      return;
+    }
     setRecordToUpdate(record);
     setIsStatusModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle status change functionality
   const handleConfirmStatus = async (id) => {
     try {
       const response = await axios.put(
-        `${APP_URL}/update-user-status/${id}`,
+        `${APP_URL}/${user.rolename}/update-user-status/${id}`,
         null,
         {
           headers: {
@@ -150,8 +174,13 @@ const Affiliates = () => {
 
   // Handle user activation callback
   const handleUserActivationClick = useCallback((record) => {
+    if (!can(APP_PERMISSIONS.VENDORS_ACTIVATE)) {
+      toast.error("You do not have permission to activate affiliate.");
+      return;
+    }
     setRecordToUpdate(record);
     setIsUserActivationModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle user activation functionality (via email)
@@ -209,9 +238,16 @@ const Affiliates = () => {
     }
   };
 
+  const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
+
+  const canSeeActionsColumn = canAny([
+    APP_PERMISSIONS.AFFILIATES_EDIT,
+    APP_PERMISSIONS.AFFILIATES_DELETE,
+  ]);
+
   // Table configuration
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "SR. NO.",
         id: "serialNumber",
@@ -270,51 +306,59 @@ const Affiliates = () => {
           </button>
         ),
       },
-      {
+    ];
+    if (canSeeActionsColumn)
+      baseColumns.push({
         Header: "ACTIONS",
         accessor: "activated",
         Cell: ({ row, value }) => (
           <div>
-            <button
-              type="button"
-              onClick={() =>
-                handleEdit(row.original.first_name, row.original.id)
-              }
-              className="btn text-info px-2 me-1"
-            >
-              <i className="bi bi-pencil"></i>
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                handleDelete(row.original.first_name, row.original.id)
-              }
-              className="btn text-danger px-2"
-            >
-              <i className="fa fa-trash"></i>
-            </button>
-            {value === "0" ? (
+            <Can do={APP_PERMISSIONS.AFFILIATES_EDIT}>
               <button
-                className="btn btn-sm"
-                onClick={() => handleUserActivationClick(row.original)}
+                type="button"
+                onClick={() =>
+                  handleEdit(row.original.first_name, row.original.id)
+                }
+                className="btn text-info px-2 me-1"
               >
-                <i className="bi bi-shield-lock"></i>
+                <i className="bi bi-pencil"></i>
               </button>
+            </Can>
+            <Can do={APP_PERMISSIONS.AFFILIATES_DELETE}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleDelete(row.original.first_name, row.original.id)
+                }
+                className="btn text-danger px-2"
+              >
+                <i className="fa fa-trash"></i>
+              </button>
+            </Can>
+            {value === "0" ? (
+              <Can do={APP_PERMISSIONS.AFFILIATES_ACTIVATE}>
+                <button
+                  className="btn btn-sm"
+                  onClick={() => handleUserActivationClick(row.original)}
+                >
+                  <i className="bi bi-shield-lock"></i>
+                </button>
+              </Can>
             ) : (
               ""
             )}
           </div>
         ),
-      },
-    ],
-    [
-      Img_url,
-      handleStatusClick,
-      handleEdit,
-      handleDelete,
-      handleUserActivationClick,
-    ]
-  );
+      });
+    return baseColumns;
+  }, [
+    canSeeActionsColumn,
+    Img_url,
+    handleStatusClick,
+    handleEdit,
+    handleDelete,
+    handleUserActivationClick,
+  ]);
 
   // Use the useTable hook to build the table
   const {
@@ -366,28 +410,33 @@ const Affiliates = () => {
               <h4 className="title-font">
                 <strong>Affiliates List</strong>
               </h4>
-              <Link
-                className="btn btn-primary"
-                to="/admin/affiliates/add-affiliate"
-              >
-                Add New Affiliate
-              </Link>
+              <Can do={APP_PERMISSIONS.AFFILIATES_CREATE}>
+                <Link
+                  className="btn btn-primary"
+                  to="/admin/affiliates/add-affiliate"
+                >
+                  Add New Affiliate
+                </Link>
+              </Can>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <ExportButtons
-                data={rows.map((row) => row.original)}
-                fileName="Users"
-                fields={[
-                  "first_name",
-                  "last_name",
-                  "email",
-                  "contact_no",
-                  "rolename",
-                  "status",
-                  "activated",
-                ]}
-              />
+              {canSeeExports && (
+                <ExportButtons
+                  data={rows.map((row) => row.original)}
+                  fileName="Users"
+                  fields={[
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "contact_no",
+                    "rolename",
+                    "status",
+                    "activated",
+                  ]}
+                />
+              )}
+
               <div className="d-flex align-items-center">
                 <div className="me-2">
                   <input

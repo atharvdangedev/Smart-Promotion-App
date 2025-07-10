@@ -1,10 +1,10 @@
 const initialState = {
-  layout: '', // Initial state for layout
+  layout: "", // Initial state for layout
 };
 
 const layoutReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'SET_LAYOUT':
+    case "SET_LAYOUT":
       return {
         ...state,
         layout: action.payload,

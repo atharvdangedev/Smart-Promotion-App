@@ -26,7 +26,7 @@ export const routePatterns = [
     title: "Vendor / Edit Vendor",
   },
   // agent routes
-  { pattern: "admin/vendor/agents", title: "Agents / List" },
+  { pattern: "admin/vendor/agents/:vendorId", title: "Agents / List" },
   { pattern: "admin/vendor/agents/add-agent", title: "Agents / Add Agent" },
   {
     pattern: "admin/vendor/agents/edit-agent/:agentId",
@@ -63,9 +63,4 @@ export const routePatterns = [
   },
   // template routes
   { pattern: "admin/templates", title: "Templates / List" },
-  { pattern: "admin/addTemplate", title: "Templates / Add Template" },
-  {
-    pattern: "admin/editTemplate/:templateName/:templateId",
-    title: "Templates / Edit Template",
-  },
 ];

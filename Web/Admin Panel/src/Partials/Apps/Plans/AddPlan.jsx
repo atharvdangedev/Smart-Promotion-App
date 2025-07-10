@@ -8,6 +8,7 @@ import { handleApiError } from "../utils/handleApiError";
 import Select from "react-select";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { useSelector } from "react-redux";
 
 // Schema initialization
 const schema = yup.object().shape({
@@ -43,7 +44,7 @@ const AddPlan = () => {
   const navigate = useNavigate();
 
   // Access token
-  const token = localStorage.getItem("jwtToken");
+  const { token, user } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -86,12 +87,16 @@ const AddPlan = () => {
     formData.append("plan_type", data.type);
 
     try {
-      const res = await axios.post(`${APP_URL}/plans`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.post(
+        `${APP_URL}/${user.rolename}/plans`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       if (res.status === 201) {
         toast.success(res.data.message);
         setTimeout(() => {

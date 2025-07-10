@@ -1,22 +1,21 @@
 import { useLocation } from "react-router-dom";
+import { lazyLoad } from "../lazyLoad";
+const Signin = lazyLoad(() =>
+  import("../Partials/Pages/Authentication/Signin/Signin")
+);
+const UserActivation = lazyLoad(() =>
+  import("../Partials/Pages/Authentication/UserActivation/UserActivation")
+);
 
-const Signin = lazyLoad(
-  () => import("../Partials/Pages/Authentication/Signin/Signin")
+const PasswordReset = lazyLoad(() =>
+  import("../Partials/Pages/Authentication/PasswordReset/PasswordReset")
 );
-const UserActivation = lazyLoad(
-  () => import("../Partials/Pages/Authentication/UserActivation/UserActivation")
-);
-
-const PasswordReset = lazyLoad(
-  () => import("../Partials/Pages/Authentication/PasswordReset/PasswordReset")
-);
-const TwoStep = lazyLoad(
-  () => import("../Partials/Pages/Authentication/TwoStep/TwoStep")
+const TwoStep = lazyLoad(() =>
+  import("../Partials/Pages/Authentication/TwoStep/TwoStep")
 );
 import NoPageFound from "../Partials/Pages/Authentication/NoPageFound/NoPageFound";
 import loginImg from "../assets/images/login-img.png";
 import logoImg from "../assets/images/mcards.webp";
-import { lazyLoad } from "../lazyLoad";
 
 const AuthLayout = () => {
   const location = useLocation();

@@ -1,15 +1,15 @@
 const initialState = {
-  boxLayout: '', // Initial state for boxLayout
-  monochrome: '', // Initial state for monochrome
-  borderRadius: '',
-  iconColor: '',
-  themeMode: '',
-  screenWidth: '',
+  boxLayout: "", // Initial state for boxLayout
+  monochrome: "", // Initial state for monochrome
+  borderRadius: "",
+  iconColor: "",
+  themeMode: "",
+  screenWidth: "",
 };
 
 export const boxLayoutReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'SET_BOX_LAYOUT':
+    case "SET_BOX_LAYOUT":
       return {
         ...state,
         boxLayout: action.payload,
@@ -21,7 +21,7 @@ export const boxLayoutReducer = (state = initialState, action) => {
 
 export const monochromeReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'SET_MONOCHROME':
+    case "SET_MONOCHROME":
       return {
         ...state,
         monochrome: action.payload,
@@ -33,7 +33,7 @@ export const monochromeReducer = (state = initialState, action) => {
 
 export const borderRadiusReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'SET_BORDER_RADIUS':
+    case "SET_BORDER_RADIUS":
       return {
         ...state,
         borderRadius: action.payload,
@@ -45,7 +45,7 @@ export const borderRadiusReducer = (state = initialState, action) => {
 
 export const iconColorReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'SET_ICON_COLOR':
+    case "SET_ICON_COLOR":
       return {
         ...state,
         iconColor: action.payload,
@@ -57,7 +57,7 @@ export const iconColorReducer = (state = initialState, action) => {
 
 export const themeModeReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'SET_THEME_MODE':
+    case "SET_THEME_MODE":
       return {
         ...state,
         themeMode: action.payload,
@@ -69,7 +69,7 @@ export const themeModeReducer = (state = initialState, action) => {
 
 export const screenWidthReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'SET_SCREEN_WIDTH':
+    case "SET_SCREEN_WIDTH":
       return {
         ...state,
         screenWidth: action.payload,

@@ -1,18 +1,30 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable react/prop-types */
-// Component Imports
-import CommonBrand from "../Common/CommonBrand/CommonBrand";
-import CommonHeader from "../Common/CommonHeader/CommonHeader";
-import CommonSidebar from "../Common/CommonSidebar/CommonSidebar";
-import CommonBreadcrumb from "../Common/CommonBreadcrumb/CommonBreadcrumb";
-import CommonFooter from "../Common/CommonFooter/CommonFooter";
-import CommonSettings from "../Common/Setting/CommonSettings";
+import { lazyLoad } from "../lazyLoad";
+
 // Library Imports
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, Outlet } from "react-router-dom";
 import { screenMapping } from "./Components/ScreenMapping";
 import { setScreenWidth } from "../Redux/actions/moreSettingsActions";
+// Component Imports
+const CommonBrand = lazyLoad(() => import("../Common/CommonBrand/CommonBrand"));
+const CommonHeader = lazyLoad(() =>
+  import("../Common/CommonHeader/CommonHeader")
+);
+const CommonSidebar = lazyLoad(() =>
+  import("../Common/CommonSidebar/CommonSidebar")
+);
+const CommonBreadcrumb = lazyLoad(() =>
+  import("../Common/CommonBreadcrumb/CommonBreadcrumb")
+);
+const CommonFooter = lazyLoad(() =>
+  import("../Common/CommonFooter/CommonFooter")
+);
+const CommonSettings = lazyLoad(() =>
+  import("../Common/Setting/CommonSettings")
+);
 
 // Theme colors
 const themeColorMappings = {
