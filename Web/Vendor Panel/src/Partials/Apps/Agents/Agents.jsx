@@ -50,7 +50,7 @@ const Agents = () => {
       setIsLoading(true);
       try {
         const response = await axios.get(
-          `${APP_URL}/${user.rolename}/all-agents/${user?.user_id}`,
+          `${APP_URL}/${user.rolename}/all-agents/${user?.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -72,7 +72,7 @@ const Agents = () => {
     };
 
     fetchData();
-  }, [APP_URL, token, user?.user_id, user.rolename]);
+  }, [APP_URL, token, user.rolename, user?.id]);
 
   //fetch vendor data
   useEffect(() => {
