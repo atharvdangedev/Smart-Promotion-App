@@ -1,8 +1,17 @@
 import React from 'react';
-import { TextInput, View } from 'react-native';
-import { User, Lock } from 'lucide-react-native';
+import { View, TextInput, TouchableOpacity } from 'react-native';
+import { User, Lock, Eye, EyeOff } from 'lucide-react-native';
 
-export default function InputField({ icon, placeholder, secureTextEntry = false, value, onChangeText }) {
+export default function InputField({
+    icon,
+    placeholder,
+    secureTextEntry = false,
+    value,
+    onChangeText,
+    isPassword = false,
+    passwordVisible,
+    togglePasswordVisibility,
+}) {
     const Icon = icon === 'user' ? User : Lock;
 
     return (
@@ -16,6 +25,15 @@ export default function InputField({ icon, placeholder, secureTextEntry = false,
                 value={value}
                 onChangeText={onChangeText}
             />
+            {isPassword && (
+                <TouchableOpacity onPress={togglePasswordVisibility}>
+                    {passwordVisible ? (
+                        <Eye size={16} color="#888" />
+                    ) : (
+                        <EyeOff size={16} color="#888" />
+                    )}
+                </TouchableOpacity>
+            )}
         </View>
     );
 }

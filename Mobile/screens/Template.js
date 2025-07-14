@@ -10,10 +10,11 @@ import { Pencil, Trash, Plus } from 'lucide-react-native';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../utils/api';
+import Toast from 'react-native-toast-message';
 
 const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
 
-export default function TemplateScreen() {
+export default function TemplateScreen({ navigation }) {
     const [templates, setTemplates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
@@ -53,22 +54,38 @@ export default function TemplateScreen() {
 
     const openModal = (index = null) => {
         setEditIndex(index);
-        setNewTemplate(index !== null ? {
-            title: templates[index].title || '',
-            text: templates[index].description || '',
-            type: templates[index].template_type || callTypes[0],
-            active: templates[index].status === '1'
-        } : {
-            title: '',
-            text: '',
-            type: callTypes[0],
-            active: true,
-        });
+        setNewTemplate(
+            index !== null
+                ? {
+                    title: templates[index].title || '',
+                    text: templates[index].description || '',
+                    type:
+                        callTypes.find(
+                            (ct) =>
+                                ct.toLowerCase() ===
+                                (templates[index].template_type || '').toLowerCase()
+                        ) || callTypes[0],
+                    active: templates[index].status === '1',
+                }
+                : {
+                    title: '',
+                    text: '',
+                    type: callTypes[0],
+                    active: true,
+                }
+        );
         setModalVisible(true);
     };
 
+
     const saveTemplate = () => {
-        console.log('💾 Save button pressed');
+        if (newTemplate.title.trim().length < 3 || newTemplate.title.trim().length > 200) {
+            return ToastAndroid.show('Title must be 3 to 200 characters', ToastAndroid.SHORT);
+        }
+
+        // if (!newTemplate.description.trim().length < 3 || newTemplate.description.trim().length > 700) {
+        //     return ToastAndroid.show('Descripition must be 3 to 700 characters', ToastAndroid.SHORT);
+        // }
         if (webviewRef.current) {
             webviewRef.current.injectJavaScript(`
         document.dispatchEvent(new MessageEvent('message', { data: "getContent" }));
@@ -79,14 +96,19 @@ export default function TemplateScreen() {
 
     const onMessage = async (event) => {
         const htmlContent = event.nativeEvent.data;
-        console.log('📩 Received from WebView:', htmlContent);
+        // console.log('📩 Received from WebView:', htmlContent);
+        const plainText = htmlContent.replace(/<[^>]*>?/gm, '').trim();
+        if (plainText.length < 3 || plainText.length > 700) {
+            ToastAndroid.show("Description must be 3 to 700 characters", ToastAndroid.SHORT);
+            return
+        }
 
         try {
             const token = await AsyncStorage.getItem('token');
             const currentTemplate = { ...newTemplate };
 
             if (!currentTemplate.title?.trim()) {
-                return Alert.alert('Validation Error', 'Please enter a title');
+                return ToastAndroid.show('Please enter a title', ToastAndroid.SHORT);
             }
 
             if (!currentTemplate.type?.trim()) {
@@ -114,10 +136,22 @@ export default function TemplateScreen() {
 
             if (response.data.status) {
                 if (Platform.OS === 'android') {
-                    ToastAndroid.show(
-                        isEditing ? 'Template updated successfully!' : 'Template saved successfully!',
-                        ToastAndroid.SHORT
-                    );
+                    // ToastAndroid.show(
+                    //     isEditing ? 'Template updated successfully!' : 'Template saved successfully!',
+                    //     ToastAndroid.SHORT
+                    // );
+                    isEditing ?
+                        Toast.show({
+                            type: 'success',
+                            text1: 'Template Updated',
+                            text2: 'Template updated successfully',
+                            position: 'top',
+                        }) : Toast.show({
+                            type: 'success',
+                            text1: 'Template Saved',
+                            text2: 'Template saved successfully',
+                            position: 'top',
+                        });
                 }
 
                 await fetchTemplates(); // this refreshes the list
@@ -128,11 +162,25 @@ export default function TemplateScreen() {
                 setModalVisible(false);
                 setEditIndex(null);
             } else {
-                Alert.alert('Error', response.data.message || 'Failed to save template');
+                // Alert.alert('Error', response.data.message || 'Failed to save template');
+                // ToastAndroid.show("Failed to save template");
+                Toast.show({
+                    type: 'Error',
+                    text1: 'Error!',
+                    text2: 'Failed to save template',
+                    position: 'top',
+                });
             }
         } catch (error) {
             console.error('Error saving/updating template:', error);
-            Alert.alert('Error', 'Something went wrong while saving/updating template');
+            // Alert.alert('Error', 'Something went wrong while saving/updating template');
+            // ToastAndroid.show("Something went wrong!");
+            Toast.show({
+                type: 'Error',
+                text1: 'Error!',
+                text2: 'Something went wrong',
+                position: 'top',
+            });
         }
     };
 
@@ -165,15 +213,34 @@ export default function TemplateScreen() {
 
             if (response.data.status) {
                 if (Platform.OS === 'android') {
-                    ToastAndroid.show('Template deleted successfully!', ToastAndroid.SHORT);
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Deleted',
+                        text2: 'Template deleted succesfully',
+                        position: 'top',
+                    });
                 }
                 await fetchTemplates(); // Refresh list
             } else {
-                Alert.alert('Error', response.data.message || 'Failed to delete template');
+                // Alert.alert('Error', response.data.message || 'Failed to delete template');
+                // ToastAndroid.show("Failed to delete template");
+                Toast.show({
+                    type: 'Error',
+                    text1: 'Error!',
+                    text2: 'Failed to delete template',
+                    position: 'top',
+                });
             }
         } catch (error) {
-            console.error('❌ Error deleting template:', error);
-            Alert.alert('Error', 'Something went wrong while deleting template');
+            console.error(' Error deleting template:', error);
+            // Alert.alert('Error', 'Something went wrong while deleting template');
+            // ToastAndroid.show("Something went wrong while deleting template", ToastAndroid.SHORT);
+            Toast.show({
+                type: 'Error',
+                text1: 'Error!',
+                text2: 'Something went wrong while deleting template',
+                position: 'top',
+            });
         }
     };
 
@@ -196,17 +263,46 @@ export default function TemplateScreen() {
 
             if (response.data.status) {
                 if (Platform.OS === 'android') {
-                    ToastAndroid.show('Template status updated!', ToastAndroid.SHORT);
+                    // ToastAndroid.show('Template status updated!', ToastAndroid.SHORT);
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Status Updated',
+                        text2: 'Template status updated',
+                        position: 'top',
+                    });
                 }
                 await fetchTemplates(); // Refresh the list
             } else {
-                Alert.alert('Error', response.data.message || 'Failed to update status');
+                // Alert.alert('Error', response.data.message || 'Failed to update status');
+                // ToastAndroid.show('Failed to updated status!', ToastAndroid.SHORT);
+                Toast.show({
+                    type: 'Error',
+                    text1: 'Error!',
+                    text2: 'Failed to update status',
+                    position: 'top',
+                });
             }
         } catch (error) {
-            console.error('❌ Error updating template status:', error);
-            Alert.alert('Error', 'Something went wrong while updating status');
+            console.error(' Error updating template status:', error);
+            // Alert.alert('Error', 'Something went wrong while updating status');
+            // ToastAndroid.show('Something went wrong while updating status   ', ToastAndroid.SHORT);
+            Toast.show({
+                type: 'Error',
+                text1: 'Error!',
+                text2: 'Something went wrong while updating status',
+                position: 'top',
+            });
         }
     };
+
+    const callTypeColors = {
+        missed: 'bg-red-600',
+        incoming: 'bg-green-600',
+        outgoing: 'bg-blue-600',
+        rejected: 'bg-purple-600',
+        default: 'bg-sky-700', // fallback
+    };
+
 
 
     return (
@@ -214,11 +310,17 @@ export default function TemplateScreen() {
             <Text className="text-white text-2xl font-bold mb-4">Message Templates</Text>
             {loading ? (
                 <ActivityIndicator size="large" color="#0ea5e9" className="mt-10" />
+            ) : templates.length === 0 ? (
+                <View className="flex-1 justify-center items-center mt-20">
+                    <Text className="text-gray-400 text-base">No templates found.</Text>
+                </View>
             ) : (
                 <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
                     {templates.map((template, index) => (
                         <View key={template.id} className="bg-neutral-800 rounded-xl p-4 mb-4 border border-slate-300">
-                            <Text className="text-white text-lg font-bold mb-2">{template.title}</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('TemplateDetails', { templateId: template.id })}>
+                                <Text className="text-white text-lg font-bold mb-2">{template.title}</Text>
+                            </TouchableOpacity>
                             <View className="bg-neutral-900 p-2 rounded">
                                 <Text className="text-gray-300">{template.description.replace(/<[^>]*>?/gm, '')}</Text>
                             </View>
@@ -230,9 +332,13 @@ export default function TemplateScreen() {
                                         </Text>
                                     </TouchableOpacity>
 
-                                    <Text className="text-xs px-2 py-1 bg-sky-700 text-white rounded">
+                                    <Text
+                                        className={`text-xs px-2 py-1 text-white rounded ${callTypeColors[template.template_type.toLowerCase()] || callTypeColors.default
+                                            }`}
+                                    >
                                         {template.template_type.toUpperCase()}
                                     </Text>
+
                                 </View>
                                 <View className="flex-row gap-5">
                                     <TouchableOpacity onPress={() => openModal(index)}>
@@ -279,6 +385,7 @@ export default function TemplateScreen() {
                                 source={{ uri: 'file:///android_asset/editor.html' }}
                                 javaScriptEnabled={true}
                                 domStorageEnabled={true}
+
                                 onMessage={onMessage}
                                 style={{ flex: 1 }}
                                 injectedJavaScript={`

@@ -68,7 +68,7 @@ export default function DashboardScreen({ navigation }) {
                             <User size={30} color="white" />
                         </TouchableOpacity>
                     </View>
-                    <Text className="text-lg text-white mt-2">Welcome back, Sangram 👋</Text>
+                    <Text className="text-lg text-white mt-2">Welcome back, User 👋</Text>
                     <Text className="text-sm text-white">Here’s an overview of your team's performance.</Text>
                 </View>
 
