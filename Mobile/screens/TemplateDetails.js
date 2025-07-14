@@ -60,7 +60,7 @@ export default function TemplateDetailScreen({ route }) {
                 <Text className="text-2xl text-white font-bold my-2">{template.title}</Text>
                 <Text className="text-sm text-gray-400 mb-4">Type: {template.template_type}</Text>
                 <View className="bg-neutral-800 rounded p-4">
-                    <Text className="text-white">{template.description.replace(/<[^>]*>?/gm, '')}</Text>
+                    <Text className="text-white text-lg">{template.description.replace(/<[^>]*>?/gm, '')}</Text>
                 </View>
             </ScrollView>
         </SafeAreaView>

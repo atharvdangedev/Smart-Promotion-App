@@ -23,7 +23,7 @@ const vendorFields = [
     { name: 'email', label: 'Email' },
     { name: 'address', label: 'Address' },
     { name: 'contact_no', label: 'Contact No' },
-    { name: 'password', label: 'Password' },
+    // { name: 'password', label: 'Password' },
     { name: 'business_name', label: 'Business Name' },
     { name: 'business_type', label: 'Business Type' },
     { name: 'business_email', label: 'Business Email' },
@@ -63,7 +63,6 @@ export default function ProfileScreen({ navigation }) {
                     email: 'vendor@example.com',
                     address: 'Vendor Lane',
                     contact_no: '9876543210',
-                    password: '',
                     business_name: 'Vendor Co.',
                     business_type: 'Retail',
                     business_email: 'biz@vendor.com',
@@ -80,7 +79,6 @@ export default function ProfileScreen({ navigation }) {
                     email: 'agent@example.com',
                     address: 'Agent Area',
                     contact_no: '9123456789',
-                    password: '',
                     vendor_id: 'VENDOR456',
                 });
             }
@@ -125,9 +123,9 @@ export default function ProfileScreen({ navigation }) {
                                 {profilePic ? (
                                     <Image source={{ uri: profilePic }} className="w-full h-full rounded-full" />
                                 ) : (
-                                    <Text className="text-gray-400 text-sm">Upload</Text>
+                                    <Text className="text-gray-400 text-sm mb-2">Upload</Text>
                                 )}
-                                <View className="absolute bottom-1 right-1 bg-white p-1 rounded-full border border-black">
+                                <View className="absolute bottom-2 right-3 bg-white p-1 rounded-full border border-black">
                                     <Camera size={16} color="black" />
                                 </View>
                             </TouchableOpacity>

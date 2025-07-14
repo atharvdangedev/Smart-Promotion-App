@@ -11,10 +11,14 @@ export default function LoginScreen({ navigation }) {
     const [rememberMe, setRememberMe] = useState(false);
     const [loading, setLoading] = useState(false);
     const [formError, setFormError] = useState('');
+    const [error, setError] = useState('');
+    const [error2, setError2] = useState('');
 
     const handleLogin = async () => {
         if (!email || !password) {
-            setFormError('Please enter both email and password');
+            // setFormError('Please enter both email and password');
+            if (!email) setError('email');
+            if (!password) setError2('password');
             return;
         }
 
@@ -35,7 +39,10 @@ export default function LoginScreen({ navigation }) {
                 await AsyncStorage.setItem('user_id', user.id);
                 await AsyncStorage.setItem('user_type', user.rolename); // <-- add this
 
-                navigation.navigate('HomeScreen');
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'HomeScreen' }]
+                });
             } else {
                 setFormError(res.data?.message || 'Invalid credentials');
             }
@@ -63,6 +70,11 @@ export default function LoginScreen({ navigation }) {
         if (formError) setFormError('');
     };
 
+    const [passwordVisible, setPasswordVisible] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        setPasswordVisible(!passwordVisible);
+    };
 
 
     return (
@@ -71,7 +83,22 @@ export default function LoginScreen({ navigation }) {
             <Text className="text-2xl font-semibold mb-20 text-center text-black">Glad to see you, Again! </Text>
 
             <InputField icon="user" placeholder="Email" value={email} onChangeText={handleEmailChange} />
-            <InputField icon="lock" placeholder="Password" secureTextEntry value={password} onChangeText={handlePasswordChange} />
+            {error === 'email' && (
+                <Text className="text-red-500 text-sm mb-3 text-center">Email is required</Text>
+            )}
+            <InputField
+                icon="lock"
+                placeholder="Password"
+                secureTextEntry={!passwordVisible}
+                value={password}
+                onChangeText={handlePasswordChange}
+                isPassword
+                passwordVisible={passwordVisible}
+                togglePasswordVisibility={togglePasswordVisibility}
+            />
+            {error2 === 'password' && (
+                <Text className="text-red-500 text-sm  text-center">Password is required</Text>
+            )}
 
             {/* Remember Me Checkbox */}
             <TouchableOpacity
@@ -97,7 +124,7 @@ export default function LoginScreen({ navigation }) {
                 <Text className="text-center text-gray-500 mb-3">Forgot Password</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigation.navigate('EnterpriseLogin')}>
+            <TouchableOpacity >
                 <Text className="text-center text-sm text-gray-500">
                     Don’t have an account? <Text className="font-semibold text-black">Sign Up</Text>
                 </Text>
