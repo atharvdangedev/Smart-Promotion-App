@@ -16,6 +16,7 @@ import ContactLogScreen from './screens/ContactLogScreen';
 import ChangePasswordScreen from './screens/ChangePasswordScreen';
 import TemplateDetailScreen from './screens/TemplateDetails';
 import Toast from 'react-native-toast-message';
+import CardScannerScreen from './screens/CardScannerScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -52,6 +53,7 @@ export default function App() {
           <Stack.Screen name='ContactLogScreen' component={ContactLogScreen} options={{ headerShown: false }} />
           <Stack.Screen name='ChangePassword' component={ChangePasswordScreen} options={{ headerShown: false }} />
           <Stack.Screen name='TemplateDetails' component={TemplateDetailScreen} options={{ headerShown: false }} />
+          <Stack.Screen name='CardScanner' component={CardScannerScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
       <Toast />
