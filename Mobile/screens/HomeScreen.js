@@ -1,4 +1,4 @@
-import { User } from 'lucide-react-native';
+import { Scan, User } from 'lucide-react-native';
 import React, { useState, useCallback } from 'react';
 import { View, Text, ScrollView, RefreshControl, Dimensions, TouchableOpacity } from 'react-native';
 import { LineChart, StackedBarChart } from 'react-native-chart-kit';
@@ -149,6 +149,17 @@ export default function DashboardScreen({ navigation }) {
                     className='p-3 bg-black mb-3 rounded-xl border border-white'>
                     <Text className='text-white font-semibold text-xl text-center'> Contact Log </Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('CardScanner')}
+                    className="bg-zinc-800 p-4 rounded-2xl flex-row items-center justify-between mb-4"
+                >
+                    <View>
+                        <Text className="text-white text-lg font-semibold">Scan Visiting Card</Text>
+                        <Text className="text-zinc-400 text-sm">Extract and save contact</Text>
+                    </View>
+                    <Scan color="#38bdf8" size={28} />
+                </TouchableOpacity>
+
                 <Text className='m-1 border border-b-hairline'></Text>
             </ScrollView>
         </SafeAreaView>
