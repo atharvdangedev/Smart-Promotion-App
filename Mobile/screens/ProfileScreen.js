@@ -16,12 +16,13 @@ import { Camera } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useForm, Controller } from 'react-hook-form';
+import Toast from 'react-native-toast-message';
 
 const vendorFields = [
     { name: 'first_name', label: 'First Name' },
     { name: 'last_name', label: 'Last Name' },
     { name: 'email', label: 'Email' },
-    { name: 'address', label: 'Address' },
+    // { name: 'address', label: 'Address' },
     { name: 'contact_no', label: 'Contact No' },
     // { name: 'password', label: 'Password' },
     { name: 'business_name', label: 'Business Name' },
@@ -61,7 +62,6 @@ export default function ProfileScreen({ navigation }) {
                     first_name: 'Vendor',
                     last_name: 'User',
                     email: 'vendor@example.com',
-                    address: 'Vendor Lane',
                     contact_no: '9876543210',
                     business_name: 'Vendor Co.',
                     business_type: 'Retail',
@@ -99,7 +99,13 @@ export default function ProfileScreen({ navigation }) {
     };
 
     const onSubmit = (data) => {
-        Alert.alert('Profile Saved', `${userType.toUpperCase()} data saved successfully!`);
+        // Alert.alert('Profile Saved', `${userType.toUpperCase()} data saved successfully!`);
+        Toast.show({
+            type: 'success',
+            text1: 'Saved',
+            text2: 'Data saved successfully',
+            position: 'top',
+        });
         console.log('Submitted Profile:', data);
     };
 

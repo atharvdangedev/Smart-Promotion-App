@@ -1,8 +1,9 @@
-import { Scan, User } from 'lucide-react-native';
+import { Menu, Scan, User } from 'lucide-react-native';
 import React, { useState, useCallback } from 'react';
 import { View, Text, ScrollView, RefreshControl, Dimensions, TouchableOpacity } from 'react-native';
 import { LineChart, StackedBarChart } from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -44,7 +45,7 @@ export default function DashboardScreen({ navigation }) {
     }, []);
 
     const { lineChart, stacked, agent } = dummyData[dataIndex];
-
+    const drawerNav = useNavigation();
     return (
         <SafeAreaView className="flex-1 bg-black">
             <ScrollView
@@ -60,14 +61,32 @@ export default function DashboardScreen({ navigation }) {
             >
                 {/*  Welcome Section */}
                 <View className="mb-6">
-                    <View className='flex-row justify-between border border-white p-3 rounded-xl'>
+                    {/* <View className='flex-row justify-between border border-white p-3 rounded-xl'>
                         <Text className="text-4xl font-extrabold text-sky-600 tracking-tight">SmartPromotion</Text>
                         <TouchableOpacity
                             className='border border-gray-700 rounded-full p-1'
                             onPress={() => navigation.navigate('ProfileScreen')}>
                             <User size={30} color="white" />
                         </TouchableOpacity>
+                    </View> */}
+                    <View className='flex-row justify-between items-center border border-white/30 rounded-xl p-4 mb-6'>
+                        {/* Drawer button */}
+                        <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+                            <Menu size={26} color="#fff" />
+                        </TouchableOpacity>
+
+                        {/* App Title */}
+                        <Text className="text-2xl font-extrabold text-sky-500">SmartPromotion</Text>
+
+                        {/* Profile icon */}
+                        <TouchableOpacity
+                            className='border border-gray-700 rounded-full p-1'
+                            onPress={() => navigation.navigate('ProfileScreen')}
+                        >
+                            <User size={24} color="white" />
+                        </TouchableOpacity>
                     </View>
+
                     <Text className="text-lg text-white mt-2">Welcome back, User 👋</Text>
                     <Text className="text-sm text-white">Here’s an overview of your team's performance.</Text>
                 </View>
@@ -134,7 +153,7 @@ export default function DashboardScreen({ navigation }) {
                         <Text className="text-black font-semibold">{agent.missed}</Text>
                     </View>
                 </View>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     onPress={() => navigation.navigate('Template')}
                     className='p-3 bg-black my-3 rounded-xl border border-white'>
                     <Text className='text-white font-semibold text-xl text-center'> Message Template </Text>
@@ -158,8 +177,7 @@ export default function DashboardScreen({ navigation }) {
                         <Text className="text-zinc-400 text-sm">Extract and save contact</Text>
                     </View>
                     <Scan color="#38bdf8" size={28} />
-                </TouchableOpacity>
-
+                </TouchableOpacity> */}
                 <Text className='m-1 border border-b-hairline'></Text>
             </ScrollView>
         </SafeAreaView>

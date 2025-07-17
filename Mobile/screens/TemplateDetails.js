@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api } from '../utils/api'; // adjust path as needed
+import { api } from '../utils/api';
 
 export default function TemplateDetailScreen({ route }) {
     const { templateId } = route.params;
