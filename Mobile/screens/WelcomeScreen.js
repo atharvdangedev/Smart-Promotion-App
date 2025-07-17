@@ -35,10 +35,10 @@ export default function WelcomeScreen({ navigation }) {
                     <Text className="text-center text-black font-semibold">SIGN IN TO APP</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     className="bg-zinc-800 px-6 py-3 rounded-md w-full">
                     <Text className="text-center text-white font-semibold">SIGN UP WITH ENTERPRISE</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
 
             {/* Footer */}
