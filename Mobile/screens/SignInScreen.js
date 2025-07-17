@@ -63,11 +63,13 @@ export default function LoginScreen({ navigation }) {
     const handleEmailChange = (text) => {
         setEmail(text);
         if (formError) setFormError('');
+        if (error) setError('');
     };
 
     const handlePasswordChange = (text) => {
         setPassword(text);
         if (formError) setFormError('');
+        if (error2) setError2('');
     };
 
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -93,7 +95,6 @@ export default function LoginScreen({ navigation }) {
                 value={password}
                 onChangeText={handlePasswordChange}
                 isPassword
-                passwordVisible={passwordVisible}
                 togglePasswordVisibility={togglePasswordVisibility}
             />
             {error2 === 'password' && (

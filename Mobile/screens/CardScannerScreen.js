@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-    View, Text, TouchableOpacity, ScrollView, Alert, Modal, Pressable, PermissionsAndroid, Platform
+    View, Text, TouchableOpacity, ScrollView,
+    Modal, Pressable, PermissionsAndroid, Platform, TextInput
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Contacts from 'react-native-contacts';
 import ImagePicker from 'react-native-image-crop-picker';
 import MLKitOcr from 'react-native-mlkit-ocr';
 import { Camera, Save, Phone } from 'lucide-react-native';
-import { TextInput } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 export default function CardScannerScreen() {
@@ -17,13 +17,11 @@ export default function CardScannerScreen() {
     const [selectedNumber, setSelectedNumber] = useState(null);
     const [contactName, setContactName] = useState('');
 
-
     useEffect(() => {
         requestPermissions();
     }, []);
 
     const requestPermissions = async () => {
-
         if (Platform.OS === 'android') {
             const granted = await PermissionsAndroid.requestMultiple([
                 PermissionsAndroid.PERMISSIONS.CAMERA,
@@ -35,18 +33,25 @@ export default function CardScannerScreen() {
             const allGranted = Object.values(granted).every(
                 status => status === PermissionsAndroid.RESULTS.GRANTED
             );
+
+            if (!allGranted) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Permission Required',
+                    text2: 'Camera, storage and contact access needed!',
+                    position: 'top',
+                });
+            }
         }
     };
 
-    const extractPhoneNumbers = (text) => {
-        const matches = text.match(/(?:\+?\d[\d\s-]{8,})/g);
-
-
+    const extractPhoneNumbers = (rawText) => {
+        const matches = rawText.match(/(?:\+?\d[\d\s-]{8,})/g);
         if (!matches) return [];
 
         return matches
-            .map(num => num.replace(/[^\d]/g, '')) // Remove everything except digits
-            .filter(num => num.length >= 10 && num.length <= 13) // Only valid-length numbers
+            .map(num => num.replace(/[^\d]/g, '')) // digits only
+            .filter(num => num.length >= 10 && num.length <= 13)
             .map(num => ({
                 label: 'mobile',
                 number: num.startsWith('91') ? `+${num}` : `+91${num}`
@@ -54,8 +59,11 @@ export default function CardScannerScreen() {
     };
 
     const parseContact = (rawText) => {
-        const name = rawText.match(/([A-Z][a-z]+(\s[A-Z][a-z]+)?)/)?.[0] || 'Unknown';
-        const phones = extractPhoneNumbers(rawText);
+        const cleanedText = rawText.replace(/\s+/g, ' ').trim();
+        const nameMatch = rawText.split('\n')[0]?.trim();
+        const name = nameMatch || 'Unknown';
+
+        const phones = extractPhoneNumbers(cleanedText);
 
         if (phones.length === 0) {
             Toast.show({
@@ -79,7 +87,10 @@ export default function CardScannerScreen() {
                 cropping: true,
                 cropperToolbarTitle: 'Crop Visiting Card',
                 compressImageQuality: 0.9,
+                freeStyleCropEnabled: true,
+                hideBottomControls: false,
             });
+
 
             if (result?.path) {
                 const ocrResult = await MLKitOcr.detectFromFile(result.path);
@@ -89,7 +100,6 @@ export default function CardScannerScreen() {
             }
         } catch (err) {
             console.log('Scan Error:', err);
-            // Alert.alert('Error', 'Failed to scan image.');
             Toast.show({
                 type: 'error',
                 text1: 'Error!',
@@ -99,12 +109,39 @@ export default function CardScannerScreen() {
         }
     };
 
-    const saveContact = async () => {
-        if (!selectedNumber || !contactName.trim()) {
-            // Alert.alert('Validation', 'Name and number are required.');
+    const handlePickFromGallery = async () => {
+        try {
+            const result = await ImagePicker.openPicker({
+                cropping: true,
+                cropperToolbarTitle: 'Crop Visiting Card',
+                compressImageQuality: 0.9,
+                freeStyleCropEnabled: true,
+                hideBottomControls: false,
+            });
+
+            if (result?.path) {
+                const ocrResult = await MLKitOcr.detectFromFile(result.path);
+                const fullText = ocrResult.map(b => b.text).join('\n');
+                setText(fullText);
+                parseContact(fullText);
+            }
+        } catch (err) {
+            console.log('Gallery Pick Error:', err);
             Toast.show({
                 type: 'error',
-                text1: 'Validation!',
+                text1: 'Error!',
+                text2: 'Failed to pick image',
+                position: 'top',
+            });
+        }
+    };
+
+
+    const saveContact = async () => {
+        if (!selectedNumber || !contactName.trim()) {
+            Toast.show({
+                type: 'error',
+                text1: 'Validation',
                 text2: 'Name and number are required',
                 position: 'top',
             });
@@ -118,13 +155,14 @@ export default function CardScannerScreen() {
 
         try {
             await Contacts.addContact(contact);
-            // Alert.alert(' Saved', `Contact "${contactName}" saved.`);
             Toast.show({
                 type: 'success',
-                text1: 'Saved',
+                text1: 'Saved!',
                 text2: `Contact "${contactName}" saved`,
                 position: 'top',
             });
+
+            // reset
             setText('');
             setNumbers([]);
             setSelectedNumber(null);
@@ -132,7 +170,6 @@ export default function CardScannerScreen() {
             setModalVisible(false);
         } catch (error) {
             console.error('Save Contact Error:', error);
-            // Alert.alert(' Error', 'Failed to save contact.');
             Toast.show({
                 type: 'error',
                 text1: 'Error!',
@@ -142,19 +179,31 @@ export default function CardScannerScreen() {
         }
     };
 
-
     return (
         <SafeAreaView className="flex-1 bg-zinc-900 p-4">
-            <Text className="text-xl font-bold text-white mb-4">Scan Visiting Card</Text>
+            <Text className="text-xl font-bold text-white my-4">Scan Visiting Card</Text>
 
             <TouchableOpacity
                 onPress={handleScan}
                 className="bg-sky-600 rounded-2xl px-4 py-3 flex-row items-center justify-center mb-4"
             >
                 <Camera color="white" size={20} className="mr-2" />
-                <Text className="text-white text-base font-medium">Scan Card</Text>
+                <Text className="text-white text-base font-medium"> Scan Card</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                onPress={handlePickFromGallery}
+                className="bg-purple-600 rounded-2xl px-4 py-3 flex-row items-center justify-center mb-4"
+            >
+                <Camera color="white" size={20} className="mr-2" />
+                <Text className="text-white text-base font-medium"> Pick from Gallery</Text>
             </TouchableOpacity>
 
+            <Text className='text-xl font-semibold text-white'>Instructions :</Text>
+            <View className='my-3 p-4 rounded-xl bg-white'>
+                <Text className='text-lg text-black font-semibold'>1) It Scans all the text in the image.</Text>
+                <Text className='text-lg text-black font-semibold'>2) So crop the image accordigly.</Text>
+                <Text className='text-lg text-black font-semibold'>3) User should verfiy the number and name before saving the contact.</Text>
+            </View>
             {text ? (
                 <View className="bg-zinc-800 p-4 rounded-2xl mb-4 max-h-60">
                     <ScrollView>
@@ -173,7 +222,7 @@ export default function CardScannerScreen() {
                 </TouchableOpacity>
             )}
 
-            {/* Modal for selecting phone number */}
+            {/* Modal */}
             <Modal
                 visible={modalVisible}
                 transparent
@@ -192,13 +241,16 @@ export default function CardScannerScreen() {
                                 onChangeText={setContactName}
                             />
                         </View>
+
                         <Text className="text-white text-lg font-semibold mb-2">Select Number</Text>
 
                         {numbers.map((item, index) => (
                             <Pressable
                                 key={index}
                                 onPress={() => setSelectedNumber(item)}
-                                className={`flex-row items-center px-4 py-3 rounded-xl mb-2 ${selectedNumber?.number === item.number ? 'bg-sky-600' : 'bg-zinc-800'
+                                className={`flex-row items-center px-4 py-3 rounded-xl mb-2 ${selectedNumber?.number === item.number
+                                    ? 'bg-sky-600'
+                                    : 'bg-zinc-800'
                                     }`}
                             >
                                 <Phone color="white" size={18} className="mr-2" />
@@ -210,7 +262,9 @@ export default function CardScannerScreen() {
                             onPress={saveContact}
                             className="bg-green-600 rounded-xl py-3 mt-4"
                         >
-                            <Text className="text-center text-white text-base font-medium">Save Contact</Text>
+                            <Text className="text-center text-white text-base font-medium">
+                                Save Contact
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </View>

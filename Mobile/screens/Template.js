@@ -22,7 +22,7 @@ export default function TemplateScreen({ navigation }) {
         title: '',
         text: '',
         type: callTypes[0],
-        active: true,
+        active: false,
     });
     const [editIndex, setEditIndex] = useState(null);
     const webviewRef = useRef(null);
@@ -71,7 +71,7 @@ export default function TemplateScreen({ navigation }) {
                     title: '',
                     text: '',
                     type: callTypes[0],
-                    active: true,
+                    active: false,
                 }
         );
         setModalVisible(true);
@@ -165,7 +165,7 @@ export default function TemplateScreen({ navigation }) {
                 // Alert.alert('Error', response.data.message || 'Failed to save template');
                 // ToastAndroid.show("Failed to save template");
                 Toast.show({
-                    type: 'Error',
+                    type: 'error',
                     text1: 'Error!',
                     text2: 'Failed to save template',
                     position: 'top',
@@ -176,7 +176,7 @@ export default function TemplateScreen({ navigation }) {
             // Alert.alert('Error', 'Something went wrong while saving/updating template');
             // ToastAndroid.show("Something went wrong!");
             Toast.show({
-                type: 'Error',
+                type: 'error',
                 text1: 'Error!',
                 text2: 'Something went wrong',
                 position: 'top',
@@ -296,11 +296,11 @@ export default function TemplateScreen({ navigation }) {
     };
 
     const callTypeColors = {
-        missed: 'bg-red-600',
-        incoming: 'bg-green-600',
-        outgoing: 'bg-blue-600',
-        rejected: 'bg-purple-600',
-        default: 'bg-sky-700', // fallback
+        missed: 'bg-red-400',
+        incoming: 'bg-green-400',
+        outgoing: 'bg-blue-400',
+        rejected: 'bg-purple-400',
+        default: 'bg-sky-600', // fallback
     };
 
 
@@ -328,7 +328,7 @@ export default function TemplateScreen({ navigation }) {
                                 <View className="flex-row gap-2">
                                     <TouchableOpacity onPress={() => toggleTemplateStatus(template)}>
                                         <Text className={`text-xs px-2 py-1 rounded ${template.status === '1' ? 'bg-red-600' : 'bg-green-600'} text-white`}>
-                                            {template.status === '1' ? 'Disable' : 'Enable'}
+                                            {template.status === '1' ? 'Disabled' : 'Enabled'}
                                         </Text>
                                     </TouchableOpacity>
 
