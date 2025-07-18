@@ -3,6 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, SafeAreaView, ActivityIndicato
 import { api } from '../utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Check } from 'lucide-react-native';
+import { Eye, EyeOff } from 'lucide-react-native';
+
 
 export default function ChangePasswordScreen({ navigation }) {
     const [oldPassword, setOldPassword] = useState('');
@@ -12,6 +14,51 @@ export default function ChangePasswordScreen({ navigation }) {
     const [errorMsg, setErrorMsg] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(true);
+    const [passwordRules, setPasswordRules] = useState({
+        length: false,
+        uppercase: false,
+        number: false,
+        specialChar: false,
+        noRepeat: false,
+        noSequence: false,
+    });
+    const [passwordValidationMessages, setPasswordValidationMessages] = useState([]);
+    const [showOldPassword, setShowOldPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+
+    const validatePasswordLive = (password) => {
+        const hasLength = password.length >= 6;
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        const noRepeat = !/([a-zA-Z0-9!@#$%^&*()])\1\1+/.test(password);
+
+        const sequences = ['0123456789', 'abcdefghijklmnopqrstuvwxyz', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+        const lowerPass = password.toLowerCase();
+        let noSequence = true;
+
+        for (let seq of sequences) {
+            for (let i = 0; i < seq.length - 2; i++) {
+                const sub = seq.slice(i, i + 3);
+                if (lowerPass.includes(sub)) {
+                    noSequence = false;
+                    break;
+                }
+            }
+        }
+
+        setPasswordRules({
+            length: hasLength,
+            uppercase: hasUppercase,
+            number: hasNumber,
+            specialChar: hasSpecialChar,
+            noRepeat: noRepeat,
+            noSequence: noSequence,
+        });
+    };
+
 
     const isValidPassword = (password) => {
         // Minimum 6 characters
@@ -43,6 +90,40 @@ export default function ChangePasswordScreen({ navigation }) {
         }
 
         return ''; // Empty string means valid
+    };
+
+    const getPasswordValidationMessages = (password) => {
+        const messages = [];
+
+        if (password.length < 6) {
+            messages.push('• Password must be at least 6 characters long');
+        }
+        if (!/[A-Z]/.test(password)) {
+            messages.push('• Must include at least one uppercase letter');
+        }
+        if (!/[0-9]/.test(password)) {
+            messages.push('• Must include at least one number');
+        }
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            messages.push('• Must include at least one special character');
+        }
+        if (/([a-zA-Z0-9!@#$%^&*()])\1\1+/.test(password)) {
+            messages.push('• Must not contain repeated characters (e.g., aaa)');
+        }
+
+        const sequences = ['0123456789', 'abcdefghijklmnopqrstuvwxyz', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+        const lowerPass = password.toLowerCase();
+        for (let seq of sequences) {
+            for (let i = 0; i < seq.length - 2; i++) {
+                const sub = seq.slice(i, i + 3);
+                if (lowerPass.includes(sub)) {
+                    messages.push('• Must not contain common sequences (e.g., abc, 123)');
+                    break;
+                }
+            }
+        }
+
+        return messages;
     };
 
     const handleChangePassword = async () => {
@@ -131,7 +212,7 @@ export default function ChangePasswordScreen({ navigation }) {
                 <TextInput
                     placeholder="Old Password"
                     placeholderTextColor="#9ca3af"
-                    secureTextEntry={!passwordVisible}
+                    secureTextEntry={!showOldPassword}
                     value={oldPassword}
                     onChangeText={(text) => {
                         setOldPassword(text);
@@ -139,28 +220,46 @@ export default function ChangePasswordScreen({ navigation }) {
                     }}
                     className="flex-1 ml-2 py-3 text-black"
                 />
-
-
+                <TouchableOpacity onPress={() => setShowOldPassword(!showOldPassword)}>
+                    {showOldPassword ? <EyeOff size={20} color="gray" /> : <Eye size={20} color="gray" />}
+                </TouchableOpacity>
             </View>
+
+
             <View className="flex-row items-center bg-gray-100 rounded-xl px-4 mb-4">
                 <TextInput
                     placeholder="New Password"
                     placeholderTextColor="#9ca3af"
-                    secureTextEntry={!passwordVisible}
+                    secureTextEntry={!showNewPassword}
                     value={newPassword}
                     onChangeText={(text) => {
                         setNewPassword(text);
                         setErrorMsg('');
+                        const messages = getPasswordValidationMessages(text);
+                        setPasswordValidationMessages(messages);
                     }}
                     className="flex-1 ml-2 py-3 text-black"
                 />
-
+                <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)}>
+                    {showNewPassword ? <EyeOff size={20} color="gray" /> : <Eye size={20} color="gray" />}
+                </TouchableOpacity>
             </View>
+
+            {newPassword.length > 0 && passwordValidationMessages.length > 0 && (
+                <View className="mb-4 ml-1">
+                    {passwordValidationMessages.map((msg, index) => (
+                        <Text key={index} className="text-red-500 text-sm">
+                            {msg}
+                        </Text>
+                    ))}
+                </View>
+            )}
+
             <View className="flex-row items-center bg-gray-100 rounded-xl px-4 mb-4">
                 <TextInput
                     placeholder="Confirm Password"
                     placeholderTextColor="#9ca3af"
-                    secureTextEntry={!passwordVisible}
+                    secureTextEntry={!showConfirmPassword}
                     value={confirmPassword}
                     onChangeText={(text) => {
                         setConfirmPassword(text);
@@ -168,9 +267,12 @@ export default function ChangePasswordScreen({ navigation }) {
                     }}
                     className="flex-1 ml-2 py-3 text-black"
                 />
-
+                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                    {showConfirmPassword ? <EyeOff size={20} color="gray" /> : <Eye size={20} color="gray" />}
+                </TouchableOpacity>
             </View>
-            <TouchableOpacity
+
+            {/* <TouchableOpacity
                 className="flex-row items-center mb-4"
                 onPress={togglePasswordVisibility}
                 activeOpacity={0.7}
@@ -179,7 +281,7 @@ export default function ChangePasswordScreen({ navigation }) {
                     {passwordVisible && <Check size={16} color="white" />}
                 </View>
                 <Text className="text-black">Show Password</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             {errorMsg ? <Text className="text-red-500 mb-2 text-center">{errorMsg}</Text> : null}
             {successMsg ? <Text className="text-green-600 mb-2 text-center">{successMsg}</Text> : null}
 

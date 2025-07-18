@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
     View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Switch,
-    Pressable, ActivityIndicator, Alert,
+    Pressable, ActivityIndicator,
     ToastAndroid,
     Platform
 } from 'react-native';
@@ -26,6 +26,10 @@ export default function TemplateScreen({ navigation }) {
     });
     const [editIndex, setEditIndex] = useState(null);
     const webviewRef = useRef(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+    const [showStatusModal, setShowStatusModal] = useState(false);
+    const [selectedTemplateForStatus, setSelectedTemplateForStatus] = useState(null);
 
     useEffect(() => {
         fetchTemplates();
@@ -77,15 +81,11 @@ export default function TemplateScreen({ navigation }) {
         setModalVisible(true);
     };
 
-
     const saveTemplate = () => {
         if (newTemplate.title.trim().length < 3 || newTemplate.title.trim().length > 200) {
             return ToastAndroid.show('Title must be 3 to 200 characters', ToastAndroid.SHORT);
         }
 
-        // if (!newTemplate.description.trim().length < 3 || newTemplate.description.trim().length > 700) {
-        //     return ToastAndroid.show('Descripition must be 3 to 700 characters', ToastAndroid.SHORT);
-        // }
         if (webviewRef.current) {
             webviewRef.current.injectJavaScript(`
         document.dispatchEvent(new MessageEvent('message', { data: "getContent" }));
@@ -96,11 +96,10 @@ export default function TemplateScreen({ navigation }) {
 
     const onMessage = async (event) => {
         const htmlContent = event.nativeEvent.data;
-        // console.log('📩 Received from WebView:', htmlContent);
         const plainText = htmlContent.replace(/<[^>]*>?/gm, '').trim();
         if (plainText.length < 3 || plainText.length > 700) {
             ToastAndroid.show("Description must be 3 to 700 characters", ToastAndroid.SHORT);
-            return
+            return;
         }
 
         try {
@@ -118,10 +117,7 @@ export default function TemplateScreen({ navigation }) {
             const isEditing = editIndex !== null;
             const templateId = isEditing ? templates[editIndex].id : null;
 
-            const url = isEditing
-                ? `vendor/templates/${templateId}`
-                : 'vendor/templates';
-
+            const url = isEditing ? `vendor/templates/${templateId}` : 'vendor/templates';
 
             const response = await api.post(url, {
                 title: currentTemplate.title.trim(),
@@ -135,35 +131,16 @@ export default function TemplateScreen({ navigation }) {
             });
 
             if (response.data.status) {
-                if (Platform.OS === 'android') {
-                    // ToastAndroid.show(
-                    //     isEditing ? 'Template updated successfully!' : 'Template saved successfully!',
-                    //     ToastAndroid.SHORT
-                    // );
-                    isEditing ?
-                        Toast.show({
-                            type: 'success',
-                            text1: 'Template Updated',
-                            text2: 'Template updated successfully',
-                            position: 'top',
-                        }) : Toast.show({
-                            type: 'success',
-                            text1: 'Template Saved',
-                            text2: 'Template saved successfully',
-                            position: 'top',
-                        });
-                }
-
-                await fetchTemplates(); // this refreshes the list
-                setModalVisible(false);
-                setEditIndex(null);
-
-
+                Toast.show({
+                    type: 'success',
+                    text1: isEditing ? 'Template Updated' : 'Template Saved',
+                    text2: isEditing ? 'Template updated successfully' : 'Template saved successfully',
+                    position: 'top',
+                });
+                await fetchTemplates();
                 setModalVisible(false);
                 setEditIndex(null);
             } else {
-                // Alert.alert('Error', response.data.message || 'Failed to save template');
-                // ToastAndroid.show("Failed to save template");
                 Toast.show({
                     type: 'error',
                     text1: 'Error!',
@@ -173,8 +150,6 @@ export default function TemplateScreen({ navigation }) {
             }
         } catch (error) {
             console.error('Error saving/updating template:', error);
-            // Alert.alert('Error', 'Something went wrong while saving/updating template');
-            // ToastAndroid.show("Something went wrong!");
             Toast.show({
                 type: 'error',
                 text1: 'Error!',
@@ -184,22 +159,10 @@ export default function TemplateScreen({ navigation }) {
         }
     };
 
-
     const handleDelete = (id) => {
-        Alert.alert(
-            'Confirm Delete',
-            'Are you sure you want to delete this template?',
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: 'Delete',
-                    style: 'destructive',
-                    onPress: () => deleteTemplate(id),
-                },
-            ]
-        );
+        setSelectedTemplateId(id);
+        setShowDeleteModal(true);
     };
-
 
     const deleteTemplate = async (id) => {
         try {
@@ -212,18 +175,14 @@ export default function TemplateScreen({ navigation }) {
             });
 
             if (response.data.status) {
-                if (Platform.OS === 'android') {
-                    Toast.show({
-                        type: 'success',
-                        text1: 'Deleted',
-                        text2: 'Template deleted succesfully',
-                        position: 'top',
-                    });
-                }
-                await fetchTemplates(); // Refresh list
+                Toast.show({
+                    type: 'success',
+                    text1: 'Deleted',
+                    text2: 'Template deleted succesfully',
+                    position: 'top',
+                });
+                await fetchTemplates();
             } else {
-                // Alert.alert('Error', response.data.message || 'Failed to delete template');
-                // ToastAndroid.show("Failed to delete template");
                 Toast.show({
                     type: 'Error',
                     text1: 'Error!',
@@ -233,8 +192,6 @@ export default function TemplateScreen({ navigation }) {
             }
         } catch (error) {
             console.error(' Error deleting template:', error);
-            // Alert.alert('Error', 'Something went wrong while deleting template');
-            // ToastAndroid.show("Something went wrong while deleting template", ToastAndroid.SHORT);
             Toast.show({
                 type: 'Error',
                 text1: 'Error!',
@@ -244,15 +201,18 @@ export default function TemplateScreen({ navigation }) {
         }
     };
 
+    const confirmToggleStatus = (template) => {
+        setSelectedTemplateForStatus(template);
+        setShowStatusModal(true);
+    };
 
     const toggleTemplateStatus = async (template) => {
         try {
             const token = await AsyncStorage.getItem('token');
-            const newStatus = template.status === '1' ? '0' : '1';
 
             const response = await api.put(
                 `vendor/update-template-status/${template.id}`,
-                {}, // No body required
+                {},
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -262,19 +222,14 @@ export default function TemplateScreen({ navigation }) {
             );
 
             if (response.data.status) {
-                if (Platform.OS === 'android') {
-                    // ToastAndroid.show('Template status updated!', ToastAndroid.SHORT);
-                    Toast.show({
-                        type: 'success',
-                        text1: 'Status Updated',
-                        text2: 'Template status updated',
-                        position: 'top',
-                    });
-                }
-                await fetchTemplates(); // Refresh the list
+                Toast.show({
+                    type: 'success',
+                    text1: 'Status Updated',
+                    text2: 'Template status updated',
+                    position: 'top',
+                });
+                await fetchTemplates();
             } else {
-                // Alert.alert('Error', response.data.message || 'Failed to update status');
-                // ToastAndroid.show('Failed to updated status!', ToastAndroid.SHORT);
                 Toast.show({
                     type: 'Error',
                     text1: 'Error!',
@@ -284,8 +239,6 @@ export default function TemplateScreen({ navigation }) {
             }
         } catch (error) {
             console.error(' Error updating template status:', error);
-            // Alert.alert('Error', 'Something went wrong while updating status');
-            // ToastAndroid.show('Something went wrong while updating status   ', ToastAndroid.SHORT);
             Toast.show({
                 type: 'Error',
                 text1: 'Error!',
@@ -300,9 +253,8 @@ export default function TemplateScreen({ navigation }) {
         incoming: 'bg-green-400',
         outgoing: 'bg-blue-400',
         rejected: 'bg-purple-400',
-        default: 'bg-sky-600', // fallback
+        default: 'bg-sky-600',
     };
-
 
 
     return (
@@ -326,7 +278,10 @@ export default function TemplateScreen({ navigation }) {
                             </View>
                             <View className="flex-row justify-between items-center mt-3">
                                 <View className="flex-row gap-2">
-                                    <TouchableOpacity onPress={() => toggleTemplateStatus(template)}>
+                                    <TouchableOpacity onPress={() => {
+                                        // toggleTemplateStatus(template)
+                                        confirmToggleStatus(template);
+                                    }}>
                                         <Text className={`text-xs px-2 py-1 rounded ${template.status === '1' ? 'bg-red-600' : 'bg-green-600'} text-white`}>
                                             {template.status === '1' ? 'Disabled' : 'Enabled'}
                                         </Text>
@@ -443,6 +398,70 @@ export default function TemplateScreen({ navigation }) {
                             </TouchableOpacity>
                         </View>
 
+                    </View>
+                </View>
+            </Modal>
+            <Modal
+                visible={showDeleteModal}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowDeleteModal(false)}
+            >
+                <View className="flex-1 bg-black/60 justify-center items-center px-6">
+                    <View className="bg-slate-300 w-full rounded-xl p-4">
+                        <Text className="text-lg font-semibold text-black mb-2">Confirm Delete</Text>
+                        <Text className="text-base text-gray-700 mb-6">
+                            Are you sure you want to delete this template?
+                        </Text>
+                        <View className="flex-row justify-end space-x-4">
+                            <TouchableOpacity
+                                onPress={() => setShowDeleteModal(false)}
+                                className="px-4 py-2 rounded-md bg-white mr-2"
+                            >
+                                <Text className="text-black font-medium">Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setShowDeleteModal(false);
+                                    deleteTemplate(selectedTemplateId);
+                                }}
+                                className="px-4 py-2 rounded-md bg-black"
+                            >
+                                <Text className="text-white font-medium">Delete</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+            <Modal
+                visible={showStatusModal}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowStatusModal(false)}
+            >
+                <View className="flex-1 bg-black/60 justify-center items-center px-6">
+                    <View className="bg-slate-300 w-full rounded-xl p-4">
+                        <Text className="text-lg font-semibold text-black mb-2">Confirm Status Change</Text>
+                        <Text className="text-base text-gray-700 mb-6">
+                            Are you sure you want to {selectedTemplateForStatus?.status === '1' ? 'enable' : 'disable'} this template?
+                        </Text>
+                        <View className="flex-row justify-end space-x-4">
+                            <TouchableOpacity
+                                onPress={() => setShowStatusModal(false)}
+                                className="px-4 py-2 rounded-md bg-white mr-2"
+                            >
+                                <Text className="text-black font-medium">Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setShowStatusModal(false);
+                                    toggleTemplateStatus(selectedTemplateForStatus);
+                                }}
+                                className="px-4 py-2 rounded-md bg-black"
+                            >
+                                <Text className="text-white font-medium">Yes</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </Modal>

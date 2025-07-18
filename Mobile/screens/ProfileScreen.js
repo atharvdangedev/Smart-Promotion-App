@@ -9,7 +9,7 @@ import {
     ImageBackground,
     KeyboardAvoidingView,
     Platform,
-    Alert,
+    Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Camera } from 'lucide-react-native';
@@ -50,6 +50,8 @@ export default function ProfileScreen({ navigation }) {
     const [profilePic, setProfilePic] = useState(null);
 
     const { control, handleSubmit, reset } = useForm();
+    const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+
 
     useEffect(() => {
         const init = async () => {
@@ -174,23 +176,47 @@ export default function ProfileScreen({ navigation }) {
 
                     {/* Logout */}
                     <TouchableOpacity
-                        onPress={() =>
-                            Alert.alert('Logout', 'Are you sure you want to logout?', [
-                                { text: 'Cancel', style: 'cancel' },
-                                {
-                                    text: 'Logout',
-                                    style: 'destructive',
-                                    onPress: async () => {
-                                        await AsyncStorage.multiRemove(['token', 'user_type', 'user_id']);
-                                        navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
-                                    },
-                                },
-                            ])
-                        }
+                        onPress={() => setLogoutModalVisible(true)}
                         className="bg-black border border-white rounded-xl py-3 mb-6"
                     >
                         <Text className="text-white text-center font-semibold">Logout</Text>
                     </TouchableOpacity>
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={logoutModalVisible}
+                        onRequestClose={() => setLogoutModalVisible(false)}
+                    >
+                        <View className="flex-1 justify-center items-center bg-black/50 px-6">
+                            <View className="bg-white w-full rounded-xl p-6">
+                                <Text className="text-lg font-semibold mb-4 text-black text-center">
+                                    Confirm Logout
+                                </Text>
+                                <Text className="text-gray-700 text-center mb-6">
+                                    Are you sure you want to logout?
+                                </Text>
+                                <View className="flex-row justify-between">
+                                    <TouchableOpacity
+                                        className="flex-1 bg-gray-200 rounded-xl py-3 mr-2"
+                                        onPress={() => setLogoutModalVisible(false)}
+                                    >
+                                        <Text className="text-center text-black font-semibold">Cancel</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        className="flex-1 bg-black rounded-xl py-3 ml-2"
+                                        onPress={async () => {
+                                            setLogoutModalVisible(false);
+                                            await AsyncStorage.multiRemove(['token', 'user_type', 'user_id']);
+                                            navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+                                        }}
+                                    >
+                                        <Text className="text-center text-white font-semibold">Logout</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
+
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
