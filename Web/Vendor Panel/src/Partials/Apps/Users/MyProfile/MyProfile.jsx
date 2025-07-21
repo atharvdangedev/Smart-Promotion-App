@@ -350,7 +350,6 @@ const MyProfile = () => {
     formData.append("email", userData.email);
     formData.append("contact_no", data.contact_no);
     formData.append("password", data.password);
-    formData.append("role", "3");
     if (data.profile_pic && data.profile_pic[0] instanceof File)
       formData.append("profile_pic", data.profile_pic[0]);
 
