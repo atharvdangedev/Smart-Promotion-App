@@ -152,7 +152,7 @@ const CouponCodeManagement = () => {
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
               <span>
-                <strong>Plan:</strong> {row.original.title}
+                <strong>Plan:</strong> {row.original.plan_title}
               </span>
               <span>
                 <strong>Plan Type:</strong> {row.original.plan_type}
