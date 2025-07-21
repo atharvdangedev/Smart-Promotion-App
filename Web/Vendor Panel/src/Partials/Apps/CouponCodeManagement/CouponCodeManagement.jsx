@@ -23,7 +23,7 @@ const CouponCodeManagement = () => {
   // Navigation function
   const navigate = useNavigate();
 
-  const { can } = usePermissions();
+  const { can, canAny } = usePermissions();
 
   // Access token
   const { token, user } = useSelector((state) => state.auth);
@@ -127,7 +127,7 @@ const CouponCodeManagement = () => {
   };
 
   const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
-  const canSeeActionsColumn = can([
+  const canSeeActionsColumn = canAny([
     APP_PERMISSIONS.COUPONS_EDIT,
     APP_PERMISSIONS.COUPONS_DELETE,
   ]);
