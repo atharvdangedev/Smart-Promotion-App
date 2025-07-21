@@ -178,7 +178,7 @@ const EditCouponCode = () => {
           },
         }
       );
-      if (response.status === 20) {
+      if (response.status === 200) {
         toast.success(response.data.message);
         setTimeout(() => {
           navigate("/coupon-codes");
