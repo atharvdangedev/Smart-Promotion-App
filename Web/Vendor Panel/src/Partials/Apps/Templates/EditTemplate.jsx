@@ -21,7 +21,7 @@ const schema = yup.object().shape({
     .string()
     .required("Template Description is required")
     .min(3, "Minimum 3 characters required.")
-    .max(500, "Maximum 500 characters allowed."),
+    .max(700, "Maximum 700 characters allowed."),
   type: yup
     .string()
     .required("Template Type is required")

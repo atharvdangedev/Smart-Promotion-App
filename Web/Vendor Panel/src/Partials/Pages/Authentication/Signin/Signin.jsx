@@ -8,12 +8,14 @@ import toast, { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../../../Redux/slices/authSlice";
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 // Validation schema
 const schema = yup.object().shape({
   email: yup
     .string()
     .required("Email is required")
-    .email("Please enter a valid email"),
+    .matches(emailRegex, "Invalid email address"),
   password: yup.string().required("Password is required"),
   remember: yup.boolean().notRequired(),
 });

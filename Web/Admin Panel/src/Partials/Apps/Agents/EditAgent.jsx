@@ -56,6 +56,7 @@ const EditAgent = () => {
   const [userId, setUserId] = useState("");
   const profilePicRef = useRef();
   const [firstName, setFirstName] = useState("");
+  const [agentData, setAgentData] = useState({});
   const [profilePicPreview, setProfilePicPreview] = useState(null);
 
   // Use form initialization
@@ -100,6 +101,7 @@ const EditAgent = () => {
           }
         );
         if (res.status === 200) {
+          setAgentData(res.data.agent);
           setValue("firstname", res.data.agent.first_name);
           setValue("lastname", res.data.agent.last_name);
           setValue("address", res.data.agent.address);
@@ -129,8 +131,9 @@ const EditAgent = () => {
     formData.append("vendor_id", vendorId);
     formData.append("first_name", data.firstname);
     formData.append("last_name", data.lastname);
+    formData.append("email", agentData.email);
+    formData.append("role", agentData.role);
     formData.append("address", data.address);
-    formData.append("email", data.email);
     formData.append("contact_no", data.contact_no);
     if (data.profile_pic && data.profile_pic[0] instanceof File)
       formData.append("profile_pic", data.profile_pic[0]);
@@ -228,6 +231,7 @@ const EditAgent = () => {
                 <div className="form-floating">
                   <input
                     type="text"
+                    disabled
                     className={`form-control ${
                       errors.email ? "is-invalid" : ""
                     }`}

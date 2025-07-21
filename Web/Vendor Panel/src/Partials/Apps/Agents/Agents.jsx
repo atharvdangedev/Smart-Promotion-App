@@ -79,7 +79,7 @@ const Agents = () => {
     const fetchUser = async () => {
       try {
         const res = await axios.get(
-          `${APP_URL}/${user?.rolename}/${user?.id}`,
+          `${APP_URL}/${user?.rolename}/${user?.user_id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ const Agents = () => {
     };
 
     fetchUser();
-  }, [token, APP_URL, Img_url, user?.rolename, user?.id]);
+  }, [token, APP_URL, Img_url, user?.rolename, user?.user_id]);
 
   // Handle add page navigation
   const handleAdd = useCallback(
@@ -393,7 +393,6 @@ const Agents = () => {
                     "last_name",
                     "email",
                     "contact_no",
-                    "role",
                     "status",
                   ]}
                 />

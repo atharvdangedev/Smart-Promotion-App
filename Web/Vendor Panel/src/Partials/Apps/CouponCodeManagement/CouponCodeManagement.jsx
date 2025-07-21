@@ -306,8 +306,10 @@ const CouponCodeManagement = () => {
                   fileName="Coupon Codes"
                   fields={[
                     "coupon_code",
-                    "title",
+                    "plan_title",
                     "plan_type",
+                    "first_name",
+                    "last_name",
                     "valid_from",
                     "valid_till",
                     "status",

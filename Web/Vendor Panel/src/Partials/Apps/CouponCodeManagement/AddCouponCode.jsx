@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "./datepicker.css";
 import "react-datepicker/dist/react-datepicker.css";
+import { useSelector } from "react-redux";
 
 // Schema initialization
 const schema = yup.object().shape({
@@ -37,8 +38,8 @@ const AddCouponCode = () => {
   // Navigation function
   const navigate = useNavigate();
 
-  // Access token
-  const token = localStorage.getItem("jwtToken");
+  // State initialisation
+  const { user: userData = {}, token } = useSelector((state) => state.auth);
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
@@ -76,12 +77,15 @@ const AddCouponCode = () => {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const response = await axios.get(`${APP_URL}/vendor/active-plans`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json;",
-          },
-        });
+        const response = await axios.get(
+          `${APP_URL}/${userData?.rolename}/active-plans`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json;",
+            },
+          }
+        );
         if (response.status === 200) {
           const planOptions = response.data.active_plans.map((plan) => ({
             value: plan.id,
@@ -95,7 +99,7 @@ const AddCouponCode = () => {
     };
 
     fetchPlans();
-  }, [APP_URL, token]);
+  }, [APP_URL, token, userData?.rolename]);
 
   // Handle cancel
   const handleCancel = () => {

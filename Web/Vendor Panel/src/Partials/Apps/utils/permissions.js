@@ -29,6 +29,9 @@ export const APP_PERMISSIONS = {
 
   // Exports Management
   EXPORTS: "data:export_data",
+
+  // Become an affiliate
+  BECOME_AN_AFFILIATE: "profile:become_an_affiliate",
 };
 
 export const ROLE_PERMISSIONS = {
@@ -50,6 +53,8 @@ export const ROLE_PERMISSIONS = {
     APP_PERMISSIONS.TEMPLATES_DELETE,
 
     APP_PERMISSIONS.EXPORTS,
+
+    APP_PERMISSIONS.BECOME_AN_AFFILIATE,
   ],
   6: [
     APP_PERMISSIONS.CONTACTS_VIEW,
@@ -59,6 +64,8 @@ export const ROLE_PERMISSIONS = {
     APP_PERMISSIONS.TEMPLATES_VIEW,
 
     APP_PERMISSIONS.EXPORTS,
+
+    APP_PERMISSIONS.BECOME_AN_AFFILIATE,
   ],
   7: [
     APP_PERMISSIONS.COUPONS_VIEW,

@@ -8,9 +8,12 @@ import { useNavigate } from "react-router-dom";
 import { evaluatePasswordStrength } from "../utils/evaluatePasswordStrength";
 import { handleApiError } from "../utils/handleApiError";
 import { setPageTitle } from "../utils/docTitle";
+import { logoutUser } from "../../../Redux/slices/authSlice";
+import { useDispatch } from "react-redux";
 
 const ChangePassword = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // Access token
   const token = localStorage.getItem("jwtToken");
@@ -76,25 +79,20 @@ const ChangePassword = () => {
 
   const handleLogout = async () => {
     try {
-      if (!token) {
-        throw new Error("Token not found");
-      }
+      const resultAction = await dispatch(logoutUser());
 
-      const response = await axios.post(`${APP_URL}/logout`, null, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "X-App-Secret": `${SECRET_KEY}`,
-        },
-      });
-      if (response.status === 200) {
-        localStorage.removeItem("jwtToken");
-        toast.success(response.data.message);
+      if (logoutUser.fulfilled.match(resultAction)) {
+        toast.success("Logged out successfully!");
         setTimeout(() => {
-          window.location.href = "/signin";
-        }, 1000);
+          navigate("/signin", { replace: true });
+        }, 2000);
+      } else if (logoutUser.rejected.match(resultAction)) {
+        toast.error(resultAction.payload || "Logout failed!");
+        console.error("Logout failed:", resultAction.payload);
       }
     } catch (error) {
-      handleApiError(error, "logging", "out");
+      toast.error("An unexpected error occurred during logout.");
+      console.error("Unexpected error during logout:", error);
     }
   };
 
@@ -150,7 +148,7 @@ const ChangePassword = () => {
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword.old ? "text" : "password"}
                     className={`form-control ${
                       errors.old_password ? "is-invalid" : ""
                     }`}
@@ -185,7 +183,7 @@ const ChangePassword = () => {
                   }`}
                 >
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword.new ? "text" : "password"}
                     className={`form-control ${
                       errors.newpassword ? "is-invalid" : ""
                     }`}
@@ -225,7 +223,7 @@ const ChangePassword = () => {
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword.confirm ? "text" : "password"}
                     className={`form-control ${
                       errors.confirmPassword ? "is-invalid" : ""
                     }`}

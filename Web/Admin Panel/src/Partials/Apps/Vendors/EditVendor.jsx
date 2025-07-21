@@ -109,6 +109,7 @@ const EditVendor = () => {
   const profilePicRef = useRef();
   const [profilePicPreview, setProfilePicPreview] = useState(null);
   const [firstName, setFirstName] = useState("");
+  const [vendorData, setVendorData] = useState({});
 
   const handleProfilePic = (e) => {
     const file = e.target.files[0];
@@ -151,6 +152,7 @@ const EditVendor = () => {
           }
         );
         if (res.status === 200) {
+          setVendorData(res.data.vendor);
           setValue("firstname", res.data.vendor.first_name);
           setValue("lastname", res.data.vendor.last_name);
           setValue("email", res.data.vendor.email);
@@ -191,10 +193,9 @@ const EditVendor = () => {
     const formData = new FormData();
     formData.append("first_name", data.firstname);
     formData.append("last_name", data.lastname);
-    formData.append("email", data.email);
+    formData.append("email", vendorData.email);
     formData.append("contact_no", data.contact_no);
-    formData.append("password", data.password);
-    formData.append("role", "3");
+    formData.append("role", vendorData.role);
     formData.append("business_address", data.business_address);
     formData.append("business_type", data.business_type);
 
@@ -300,6 +301,7 @@ const EditVendor = () => {
                 <div className="form-floating">
                   <input
                     type="text"
+                    disabled
                     className={`form-control ${
                       errors.email ? "is-invalid" : ""
                     }`}

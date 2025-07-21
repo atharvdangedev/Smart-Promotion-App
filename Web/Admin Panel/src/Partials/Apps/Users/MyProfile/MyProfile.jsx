@@ -73,15 +73,12 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(
-          `${APP_URL}/${userData.rolename}/users/${userData?.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const res = await axios.get(`${APP_URL}/users/${userData?.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (res.status === 200) {
           dispatch(setUser(res.data.user));
           setValue("first_name", res.data.user.first_name);
@@ -126,7 +123,7 @@ const MyProfile = () => {
 
     try {
       const res = await axios.post(
-        `${APP_URL}/${userData.rolename}/users/${userData?.id}`,
+        `${APP_URL}/users/${userData?.id}`,
         formData,
         {
           headers: {
