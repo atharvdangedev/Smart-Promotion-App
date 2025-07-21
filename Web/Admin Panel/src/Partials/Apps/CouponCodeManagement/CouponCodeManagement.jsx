@@ -129,11 +129,16 @@ const CouponCodeManagement = () => {
       },
       {
         Header: "Plan",
-        accessor: (row) => `${row.title}`,
+        accessor: (row) => `${row.title} ${row.plan_type}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>{row.original.title}</span>
+              <span>
+                <strong>Plan:</strong> {row.original.title}
+              </span>
+              <span>
+                <strong>Plan Type:</strong> {row.original.plan_type}
+              </span>
             </div>
           </div>
         ),

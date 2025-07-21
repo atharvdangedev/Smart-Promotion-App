@@ -175,7 +175,7 @@ const DataTable = ({ columns, data, isLoading }) => {
                   fields={[
                     "razorpay_order_id",
                     "category_name",
-                    "user_id",
+                    "id",
                     "name",
                     "email",
                     "mobile",
