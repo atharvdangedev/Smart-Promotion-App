@@ -9,7 +9,7 @@ import { handleApiError } from "../../utils/handleApiError";
 import { setPageTitle } from "../../utils/docTitle";
 import Select from "react-select";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../../../../Redux/slices/authSlice";
+// import { setUser } from "../../../../Redux/slices/authSlice";
 import BecomeAnAffiliate from "../../BecomeAnAffiliate/BecomeAnAffiliate";
 import { APP_PERMISSIONS, ROLE_PERMISSIONS } from "../../utils/permissions";
 
@@ -247,7 +247,6 @@ const MyProfile = () => {
         if (res.status === 200) {
           const user = res.data[userData?.rolename];
 
-          dispatch(setUser(user));
           setValue("firstname", user.first_name);
           setValue("lastname", user.last_name);
           setValue("email", user.email);
@@ -301,7 +300,7 @@ const MyProfile = () => {
     Img_url,
     userData?.rolename,
     dispatch,
-    userData?.user_id,
+    userData?.id,
   ]);
 
   const handleProfilePic = (e) => {
@@ -808,7 +807,6 @@ const MyProfile = () => {
                       )}
                     </div>
                   </div>
-
                   <div className="col-md-4">
                     <div className="form-floating">
                       <input
@@ -829,7 +827,6 @@ const MyProfile = () => {
                       )}
                     </div>
                   </div>
-
                   <div className="col-md-4">
                     <div className="form-floating">
                       <input
@@ -854,7 +851,6 @@ const MyProfile = () => {
                       )}
                     </div>
                   </div>
-
                   <div className="col-md-4">
                     <div className="form-floating">
                       <input
@@ -875,7 +871,6 @@ const MyProfile = () => {
                       )}
                     </div>
                   </div>
-
                   <div className="col-md-4">
                     <div className="form-floating">
                       <input
@@ -896,29 +891,29 @@ const MyProfile = () => {
                       )}
                     </div>
                   </div>
-
-                  <div className="col-md-4">
-                    <div className="form-floating">
-                      <input
-                        type="text"
-                        maxLength={15}
-                        className={`form-control ${
-                          errors.gst_number ? "is-invalid" : ""
-                        }`}
-                        id="gst_number"
-                        {...register("gst_number")}
-                        placeholder="GST Number"
-                        tabIndex="14"
-                      />
-                      <label htmlFor="gst_number">GST Number</label>
-                      {errors.gst_number && (
-                        <div className="invalid-feedback">
-                          {errors.gst_number.message}
-                        </div>
-                      )}
+                  {!hasPermission(APP_PERMISSIONS.AGENTS_VIEW) && (
+                    <div className="col-md-4">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          maxLength={15}
+                          className={`form-control ${
+                            errors.gst_number ? "is-invalid" : ""
+                          }`}
+                          id="gst_number"
+                          {...register("gst_number")}
+                          placeholder="GST Number"
+                          tabIndex="14"
+                        />
+                        <label htmlFor="gst_number">GST Number</label>
+                        {errors.gst_number && (
+                          <div className="invalid-feedback">
+                            {errors.gst_number.message}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-
+                  )}
                   <div className="col-md-4">
                     <div className="form-floating">
                       <Controller

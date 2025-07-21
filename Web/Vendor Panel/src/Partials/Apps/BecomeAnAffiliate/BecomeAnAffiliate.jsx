@@ -95,6 +95,7 @@ const BecomeAnAffiliate = ({ setIsModalOpen }) => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(affiliateSchema),
+    mode: "onChange",
   });
 
   const handleLogout = async () => {
@@ -140,7 +141,9 @@ const BecomeAnAffiliate = ({ setIsModalOpen }) => {
       );
       if (res.status === 200) {
         toast.success(res.data.message);
-        await handleLogout();
+        setTimeout(async () => {
+          await handleLogout();
+        }, 2000);
       }
     } catch (error) {
       handleApiError(error, "in becoming", `an affiliate`);
