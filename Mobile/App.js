@@ -24,13 +24,16 @@ export default function App() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        const rememberMe = await AsyncStorage.getItem('remember_me'); // <- new
         const token = await AsyncStorage.getItem('token');
         const userType = await AsyncStorage.getItem('user_type');
         const userId = await AsyncStorage.getItem('user_id');
 
-        if (token && userType && userId) {
+        if (rememberMe === '1' && token && userType && userId) {
           setInitialRoute('HomeScreen');
         } else {
+          // Remove everything if remember me was off
+          await AsyncStorage.multiRemove(['token', 'user_id', 'user_type']);
           setInitialRoute('Welcome');
         }
       } catch (error) {
@@ -41,6 +44,7 @@ export default function App() {
 
     checkAuth();
   }, []);
+
 
   if (!initialRoute) {
     // Show native splash until initial route is determined
