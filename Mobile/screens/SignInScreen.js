@@ -4,6 +4,7 @@ import InputField from '../components/InputField';
 import { api } from '../utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Check } from 'lucide-react-native';
+import Toast from 'react-native-toast-message';
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -35,15 +36,32 @@ export default function LoginScreen({ navigation }) {
             if (res.data?.status === true && res.data.token) {
                 const { token, user } = res.data;
 
-                await AsyncStorage.setItem('token', token);
-                await AsyncStorage.setItem('user_id', user.id);
-                await AsyncStorage.setItem('user_type', user.rolename); // <-- add this
+                if (user.rolename === 'affiliate') {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Affiliate User Found!',
+                        text2: 'Affiliate users are not allowed',
+                        position: 'top',
+                    });
+                    return;
+                }
+
+                if (rememberMe) {
+                    await AsyncStorage.setItem('token', token);
+                    await AsyncStorage.setItem('user_id', user.id.toString());
+                    await AsyncStorage.setItem('user_type', user.rolename);
+                } else {
+                    await AsyncStorage.removeItem('token');
+                    await AsyncStorage.removeItem('user_id');
+                    await AsyncStorage.removeItem('user_type');
+                }
 
                 navigation.reset({
                     index: 0,
                     routes: [{ name: 'HomeScreen' }]
                 });
-            } else {
+            }
+            else {
                 setFormError(res.data?.message || 'Invalid credentials');
             }
         } catch (error) {
