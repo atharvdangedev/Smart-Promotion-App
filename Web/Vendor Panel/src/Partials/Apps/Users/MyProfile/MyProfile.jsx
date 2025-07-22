@@ -202,8 +202,6 @@ const MyProfile = () => {
     mode: "onChange",
   });
 
-  console.log(userData);
-
   /**
    * Checks if the current user has a specific permission.
    * This function remains the same as it checks for *capability*.

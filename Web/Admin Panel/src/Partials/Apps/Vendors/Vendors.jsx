@@ -96,10 +96,6 @@ const Vendors = () => {
         toast.error("You do not have permission to view vendor agents.");
         return;
       }
-      if (!can(APP_PERMISSIONS.AGENTS_CREATE)) {
-        toast.error("You do not have permission to add agents.");
-        return;
-      }
       if (addonCount === 0) {
         toast.error(
           `This vendor has not purchased any add-ons. Please ask them to purchase add-ons to add agents`

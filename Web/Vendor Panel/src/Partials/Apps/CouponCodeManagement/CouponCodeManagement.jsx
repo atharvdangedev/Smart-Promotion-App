@@ -178,11 +178,12 @@ const CouponCodeManagement = () => {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
-          <button
+          <span
             className={`btn btn-sm ${
               value === "1" ? "btn-success" : "btn-danger"
             }`}
             style={{
+              cursor: "default",
               backgroundColor: value === "1" ? "#28a745" : "#dc3545",
               borderColor: value === "1" ? "#28a745" : "#dc3545",
               color: "#fff",
@@ -191,7 +192,7 @@ const CouponCodeManagement = () => {
             }}
           >
             {value === "1" ? "Active" : "Inactive"}
-          </button>
+          </span>
         ),
       },
       {

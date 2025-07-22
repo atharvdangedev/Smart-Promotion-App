@@ -128,7 +128,7 @@ const EditCouponCode = () => {
           setValue("plan_id", couponData.plan_id);
           setValue("discount_type", couponData.discount_type);
           setValue("discount", couponData.discount);
-          setValue("is_recurring", couponData.is_recurring);
+          setValue("is_recurring", Number(couponData.is_recurring));
           setValue(
             "valid_from",
             couponData.valid_from ? new Date(couponData.valid_from) : null
