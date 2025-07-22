@@ -4,6 +4,7 @@ import { api } from '../utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Check } from 'lucide-react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
+import Toast from 'react-native-toast-message';
 
 
 export default function ChangePasswordScreen({ navigation }) {
@@ -28,36 +29,36 @@ export default function ChangePasswordScreen({ navigation }) {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
-    const validatePasswordLive = (password) => {
-        const hasLength = password.length >= 6;
-        const hasUppercase = /[A-Z]/.test(password);
-        const hasNumber = /[0-9]/.test(password);
-        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-        const noRepeat = !/([a-zA-Z0-9!@#$%^&*()])\1\1+/.test(password);
+    // const validatePasswordLive = (password) => {
+    //     const hasLength = password.length >= 6;
+    //     const hasUppercase = /[A-Z]/.test(password);
+    //     const hasNumber = /[0-9]/.test(password);
+    //     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    //     const noRepeat = !/([a-zA-Z0-9!@#$%^&*()])\1\1+/.test(password);
 
-        const sequences = ['0123456789', 'abcdefghijklmnopqrstuvwxyz', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
-        const lowerPass = password.toLowerCase();
-        let noSequence = true;
+    //     const sequences = ['0123456789', 'abcdefghijklmnopqrstuvwxyz', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+    //     const lowerPass = password.toLowerCase();
+    //     let noSequence = true;
 
-        for (let seq of sequences) {
-            for (let i = 0; i < seq.length - 2; i++) {
-                const sub = seq.slice(i, i + 3);
-                if (lowerPass.includes(sub)) {
-                    noSequence = false;
-                    break;
-                }
-            }
-        }
+    //     for (let seq of sequences) {
+    //         for (let i = 0; i < seq.length - 2; i++) {
+    //             const sub = seq.slice(i, i + 3);
+    //             if (lowerPass.includes(sub)) {
+    //                 noSequence = false;
+    //                 break;
+    //             }
+    //         }
+    //     }
 
-        setPasswordRules({
-            length: hasLength,
-            uppercase: hasUppercase,
-            number: hasNumber,
-            specialChar: hasSpecialChar,
-            noRepeat: noRepeat,
-            noSequence: noSequence,
-        });
-    };
+    //     setPasswordRules({
+    //         length: hasLength,
+    //         uppercase: hasUppercase,
+    //         number: hasNumber,
+    //         specialChar: hasSpecialChar,
+    //         noRepeat: noRepeat,
+    //         noSequence: noSequence,
+    //     });
+    // };
 
 
     const isValidPassword = (password) => {
@@ -100,6 +101,9 @@ export default function ChangePasswordScreen({ navigation }) {
         }
         if (!/[A-Z]/.test(password)) {
             messages.push('• Must include at least one uppercase letter');
+        }
+        if (!/[a-z]/.test(password)) {
+            messages.push('• Must include at least one lowercase letter');
         }
         if (!/[0-9]/.test(password)) {
             messages.push('• Must include at least one number');
@@ -164,11 +168,17 @@ export default function ChangePasswordScreen({ navigation }) {
                         Authorization: `Bearer ${token}`,
                     },
                 }
+
             );
 
             if (res.data?.status) {
                 setSuccessMsg('Password changed successfully. Logging out...');
-
+                Toast.show({
+                    type: 'success',
+                    text1: 'Password Changed',
+                    text2: 'Password changed successfully',
+                    position: 'top',
+                });
                 // 👇 Optional logout API call
                 await api.post(
                     'logout',
@@ -221,7 +231,7 @@ export default function ChangePasswordScreen({ navigation }) {
                     className="flex-1 ml-2 py-3 text-black"
                 />
                 <TouchableOpacity onPress={() => setShowOldPassword(!showOldPassword)}>
-                    {showOldPassword ? <EyeOff size={20} color="gray" /> : <Eye size={20} color="gray" />}
+                    {showOldPassword ? <Eye size={20} color="gray" /> : <EyeOff size={20} color="gray" />}
                 </TouchableOpacity>
             </View>
 
@@ -241,7 +251,7 @@ export default function ChangePasswordScreen({ navigation }) {
                     className="flex-1 ml-2 py-3 text-black"
                 />
                 <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)}>
-                    {showNewPassword ? <EyeOff size={20} color="gray" /> : <Eye size={20} color="gray" />}
+                    {showNewPassword ? <Eye size={20} color="gray" /> : <EyeOff size={20} color="gray" />}
                 </TouchableOpacity>
             </View>
 
@@ -268,7 +278,7 @@ export default function ChangePasswordScreen({ navigation }) {
                     className="flex-1 ml-2 py-3 text-black"
                 />
                 <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                    {showConfirmPassword ? <EyeOff size={20} color="gray" /> : <Eye size={20} color="gray" />}
+                    {showConfirmPassword ? <Eye size={20} color="gray" /> : <EyeOff size={20} color="gray" />}
                 </TouchableOpacity>
             </View>
 

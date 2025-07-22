@@ -68,7 +68,7 @@ export default function TemplateScreen({ navigation }) {
                             (ct) =>
                                 ct.toLowerCase() ===
                                 (templates[index].template_type || '').toLowerCase()
-                        ) || callTypes[0],
+                        ) || callTypes[1],
                     active: templates[index].status === '1',
                 }
                 : {
@@ -153,9 +153,11 @@ export default function TemplateScreen({ navigation }) {
             Toast.show({
                 type: 'error',
                 text1: 'Error!',
-                text2: 'Something went wrong',
+                text2: 'Error saving/updating template',
                 position: 'top',
             });
+            return ToastAndroid.show('Template with same title already exists', ToastAndroid.SHORT);
+
         }
     };
 
@@ -282,8 +284,8 @@ export default function TemplateScreen({ navigation }) {
                                         // toggleTemplateStatus(template)
                                         confirmToggleStatus(template);
                                     }}>
-                                        <Text className={`text-xs px-2 py-1 rounded ${template.status === '1' ? 'bg-red-600' : 'bg-green-600'} text-white`}>
-                                            {template.status === '1' ? 'Disabled' : 'Enabled'}
+                                        <Text className={`text-xs px-2 py-1 rounded ${template.status === '1' ? 'bg-green-600' : 'bg-red-600'} text-white`}>
+                                            {template.status === '0' ? 'Disabled' : 'Enabled'}
                                         </Text>
                                     </TouchableOpacity>
 
@@ -368,15 +370,6 @@ export default function TemplateScreen({ navigation }) {
                             ))}
                         </View>
 
-                        {/* Active Toggle */}
-                        {/* <View className="flex-row items-center justify-between mb-6">
-                            <Text className="text-white">Active</Text>
-                            <Switch
-                                value={newTemplate.active}
-                                onValueChange={(val) => setNewTemplate({ ...newTemplate, active: val })}
-                            />
-                        </View> */}
-
                         {/* Buttons */}
                         <View className="flex-row justify-between my-3">
                             <TouchableOpacity
@@ -408,26 +401,26 @@ export default function TemplateScreen({ navigation }) {
                 onRequestClose={() => setShowDeleteModal(false)}
             >
                 <View className="flex-1 bg-black/60 justify-center items-center px-6">
-                    <View className="bg-slate-300 w-full rounded-xl p-4">
-                        <Text className="text-lg font-semibold text-black mb-2">Confirm Delete</Text>
-                        <Text className="text-base text-gray-700 mb-6">
+                    <View className="bg-white w-full rounded-xl p-4">
+                        <Text className="text-lg font-semibold text-black mb-2 text-center">Confirm Delete</Text>
+                        <Text className="text-base text-gray-700 mb-6 text-center">
                             Are you sure you want to delete this template?
                         </Text>
-                        <View className="flex-row justify-end space-x-4">
+                        <View className="flex-row justify-between">
                             <TouchableOpacity
                                 onPress={() => setShowDeleteModal(false)}
-                                className="px-4 py-2 rounded-md bg-white mr-2"
+                                className="flex-1 py-3 rounded-md bg-gray-200 mr-2"
                             >
-                                <Text className="text-black font-medium">Cancel</Text>
+                                <Text className="text-black font-medium text-center">Cancel</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() => {
                                     setShowDeleteModal(false);
                                     deleteTemplate(selectedTemplateId);
                                 }}
-                                className="px-4 py-2 rounded-md bg-black"
+                                className="flex-1 py-3 mr-2 rounded-md bg-black"
                             >
-                                <Text className="text-white font-medium">Delete</Text>
+                                <Text className="text-white font-medium text-center">Delete</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -440,26 +433,26 @@ export default function TemplateScreen({ navigation }) {
                 onRequestClose={() => setShowStatusModal(false)}
             >
                 <View className="flex-1 bg-black/60 justify-center items-center px-6">
-                    <View className="bg-slate-300 w-full rounded-xl p-4">
-                        <Text className="text-lg font-semibold text-black mb-2">Confirm Status Change</Text>
-                        <Text className="text-base text-gray-700 mb-6">
+                    <View className="bg-white w-full rounded-xl p-4">
+                        <Text className="text-lg text-center font-semibold text-black mb-2">Confirm Status Change</Text>
+                        <Text className="text-base text-center text-gray-700 mb-6">
                             Are you sure you want to {selectedTemplateForStatus?.status === '1' ? 'enable' : 'disable'} this template?
                         </Text>
-                        <View className="flex-row justify-end space-x-4">
+                        <View className="flex-row justify-between">
                             <TouchableOpacity
                                 onPress={() => setShowStatusModal(false)}
-                                className="px-4 py-2 rounded-md bg-white mr-2"
+                                className="flex-1 py-3 rounded-md bg-gray-200 mr-2"
                             >
-                                <Text className="text-black font-medium">Cancel</Text>
+                                <Text className="text-black font-medium text-center">Cancel</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() => {
                                     setShowStatusModal(false);
                                     toggleTemplateStatus(selectedTemplateForStatus);
                                 }}
-                                className="px-4 py-2 rounded-md bg-black"
+                                className="flex-1 py-3 rounded-md bg-black"
                             >
-                                <Text className="text-white font-medium">Yes</Text>
+                                <Text className="text-white font-medium text-center">Yes</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

@@ -202,7 +202,8 @@ export default function CardScannerScreen() {
             <View className='my-3 p-4 rounded-xl bg-white'>
                 <Text className='text-lg text-black font-semibold'>1) It Scans all the text in the image.</Text>
                 <Text className='text-lg text-black font-semibold'>2) So crop the image accordigly.</Text>
-                <Text className='text-lg text-black font-semibold'>3) User should verfiy the number and name before saving the contact.</Text>
+                <Text className='text-lg text-black font-semibold'>3) User should verify the number and name before saving the contact.</Text>
+                <Text className='text-lg text-black font-semibold'>4) It will scan only valid Indian numbers.</Text>
             </View>
             {text ? (
                 <View className="bg-zinc-800 p-4 rounded-2xl mb-4 max-h-60">

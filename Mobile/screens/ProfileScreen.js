@@ -156,8 +156,12 @@ export default function ProfileScreen({ navigation }) {
                                         placeholder={`Enter ${label.toLowerCase()}`}
                                         placeholderTextColor="#9ca3af"
                                         secureTextEntry={name === 'password'}
-                                        className={`px-4 py-2 rounded-xl bg-gray-800 text-white border ${error ? 'border-red-500' : 'border-gray-700'}`}
+                                        editable={name !== 'email'}
+                                        selectTextOnFocus={name !== 'email'}
+                                        className={`px-4 py-2 rounded-xl text-white border ${error ? 'border-red-500' : 'border-gray-700'} ${name === 'email' ? 'bg-gray-700 opacity-60' : 'bg-gray-800'
+                                            }`}
                                     />
+
                                     {error && <Text className="text-red-500 text-xs mt-1">{error.message}</Text>}
                                 </View>
                             )}
