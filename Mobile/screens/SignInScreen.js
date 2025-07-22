@@ -47,14 +47,14 @@ export default function LoginScreen({ navigation }) {
                 }
 
                 if (rememberMe) {
-                    await AsyncStorage.setItem('token', token);
-                    await AsyncStorage.setItem('user_id', user.id.toString());
-                    await AsyncStorage.setItem('user_type', user.rolename);
+                    await AsyncStorage.setItem('remember_me', '1');
                 } else {
-                    await AsyncStorage.removeItem('token');
-                    await AsyncStorage.removeItem('user_id');
-                    await AsyncStorage.removeItem('user_type');
+                    await AsyncStorage.setItem('remember_me', '0');
                 }
+                await AsyncStorage.setItem('token', token);
+                await AsyncStorage.setItem('user_id', user.id.toString());
+                await AsyncStorage.setItem('user_type', user.rolename);
+
 
                 navigation.reset({
                     index: 0,
