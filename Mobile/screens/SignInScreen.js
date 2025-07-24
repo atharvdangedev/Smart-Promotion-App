@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator, useColorScheme } from 'react-native';
 import InputField from '../components/InputField';
 import { api } from '../utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -79,7 +79,8 @@ export default function LoginScreen({ navigation }) {
 
 
     const handleEmailChange = (text) => {
-        setEmail(text);
+        const txt = text.toLowerCase();
+        setEmail(txt);
         if (formError) setFormError('');
         if (error) setError('');
     };
@@ -96,16 +97,20 @@ export default function LoginScreen({ navigation }) {
         setPasswordVisible(!passwordVisible);
     };
 
+    const theme = useColorScheme();
 
     return (
-        <SafeAreaView className="flex-1 justify-center px-6 bg-white">
-            <Text className="text-3xl font-semibold mb-2 text-center text-black">Welcome Back </Text>
-            <Text className="text-2xl font-semibold mb-20 text-center text-black">Glad to see you, Again! </Text>
+        <SafeAreaView className='flex-1 justify-center px-6 bg-[#FDFDFD] dark:bg-[#2C3E50]'>
+            <Text className="text-3xl font-bold mb-12 text-center text-[#333333] dark:text-[#E0E0E0]">Sign In </Text>
+            {/* <Text className="text-2xl font-semibold mb-20 text-center text-black">Glad to see you, Again! </Text> */}
 
             <InputField icon="user" placeholder="Email" value={email} onChangeText={handleEmailChange} />
             {error === 'email' && (
-                <Text className="text-red-500 text-sm mb-3 text-center">Email is required</Text>
+                <Text className="text-[#FF6B6B] text-sm mb-3 text-center">Email is required</Text>
             )}
+            {formError ? (
+                <Text className="text-[#FF6B6B] text-sm mb-3 text-center">{formError}</Text>
+            ) : null}
             <InputField
                 icon="lock"
                 placeholder="Password"
@@ -116,38 +121,42 @@ export default function LoginScreen({ navigation }) {
                 togglePasswordVisibility={togglePasswordVisibility}
             />
             {error2 === 'password' && (
-                <Text className="text-red-500 text-sm  text-center">Password is required</Text>
+                <Text className="text-[#FF6B6B] text-sm  text-center">Password is required</Text>
             )}
 
             {/* Remember Me Checkbox */}
             <TouchableOpacity
-                className="flex-row items-center mb-4"
+                className=" mb-4"
                 onPress={() => setRememberMe(!rememberMe)}
                 activeOpacity={0.7}
             >
-                <View className={`h-5 w-5 mr-2 border-2 rounded ${rememberMe ? 'bg-black border-black' : 'border-gray-400'}`}>
-                    {rememberMe && <Check size={16} color="white" />}
+                <View className='flex-row items-center justify-between mx-1'>
+                    <View className='flex-row'>
+                        <View className={`h-5 w-5 mr-2 border-2 rounded ${rememberMe ? 'bg-black border-black' : 'border-gray-400'}`}>
+                            {rememberMe && <Check size={16} color="white" />}
+                        </View>
+                        <Text className="text-black">Remember me</Text>
+                    </View>
+                    <TouchableOpacity
+                        className=''
+                        onPress={() => navigation.navigate('ForgotPassword')}>
+                        <Text className="text-center border-b-hairline text-gray-500">Forgot Password</Text>
+                    </TouchableOpacity>
                 </View>
-                <Text className="text-black">Remember me</Text>
             </TouchableOpacity>
-
-            {formError ? (
-                <Text className="text-red-500 text-sm mb-3 text-center">{formError}</Text>
-            ) : null}
 
             <TouchableOpacity onPress={handleLogin} className="bg-black py-3 rounded-xl mb-4" disabled={loading}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text className="text-center text-white font-semibold">Login</Text>}
+                {loading ? <ActivityIndicator color="#fff" /> : <Text className="text-center text-white font-semibold">Log In</Text>}
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-                <Text className="text-center text-gray-500 mb-3">Forgot Password</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity >
-                <Text className="text-center text-sm text-gray-500">
-                    Don’t have an account? <Text className="font-semibold text-black">Sign Up</Text>
+            <View className='flex-row justify-center'>
+                <Text className="text-center text-base text-gray-500">
+                    Don’t have an account?
                 </Text>
-            </TouchableOpacity>
+                <TouchableOpacity >
+                    <Text className="font-semibold text-black border-b-hairline"> Sign Up</Text>
+                </TouchableOpacity>
+            </View>
         </SafeAreaView>
     );
 }
