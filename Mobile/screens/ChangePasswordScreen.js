@@ -141,7 +141,7 @@ export default function ChangePasswordScreen({ navigation }) {
             return;
         }
         if (newPassword === oldPassword) {
-            setErrorMsg("Old and new password cannot be same");
+            // setErrorMsg("Old and new password cannot be same");
             return;
         }
         const passwordValidationError = isValidPassword(newPassword);
@@ -273,6 +273,10 @@ export default function ChangePasswordScreen({ navigation }) {
                     value={confirmPassword}
                     onChangeText={(text) => {
                         setConfirmPassword(text);
+                        if (newPassword === confirmPassword) {
+                            setErrorMsg("Old and new password cannot be same")
+                            return;
+                        }
                         setErrorMsg('');
                     }}
                     className="flex-1 ml-2 py-3 text-black"

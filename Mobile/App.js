@@ -15,6 +15,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import linking from './linking';
 import Toast from 'react-native-toast-message';
 import BootSplash from 'react-native-bootsplash';
+import ShowTemplate from './screens/ShowTemplate';
 
 const Stack = createNativeStackNavigator();
 
@@ -67,6 +68,7 @@ export default function App() {
           <Stack.Screen name="ResetPassword" component={ResetPassword} />
           <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
           <Stack.Screen name="TemplateDetails" component={TemplateDetailScreen} />
+          <Stack.Screen name="ShowTemplate" component={ShowTemplate} />
           <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
           <Stack.Screen name="HomeScreen" component={DrawerNavigator} />
         </Stack.Navigator>

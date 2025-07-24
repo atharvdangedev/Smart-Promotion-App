@@ -17,6 +17,11 @@
             height: 90%;
             color: white;
         }
+
+        .ql-editor.ql-blank::before {
+            color: #aaa;
+            font-style: italic;
+        }
     </style>
 </head>
 
@@ -26,6 +31,7 @@
     <script>
         const quill = new Quill('#editor', {
             theme: 'snow',
+            placeholder: 'Enter your message here...',
             modules: {
                 toolbar: [
                     [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -36,16 +42,14 @@
             }
         });
 
-        // Set content from React Native
         document.addEventListener("message", function (event) {
             if (event.data === "getContent") {
-                const content = document.querySelector(".ql-editor").innerHTML;
+                const content = quill.root.innerHTML;
                 window.ReactNativeWebView.postMessage(content);
             } else {
-                document.querySelector(".ql-editor").innerHTML = event.data;
+                quill.root.innerHTML = event.data;
             }
         });
-
     </script>
 </body>
 

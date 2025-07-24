@@ -11,6 +11,7 @@ import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../utils/api';
 import Toast from 'react-native-toast-message';
+import { useFocusEffect } from '@react-navigation/native';
 
 const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
 
@@ -30,10 +31,21 @@ export default function TemplateScreen({ navigation }) {
     const [selectedTemplateId, setSelectedTemplateId] = useState(null);
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedTemplateForStatus, setSelectedTemplateForStatus] = useState(null);
+    const [error, setError] = useState('');
+    // const [error2, setError2] = useState('');
 
-    useEffect(() => {
-        fetchTemplates();
-    }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchTemplates();
+        }, [])
+    );
+
+    const handleEdit = (template) => {
+        navigation.navigate('ShowTemplate', {
+            template,
+            isEdit: true,
+        });
+    };
 
     const fetchTemplates = async () => {
         try {
@@ -83,7 +95,8 @@ export default function TemplateScreen({ navigation }) {
 
     const saveTemplate = () => {
         if (newTemplate.title.trim().length < 3 || newTemplate.title.trim().length > 200) {
-            return ToastAndroid.show('Title must be 3 to 200 characters', ToastAndroid.SHORT);
+            // return ToastAndroid.show('Title must be 3 to 200 characters', ToastAndroid.SHORT);
+            setError("Title must be 3 to 200 characters");
         }
 
         if (webviewRef.current) {
@@ -98,8 +111,9 @@ export default function TemplateScreen({ navigation }) {
         const htmlContent = event.nativeEvent.data;
         const plainText = htmlContent.replace(/<[^>]*>?/gm, '').trim();
         if (plainText.length < 3 || plainText.length > 700) {
-            ToastAndroid.show("Description must be 3 to 700 characters", ToastAndroid.SHORT);
-            return;
+            return ToastAndroid.show("Description must be 3 to 700 characters", ToastAndroid.SHORT);
+            // setError2("Description must be 3 to 700 characters");
+
         }
 
         try {
@@ -107,7 +121,8 @@ export default function TemplateScreen({ navigation }) {
             const currentTemplate = { ...newTemplate };
 
             if (!currentTemplate.title?.trim()) {
-                return ToastAndroid.show('Please enter a title', ToastAndroid.SHORT);
+                // return ToastAndroid.show('Please enter a title', ToastAndroid.SHORT);
+                setError('Please enter a title');
             }
 
             if (!currentTemplate.type?.trim()) {
@@ -156,7 +171,9 @@ export default function TemplateScreen({ navigation }) {
                 text2: 'Error saving/updating template',
                 position: 'top',
             });
-            return ToastAndroid.show('Template with same title already exists', ToastAndroid.SHORT);
+            // return ToastAndroid.show('Template with same title already exists', ToastAndroid.SHORT);
+            setError("Template with same name already exists");
+
 
         }
     };
@@ -274,38 +291,42 @@ export default function TemplateScreen({ navigation }) {
                         <View key={template.id} className="bg-neutral-800 rounded-xl p-4 mb-4 border border-slate-300">
                             <TouchableOpacity onPress={() => navigation.navigate('TemplateDetails', { templateId: template.id })}>
                                 <Text className="text-white text-lg font-bold mb-2">{template.title}</Text>
-                            </TouchableOpacity>
-                            <View className="bg-neutral-900 p-2 rounded">
-                                <Text className="text-gray-300">{template.description.replace(/<[^>]*>?/gm, '')}</Text>
-                            </View>
-                            <View className="flex-row justify-between items-center mt-3">
-                                <View className="flex-row gap-2">
-                                    <TouchableOpacity onPress={() => {
-                                        // toggleTemplateStatus(template)
-                                        confirmToggleStatus(template);
-                                    }}>
-                                        <Text className={`text-xs px-2 py-1 rounded ${template.status === '1' ? 'bg-green-600' : 'bg-red-600'} text-white`}>
-                                            {template.status === '0' ? 'Disabled' : 'Enabled'}
+
+                                <View className="bg-neutral-900 p-2 rounded">
+                                    <Text className="text-gray-300">{template.description.replace(/<[^>]*>?/gm, '')}</Text>
+                                </View>
+                                <View className="flex-row justify-between items-center mt-3">
+                                    <View className="flex-row gap-2">
+                                        <TouchableOpacity onPress={() => {
+                                            confirmToggleStatus(template);
+                                        }}>
+                                            <Text className={`text-xs px-2 py-1 rounded ${template.status === '1' ? 'bg-green-600' : 'bg-red-600'} text-white`}>
+                                                {template.status === '0' ? 'Inactive' : 'Active'}
+                                            </Text>
+                                        </TouchableOpacity>
+
+                                        <Text
+                                            className={`text-xs px-2 py-1 text-white rounded ${callTypeColors[template.template_type.toLowerCase()] || callTypeColors.default
+                                                }`}
+                                        >
+                                            {template.template_type.toUpperCase()}
                                         </Text>
-                                    </TouchableOpacity>
 
-                                    <Text
-                                        className={`text-xs px-2 py-1 text-white rounded ${callTypeColors[template.template_type.toLowerCase()] || callTypeColors.default
-                                            }`}
-                                    >
-                                        {template.template_type.toUpperCase()}
-                                    </Text>
+                                    </View>
+                                    <View className="flex-row gap-5">
+                                        <TouchableOpacity onPress={() => navigation.navigate('ShowTemplate', {
+                                            template: template,
+                                            isEdit: true,
+                                        })}>
+                                            <Pencil color="white" size={20} />
+                                        </TouchableOpacity>
 
+                                        <TouchableOpacity onPress={() => handleDelete(template.id)}>
+                                            <Trash color="red" size={20} />
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
-                                <View className="flex-row gap-5">
-                                    <TouchableOpacity onPress={() => openModal(index)}>
-                                        <Pencil color="white" size={20} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => handleDelete(template.id)}>
-                                        <Trash color="red" size={20} />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
+                            </TouchableOpacity>
                         </View>
                     ))}
                 </ScrollView>
@@ -313,87 +334,13 @@ export default function TemplateScreen({ navigation }) {
 
             {/* FAB */}
             <TouchableOpacity
-                onPress={() => openModal()}
+                onPress={() => navigation.navigate('ShowTemplate')}
                 className="absolute bottom-6 right-6 bg-sky-500 p-4 rounded-full"
             >
                 <Plus color="white" size={24} />
             </TouchableOpacity>
 
-            {/* Modal */}
-            <Modal visible={modalVisible} animationType="slide" transparent>
-                <View className="flex-1 bg-black bg-opacity-90 justify-center px-6">
-                    <View className="bg-neutral-900 p-6 rounded-2xl h-[85%]">
-                        <Text className="text-white text-xl font-bold mb-3">
-                            {editIndex !== null ? 'Edit Template' : 'Add Template'}
-                        </Text>
 
-                        <TextInput
-                            placeholder="Template Title"
-                            placeholderTextColor="#ccc"
-                            value={newTemplate.title}
-                            onChangeText={(text) => setNewTemplate({ ...newTemplate, title: text })}
-                            className="border border-gray-700 text-white rounded px-3 py-2 mb-3"
-                        />
-
-                        <View className="h-[35%] overflow-hidden mb-4 rounded-lg border border-gray-700">
-                            <WebView
-                                ref={webviewRef}
-                                originWhitelist={['*']}
-                                source={{ uri: 'file:///android_asset/editor.html' }}
-                                javaScriptEnabled={true}
-                                domStorageEnabled={true}
-
-                                onMessage={onMessage}
-                                style={{ flex: 1 }}
-                                injectedJavaScript={`
-                  setTimeout(() => {
-                    document.dispatchEvent(new MessageEvent('message', { data: ${JSON.stringify(newTemplate.text)} }));
-                  }, 500);
-                  true;
-                `}
-                            />
-                        </View>
-
-                        {/* Call Type Picker */}
-                        <View className="mb-4">
-                            <Text className="text-gray-300 mb-1">Call Type</Text>
-                            {callTypes.map((type) => (
-                                <Pressable
-                                    key={type}
-                                    onPress={() => setNewTemplate({ ...newTemplate, type })}
-                                    className={`px-3 py-2 mb-1 rounded ${newTemplate.type === type ? 'bg-sky-600' : 'bg-neutral-800'}`}
-                                >
-                                    <Text className={newTemplate.type === type ? 'text-white' : 'text-gray-400'}>
-                                        {type}
-                                    </Text>
-                                </Pressable>
-                            ))}
-                        </View>
-
-                        {/* Buttons */}
-                        <View className="flex-row justify-between my-3">
-                            <TouchableOpacity
-                                onPress={() => {
-                                    setModalVisible(false);
-                                    setEditIndex(null);
-                                }}
-                                className="bg-gray-700 px-4 py-2 rounded"
-                            >
-                                <Text className="text-white">Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={saveTemplate}
-                                className="bg-green-600 px-4 py-2 rounded"
-                            >
-                                <Text className="text-white font-semibold">
-                                    {editIndex !== null ? 'Update' : 'Save'}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-
-                    </View>
-                </View>
-            </Modal>
             <Modal
                 visible={showDeleteModal}
                 transparent
@@ -436,7 +383,7 @@ export default function TemplateScreen({ navigation }) {
                     <View className="bg-white w-full rounded-xl p-4">
                         <Text className="text-lg text-center font-semibold text-black mb-2">Confirm Status Change</Text>
                         <Text className="text-base text-center text-gray-700 mb-6">
-                            Are you sure you want to {selectedTemplateForStatus?.status === '1' ? 'enable' : 'disable'} this template?
+                            Are you sure you want to {selectedTemplateForStatus?.status === '1' ? 'inactive' : 'active'} this template?
                         </Text>
                         <View className="flex-row justify-between">
                             <TouchableOpacity
