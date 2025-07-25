@@ -28,6 +28,7 @@ export default function DrawerNavigator() {
                     fontSize: 16,
                     marginLeft: 5,
                     padding: 0,
+                    height: 20,
                 },
             }}
             drawerContent={(props) => <CustomDrawerContent {...props} />}

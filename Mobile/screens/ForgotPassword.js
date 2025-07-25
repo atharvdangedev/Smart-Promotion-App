@@ -3,6 +3,7 @@ import { View, Text, SafeAreaView, TouchableOpacity, ActivityIndicator } from 'r
 import InputField from '../components/InputField';
 import { api } from '../utils/api';
 
+
 export default function ForgotPassword({ navigation }) {
     const [email, setEmail] = useState('');
     const [formError, setFormError] = useState('');
@@ -43,13 +44,15 @@ export default function ForgotPassword({ navigation }) {
     };
 
     return (
-        <SafeAreaView className="flex-1 justify-center px-6 bg-white">
-            <Text className="text-2xl font-semibold mb-8 text-black">Enter Your Email</Text>
+        <SafeAreaView className="flex-1 justify-center px-6 bg-[#FDFDFD] dark:bg-[#4A5568]">
+            <Text className="text-3xl font-bold text-center mb-8 text-[#333333] dark:text-[#E0E0E0]">Forgot Password</Text>
 
             <InputField
                 icon="user"
                 placeholder="Email"
                 value={email}
+                autoCapitalize="none"
+                keyboardType="email-address"
                 onChangeText={(text) => {
                     setEmail(text);
                     if (formError) setFormError('');
@@ -58,7 +61,7 @@ export default function ForgotPassword({ navigation }) {
 
             {/* Error or Success Messages */}
             {formError ? (
-                <Text className="text-red-500 text-sm mt-2 mb-2 text-center">{formError}</Text>
+                <Text className="text-[#FF6B6B] dark:text-[#FF8A80] text-sm mt-2 mb-2 text-center">{formError}</Text>
             ) : null}
 
             {successMsg ? (
@@ -66,10 +69,13 @@ export default function ForgotPassword({ navigation }) {
                     {successMsg} {'\n'}Redirecting to login...
                 </Text>
             ) : null}
-
+            <View className='flex-row items-center'>
+                {/* <Text className='text-sm font-semibold  text-[#333333] dark:text-[#E0E0E0]'>Note : </Text> */}
+                <Text className='text-sm font-medium text-[#333333] dark:text-[#E0E0E0]'><Text className='text-base font-semibold underline'>Note : </Text> Enter the email associated with your account and we'll send you a link to reset your password.</Text>
+            </View>
             <TouchableOpacity
                 onPress={handleSubmit}
-                className="bg-black py-3 rounded-xl mt-4 mb-4"
+                className="bg-black py-3 rounded-xl mt-5 mb-3"
                 disabled={loading}
             >
                 {loading ? (
@@ -77,6 +83,11 @@ export default function ForgotPassword({ navigation }) {
                 ) : (
                     <Text className="text-center text-white font-semibold">Send Reset Link</Text>
                 )}
+            </TouchableOpacity>
+            <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                className='bg-white border border-[#E0E0E0] dark:border-[#4A5568] py-3 rounded-xl'>
+                <Text className='text-center text-black font-semibold'>Back to Log In</Text>
             </TouchableOpacity>
         </SafeAreaView>
     );

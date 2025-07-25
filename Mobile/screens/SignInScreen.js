@@ -54,6 +54,8 @@ export default function LoginScreen({ navigation }) {
                 await AsyncStorage.setItem('token', token);
                 await AsyncStorage.setItem('user_id', user.id.toString());
                 await AsyncStorage.setItem('user_type', user.rolename);
+                await AsyncStorage.setItem('profile_pic', user.profile_pic);
+                await AsyncStorage.setItem('username', user.first_name);
 
 
                 navigation.reset({
@@ -79,8 +81,7 @@ export default function LoginScreen({ navigation }) {
 
 
     const handleEmailChange = (text) => {
-        const txt = text.toLowerCase();
-        setEmail(txt);
+        setEmail(text);
         if (formError) setFormError('');
         if (error) setError('');
     };
@@ -97,14 +98,13 @@ export default function LoginScreen({ navigation }) {
         setPasswordVisible(!passwordVisible);
     };
 
-    const theme = useColorScheme();
 
     return (
         <SafeAreaView className='flex-1 justify-center px-6 bg-[#FDFDFD] dark:bg-[#2C3E50]'>
             <Text className="text-3xl font-bold mb-12 text-center text-[#333333] dark:text-[#E0E0E0]">Sign In </Text>
-            {/* <Text className="text-2xl font-semibold mb-20 text-center text-black">Glad to see you, Again! </Text> */}
 
-            <InputField icon="user" placeholder="Email" value={email} onChangeText={handleEmailChange} />
+
+            <InputField icon="user" placeholder="Email" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={handleEmailChange} />
             {error === 'email' && (
                 <Text className="text-[#FF6B6B] text-sm mb-3 text-center">Email is required</Text>
             )}
@@ -135,7 +135,7 @@ export default function LoginScreen({ navigation }) {
                         <View className={`h-5 w-5 mr-2 border-2 rounded ${rememberMe ? 'bg-black border-black' : 'border-gray-400'}`}>
                             {rememberMe && <Check size={16} color="white" />}
                         </View>
-                        <Text className="text-black">Remember me</Text>
+                        <Text className="text-[#333333] dark:text-[#E0E0E0]">Remember me</Text>
                     </View>
                     <TouchableOpacity
                         className=''

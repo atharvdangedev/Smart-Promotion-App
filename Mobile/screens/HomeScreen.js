@@ -1,9 +1,12 @@
 import { Menu, Scan, User } from 'lucide-react-native';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView, RefreshControl, Dimensions, TouchableOpacity } from 'react-native';
 import { LineChart, StackedBarChart } from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
+import Header from '../components/Header';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import img from '../assets/image.png';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -33,8 +36,27 @@ const dummyData = [
 ];
 
 export default function DashboardScreen({ navigation }) {
+
     const [refreshing, setRefreshing] = useState(false);
     const [dataIndex, setDataIndex] = useState(0);
+    const [name, setName] = useState('');
+    const [profilePic, setProfilePic] = useState('');
+
+    useEffect(() => {
+        const init = async () => {
+            const username = await AsyncStorage.getItem('username');
+            setName(username);
+
+            const pic = await AsyncStorage.getItem('profile_pic');
+
+            if (pic) {
+                const fullPicUrl = `https://swp.smarttesting.in/uploads/profile_pics/${pic}`;
+                setProfilePic(fullPicUrl);
+            }
+        };
+        init();
+    }, []);
+
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -61,33 +83,9 @@ export default function DashboardScreen({ navigation }) {
             >
                 {/*  Welcome Section */}
                 <View className="mb-6">
-                    {/* <View className='flex-row justify-between border border-white p-3 rounded-xl'>
-                        <Text className="text-4xl font-extrabold text-sky-600 tracking-tight">SmartPromotion</Text>
-                        <TouchableOpacity
-                            className='border border-gray-700 rounded-full p-1'
-                            onPress={() => navigation.navigate('ProfileScreen')}>
-                            <User size={30} color="white" />
-                        </TouchableOpacity>
-                    </View> */}
-                    <View className='flex-row justify-between items-center border border-white/30 rounded-xl p-4 mb-6'>
-                        {/* Drawer button */}
-                        <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
-                            <Menu size={26} color="#fff" />
-                        </TouchableOpacity>
+                    <Header title='Dashboard' profilePic={img} />
 
-                        {/* App Title */}
-                        <Text className="text-2xl font-extrabold text-sky-500">SmartPromotion</Text>
-
-                        {/* Profile icon */}
-                        <TouchableOpacity
-                            className='border border-gray-700 rounded-full p-1'
-                            onPress={() => navigation.navigate('ProfileScreen')}
-                        >
-                            <User size={24} color="white" />
-                        </TouchableOpacity>
-                    </View>
-
-                    <Text className="text-lg text-white mt-2">Welcome back, User 👋</Text>
+                    <Text className="text-lg text-white mt-2">Welcome back, {name} 👋</Text>
                     <Text className="text-sm text-white">Here’s an overview of your team's performance.</Text>
                 </View>
 
@@ -153,31 +151,7 @@ export default function DashboardScreen({ navigation }) {
                         <Text className="text-black font-semibold">{agent.missed}</Text>
                     </View>
                 </View>
-                {/* <TouchableOpacity
-                    onPress={() => navigation.navigate('Template')}
-                    className='p-3 bg-black my-3 rounded-xl border border-white'>
-                    <Text className='text-white font-semibold text-xl text-center'> Message Template </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('PlansPricing')}
-                    className='p-3 bg-black mb-3 rounded-xl border border-white'>
-                    <Text className='text-white font-semibold text-xl text-center'> Browse Plans </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('ContactLogScreen')}
-                    className='p-3 bg-black mb-3 rounded-xl border border-white'>
-                    <Text className='text-white font-semibold text-xl text-center'> Contact Log </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('CardScanner')}
-                    className="bg-zinc-800 p-4 rounded-2xl flex-row items-center justify-between mb-4"
-                >
-                    <View>
-                        <Text className="text-white text-lg font-semibold">Scan Visiting Card</Text>
-                        <Text className="text-zinc-400 text-sm">Extract and save contact</Text>
-                    </View>
-                    <Scan color="#38bdf8" size={28} />
-                </TouchableOpacity> */}
+
                 <Text className='m-1 border border-b-hairline'></Text>
             </ScrollView>
         </SafeAreaView>

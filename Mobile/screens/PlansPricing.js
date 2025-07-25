@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { CheckCircle } from 'lucide-react-native';
+import Header from '../components/Header';
 
 export default function PlansPricingScreen() {
     const plans = [
@@ -67,7 +68,8 @@ export default function PlansPricingScreen() {
 
     return (
         <ScrollView className="flex-1 bg-black px-4 py-6">
-            <Text className="text-3xl font-bold text-center text-white my-6">Plans & Pricing</Text>
+            <Header title='Pans & Pricing ' profilePic={true} />
+            <Text className="text-2xl font-bold text-white mb-4">Explore our plans</Text>
 
             {plans.map((plan, index) => {
                 const style = getPlanStyles(plan.theme);

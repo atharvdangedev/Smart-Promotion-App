@@ -16,6 +16,7 @@ import linking from './linking';
 import Toast from 'react-native-toast-message';
 import BootSplash from 'react-native-bootsplash';
 import ShowTemplate from './screens/ShowTemplate';
+import Header from './components/Header';
 
 const Stack = createNativeStackNavigator();
 
@@ -70,6 +71,7 @@ export default function App() {
           <Stack.Screen name="TemplateDetails" component={TemplateDetailScreen} />
           <Stack.Screen name="ShowTemplate" component={ShowTemplate} />
           <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+          <Stack.Screen name="Header" component={Header} />
           <Stack.Screen name="HomeScreen" component={DrawerNavigator} />
         </Stack.Navigator>
       </NavigationContainer>
