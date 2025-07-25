@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../utils/api';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
+import Header from '../components/Header';
 
 const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
 
@@ -278,6 +279,7 @@ export default function TemplateScreen({ navigation }) {
 
     return (
         <SafeAreaView className="flex-1 bg-black px-4 py-2">
+            <Header title="Message Template" profilePic={true} />
             <Text className="text-white text-2xl font-bold mb-4">Message Templates</Text>
             {loading ? (
                 <ActivityIndicator size="large" color="#0ea5e9" className="mt-10" />

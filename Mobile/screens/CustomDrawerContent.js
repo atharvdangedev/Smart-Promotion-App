@@ -9,8 +9,8 @@ export default function CustomDrawerContent(props) {
         <DrawerContentScrollView {...props} style={{ backgroundColor: 'black' }}>
             {/* Profile Section */}
             <View style={{ padding: 20, alignItems: 'center', borderBottomWidth: 0.5, borderBottomColor: '#334155' }}>
-                <User color="white" size={30} />
-                <Text style={{ color: '#fff', fontSize: 18, marginTop: 8 }}>Welcome, User 👋</Text>
+                {/* <User color="white" size={30} /> */}
+                <Text className='text-2xl font-bold text-white'> SmartPromotions</Text>
             </View>
 
             {/* Menu List */}

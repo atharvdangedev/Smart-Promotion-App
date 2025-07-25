@@ -267,7 +267,7 @@ const ShowTemplate = () => {
 
             <View className="flex-row justify-between my-3 px-4">
                 <TouchableOpacity
-                    onPress={Keyboard.dismiss}
+                    onPress={() => navigation.goBack()}
                     className="bg-gray-700 px-6 py-3 rounded"
                 >
                     <Text className="text-white">Cancel</Text>

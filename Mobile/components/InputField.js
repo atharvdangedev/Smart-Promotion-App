@@ -10,6 +10,8 @@ export default function InputField({
     onChangeText,
     isPassword = false,
     passwordVisible,
+    keyboardType,
+    autoCapitalize,
     togglePasswordVisibility,
 }) {
     const Icon = icon === 'user' ? User : Lock;
@@ -23,6 +25,8 @@ export default function InputField({
                 secureTextEntry={secureTextEntry}
                 placeholderTextColor="#aaa"
                 value={value}
+                autoCapitalize={autoCapitalize}
+                keyboardType={keyboardType}
                 onChangeText={onChangeText}
             />
             {isPassword && (

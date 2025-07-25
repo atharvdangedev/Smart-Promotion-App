@@ -40,8 +40,8 @@ const agentFields = [
     { name: 'email', label: 'Email' },
     { name: 'address', label: 'Address' },
     { name: 'contact_no', label: 'Contact No' },
-    { name: 'password', label: 'Password' },
-    { name: 'vendor_id', label: 'Vendor ID' },
+    // { name: 'password', label: 'Password' },
+    // { name: 'vendor_id', label: 'Vendor ID' },
 ];
 
 export default function ProfileScreen({ navigation }) {
@@ -81,7 +81,7 @@ export default function ProfileScreen({ navigation }) {
                     email: 'agent@example.com',
                     address: 'Agent Area',
                     contact_no: '9123456789',
-                    vendor_id: 'VENDOR456',
+                    // vendor_id: 'VENDOR456',
                 });
             }
         };
