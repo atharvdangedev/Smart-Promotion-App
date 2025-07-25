@@ -15,50 +15,13 @@ export default function ChangePasswordScreen({ navigation }) {
     const [errorMsg, setErrorMsg] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(true);
-    const [passwordRules, setPasswordRules] = useState({
-        length: false,
-        uppercase: false,
-        number: false,
-        specialChar: false,
-        noRepeat: false,
-        noSequence: false,
-    });
     const [passwordValidationMessages, setPasswordValidationMessages] = useState([]);
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [error2, setError2] = useState('');
+    const [error3, setError3] = useState('');
 
-
-    // const validatePasswordLive = (password) => {
-    //     const hasLength = password.length >= 6;
-    //     const hasUppercase = /[A-Z]/.test(password);
-    //     const hasNumber = /[0-9]/.test(password);
-    //     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    //     const noRepeat = !/([a-zA-Z0-9!@#$%^&*()])\1\1+/.test(password);
-
-    //     const sequences = ['0123456789', 'abcdefghijklmnopqrstuvwxyz', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
-    //     const lowerPass = password.toLowerCase();
-    //     let noSequence = true;
-
-    //     for (let seq of sequences) {
-    //         for (let i = 0; i < seq.length - 2; i++) {
-    //             const sub = seq.slice(i, i + 3);
-    //             if (lowerPass.includes(sub)) {
-    //                 noSequence = false;
-    //                 break;
-    //             }
-    //         }
-    //     }
-
-    //     setPasswordRules({
-    //         length: hasLength,
-    //         uppercase: hasUppercase,
-    //         number: hasNumber,
-    //         specialChar: hasSpecialChar,
-    //         noRepeat: noRepeat,
-    //         noSequence: noSequence,
-    //     });
-    // };
 
 
     const isValidPassword = (password) => {
@@ -132,16 +95,25 @@ export default function ChangePasswordScreen({ navigation }) {
 
     const handleChangePassword = async () => {
         if (!oldPassword || !newPassword || !confirmPassword) {
-            setErrorMsg('All fields are required');
+            if (!oldPassword) {
+                setError3('Please enter Old Password');
+            }
+            if (!newPassword) {
+                setError2('Please enter New Password');
+            }
+            if (!confirmPassword) {
+                setErrorMsg('Please enter Confirm Password');
+            }
             return;
         }
+
 
         if (newPassword !== confirmPassword) {
             setErrorMsg('Passwords do not match');
             return;
         }
         if (newPassword === oldPassword) {
-            // setErrorMsg("Old and new password cannot be same");
+            setErrorMsg("Old and new password cannot be same");
             return;
         }
         const passwordValidationError = isValidPassword(newPassword);
@@ -227,6 +199,7 @@ export default function ChangePasswordScreen({ navigation }) {
                     onChangeText={(text) => {
                         setOldPassword(text);
                         setErrorMsg('');
+                        setError3('');
                     }}
                     className="flex-1 ml-2 py-3 text-black"
                 />
@@ -234,7 +207,7 @@ export default function ChangePasswordScreen({ navigation }) {
                     {showOldPassword ? <Eye size={20} color="gray" /> : <EyeOff size={20} color="gray" />}
                 </TouchableOpacity>
             </View>
-
+            {error3 ? <Text className="text-red-500 mb-2 text-center">{error3}</Text> : null}
 
             <View className="flex-row items-center bg-gray-100 rounded-xl px-4 mb-4">
                 <TextInput
@@ -245,6 +218,7 @@ export default function ChangePasswordScreen({ navigation }) {
                     onChangeText={(text) => {
                         setNewPassword(text);
                         setErrorMsg('');
+                        setError2('');
                         const messages = getPasswordValidationMessages(text);
                         setPasswordValidationMessages(messages);
                     }}
@@ -254,7 +228,7 @@ export default function ChangePasswordScreen({ navigation }) {
                     {showNewPassword ? <Eye size={20} color="gray" /> : <EyeOff size={20} color="gray" />}
                 </TouchableOpacity>
             </View>
-
+            {error2 ? <Text className="text-red-500 mb-2 text-center">{error2}</Text> : null}
             {newPassword.length > 0 && passwordValidationMessages.length > 0 && (
                 <View className="mb-4 ml-1">
                     {passwordValidationMessages.map((msg, index) => (

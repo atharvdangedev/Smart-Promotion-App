@@ -8,6 +8,7 @@ import {
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../utils/api';
+import Header from '../components/Header';
 
 export default function CallLogScreen() {
     const [contacts, setContacts] = useState([]);
@@ -65,6 +66,7 @@ export default function CallLogScreen() {
 
     return (
         <View className="flex-1 bg-black px-4 pt-6">
+            <Header title='Contact Log' profilePic={true} />
             <Text className="text-white text-2xl font-bold mb-4">Call Logs</Text>
 
             {/* Counters */}

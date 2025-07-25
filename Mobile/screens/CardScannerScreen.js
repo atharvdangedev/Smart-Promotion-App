@@ -9,6 +9,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 import MLKitOcr from 'react-native-mlkit-ocr';
 import { Camera, Save, Phone } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
+import Header from '../components/Header';
 
 export default function CardScannerScreen() {
     const [text, setText] = useState('');
@@ -181,6 +182,7 @@ export default function CardScannerScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-zinc-900 p-4">
+            <Header title='Card Scanner' profilePic={true} />
             <Text className="text-xl font-bold text-white my-4">Scan Visiting Card</Text>
 
             <TouchableOpacity
