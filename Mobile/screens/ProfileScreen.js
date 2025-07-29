@@ -25,6 +25,7 @@ const vendorFields = [
     // { name: 'address', label: 'Address' },
     { name: 'contact_no', label: 'Contact No' },
     // { name: 'password', label: 'Password' },
+    { name: 'vendor_name', label: 'Vendor Name' },
     { name: 'business_name', label: 'Business Name' },
     { name: 'business_type', label: 'Business Type' },
     { name: 'business_email', label: 'Business Email' },
@@ -41,7 +42,7 @@ const agentFields = [
     { name: 'address', label: 'Address' },
     { name: 'contact_no', label: 'Contact No' },
     // { name: 'password', label: 'Password' },
-    // { name: 'vendor_id', label: 'Vendor ID' },
+    // { name: 'vendor_name', label: 'Vendor Name' },
 ];
 
 export default function ProfileScreen({ navigation }) {
@@ -51,7 +52,6 @@ export default function ProfileScreen({ navigation }) {
 
     const { control, handleSubmit, reset } = useForm();
     const [logoutModalVisible, setLogoutModalVisible] = useState(false);
-
 
     useEffect(() => {
         const init = async () => {
@@ -65,6 +65,7 @@ export default function ProfileScreen({ navigation }) {
                     last_name: 'User',
                     email: 'vendor@example.com',
                     contact_no: '9876543210',
+                    vendor_name: 'Vendor_Name',
                     business_name: 'Vendor Co.',
                     business_type: 'Retail',
                     business_email: 'biz@vendor.com',
@@ -90,17 +91,14 @@ export default function ProfileScreen({ navigation }) {
     }, []);
 
     const handleSelectImage = () => {
-        launchImageLibrary(
-            { mediaType: 'photo', quality: 0.7 },
-            (response) => {
-                if (response.assets && response.assets.length > 0) {
-                    setProfilePic(response.assets[0].uri);
-                }
+        launchImageLibrary({ mediaType: 'photo', quality: 0.7 }, response => {
+            if (response.assets && response.assets.length > 0) {
+                setProfilePic(response.assets[0].uri);
             }
-        );
+        });
     };
 
-    const onSubmit = (data) => {
+    const onSubmit = data => {
         // Alert.alert('Profile Saved', `${userType.toUpperCase()} data saved successfully!`);
         Toast.show({
             type: 'success',
@@ -112,14 +110,27 @@ export default function ProfileScreen({ navigation }) {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-black">
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-                <ScrollView className="px-5 py-2" contentContainerStyle={{ paddingBottom: 30 }} keyboardShouldPersistTaps="handled">
-                    <Text className="text-3xl font-bold text-white mb-3 text-center">Profile ({userType})</Text>
+        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50]">
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                style={{ flex: 1 }}
+            >
+                <ScrollView
+                    className="px-5 py-2"
+                    contentContainerStyle={{ paddingBottom: 30 }}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <Text className="text-3xl font-bold text-[#333333] dark:text-[#E0E0E0] mb-3 text-center">
+                        Profile ({userType})
+                    </Text>
 
                     {/* Header and Profile Pic */}
                     <View className="relative mb-8">
-                        <ImageBackground source={require('../assets/header-bg.jpg')} resizeMode="cover" className="h-44 w-full rounded-b-3xl overflow-hidden">
+                        <ImageBackground
+                            source={require('../assets/header-bg.jpg')}
+                            resizeMode="cover"
+                            className="h-44 w-full rounded-b-3xl overflow-hidden"
+                        >
                             <View className="flex-1 bg-black/30 rounded-b-3xl" />
                         </ImageBackground>
 
@@ -129,7 +140,10 @@ export default function ProfileScreen({ navigation }) {
                                 className="w-24 h-24 rounded-full bg-gray-700 border-4 border-black justify-center items-center overflow-hidden"
                             >
                                 {profilePic ? (
-                                    <Image source={{ uri: profilePic }} className="w-full h-full rounded-full" />
+                                    <Image
+                                        source={{ uri: profilePic }}
+                                        className="w-full h-full rounded-full"
+                                    />
                                 ) : (
                                     <Text className="text-gray-400 text-sm mb-2">Upload</Text>
                                 )}
@@ -147,9 +161,14 @@ export default function ProfileScreen({ navigation }) {
                             control={control}
                             name={name}
                             rules={{ required: `${label} is required` }}
-                            render={({ field: { onChange, value }, fieldState: { error } }) => (
+                            render={({
+                                field: { onChange, value },
+                                fieldState: { error },
+                            }) => (
                                 <View className="mb-4 mx-3">
-                                    <Text className="text-gray-300 mb-1">{label}</Text>
+                                    <Text className="text-[#333333] dark:text-[#E0E0E0] mb-1">
+                                        {label}
+                                    </Text>
                                     <TextInput
                                         value={value}
                                         onChangeText={onChange}
@@ -158,30 +177,46 @@ export default function ProfileScreen({ navigation }) {
                                         secureTextEntry={name === 'password'}
                                         editable={name !== 'email'}
                                         selectTextOnFocus={name !== 'email'}
-                                        className={`px-4 py-2 rounded-xl text-white border ${error ? 'border-red-500' : 'border-gray-700'} ${name === 'email' ? 'bg-gray-700 opacity-60' : 'bg-gray-800'
+                                        className={`px-4 py-2 rounded-xl border-[#E0E0E0] dark:border-[#4A5568] text-[#888888] dark:text-[#A0A0A0] border ${error ? 'border-red-500' : 'border-gray-700'} ${name === 'email'
+                                            ? 'bg-[#FDFDFD] dark:bg-[#2C3E50]'
+                                            : 'bg-[#FDFDFD] dark:bg-[#2C3E50]'
                                             }`}
                                     />
 
-                                    {error && <Text className="text-red-500 text-xs mt-1">{error.message}</Text>}
+                                    {error && (
+                                        <Text className="text-red-500 text-xs mt-1">
+                                            {error.message}
+                                        </Text>
+                                    )}
                                 </View>
                             )}
                         />
                     ))}
 
                     {/* Save */}
-                    <TouchableOpacity onPress={handleSubmit(onSubmit)} className="mt-6 bg-white border border-white rounded-xl py-3 mb-6">
-                        <Text className="text-black text-center font-semibold">Save Profile</Text>
+                    <TouchableOpacity
+                        onPress={handleSubmit(onSubmit)}
+                        className="mt-6 bg-white border border-black rounded-xl py-3 mb-6"
+                    >
+                        <Text className="text-black text-center font-semibold">
+                            Save Profile
+                        </Text>
                     </TouchableOpacity>
 
                     {/* Change Password */}
-                    <TouchableOpacity onPress={() => navigation.navigate('ChangePassword')} className="bg-white border border-white rounded-xl py-3 mb-6">
-                        <Text className="text-black text-center font-semibold">Change Password</Text>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('ChangePassword')}
+                        className="bg-white border border-black rounded-xl py-3 mb-6"
+                    >
+                        <Text className="text-black text-center font-semibold">
+                            Change Password
+                        </Text>
                     </TouchableOpacity>
 
                     {/* Logout */}
                     <TouchableOpacity
                         onPress={() => setLogoutModalVisible(true)}
-                        className="bg-black border border-white rounded-xl py-3 mb-6"
+                        className="bg-black border-[#E0E0E0] dark:border-[#4A5568] rounded-xl py-3 mb-6"
                     >
                         <Text className="text-white text-center font-semibold">Logout</Text>
                     </TouchableOpacity>
@@ -204,23 +239,33 @@ export default function ProfileScreen({ navigation }) {
                                         className="flex-1 bg-gray-200 rounded-xl py-3 mr-2"
                                         onPress={() => setLogoutModalVisible(false)}
                                     >
-                                        <Text className="text-center text-black font-semibold">Cancel</Text>
+                                        <Text className="text-center text-black font-semibold">
+                                            Cancel
+                                        </Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         className="flex-1 bg-black rounded-xl py-3 ml-2"
                                         onPress={async () => {
                                             setLogoutModalVisible(false);
-                                            await AsyncStorage.multiRemove(['token', 'user_type', 'user_id']);
-                                            navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+                                            await AsyncStorage.multiRemove([
+                                                'token',
+                                                'user_type',
+                                                'user_id',
+                                            ]);
+                                            navigation.reset({
+                                                index: 0,
+                                                routes: [{ name: 'SignIn' }],
+                                            });
                                         }}
                                     >
-                                        <Text className="text-center text-white font-semibold">Logout</Text>
+                                        <Text className="text-center text-white font-semibold">
+                                            Logout
+                                        </Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
                         </View>
                     </Modal>
-
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>

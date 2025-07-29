@@ -17,6 +17,8 @@ import Toast from 'react-native-toast-message';
 import BootSplash from 'react-native-bootsplash';
 import ShowTemplate from './screens/ShowTemplate';
 import Header from './components/Header';
+import ContactDetails from './screens/ContactDetails';
+import CardResultScreen from './screens/CardResultScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -73,6 +75,8 @@ export default function App() {
           <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
           <Stack.Screen name="Header" component={Header} />
           <Stack.Screen name="HomeScreen" component={DrawerNavigator} />
+          <Stack.Screen name="ContactDetails" component={ContactDetails} />
+          <Stack.Screen name="CardResultScreen" component={CardResultScreen} />
         </Stack.Navigator>
       </NavigationContainer>
       <Toast />
