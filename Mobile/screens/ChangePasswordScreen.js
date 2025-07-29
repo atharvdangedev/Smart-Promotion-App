@@ -96,13 +96,13 @@ export default function ChangePasswordScreen({ navigation }) {
     const handleChangePassword = async () => {
         if (!oldPassword || !newPassword || !confirmPassword) {
             if (!oldPassword) {
-                setError3('Please enter Old Password');
+                setError3('Old password is required');
             }
             if (!newPassword) {
-                setError2('Please enter New Password');
+                setError2('New password is required');
             }
             if (!confirmPassword) {
-                setErrorMsg('Please enter Confirm Password');
+                setErrorMsg('Confirm password is required');
             }
             return;
         }

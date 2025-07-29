@@ -1,8 +1,7 @@
-// components/CustomDrawerContent.js
 import React from 'react';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
-import { User, LogOut } from 'lucide-react-native';
+
 
 export default function CustomDrawerContent(props) {
     return (

@@ -41,7 +41,7 @@ export default function WelcomeScreen({ navigation }) {
             <View className="items-center mb-4 space-y-3">
                 <TouchableOpacity
                     onPress={() => navigation.navigate('SignIn')}
-                    className="bg-white px-6 py-3 rounded-md w-full border border-black mb-3">
+                    className="bg-[#FDFDFD] dark:bg-[#2C3E50] px-6 py-3 rounded-md w-full border border-black mb-3">
                     <Text className="text-center text-black font-semibold">APP-Sign In</Text>
                 </TouchableOpacity>
 

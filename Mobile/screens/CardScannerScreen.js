@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, TouchableOpacity, ScrollView,
-    Modal, Pressable, PermissionsAndroid, Platform, TextInput
+    Modal, Pressable, PermissionsAndroid, Platform, TextInput,
+    useColorScheme
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Contacts from 'react-native-contacts';
 import ImagePicker from 'react-native-image-crop-picker';
 import MLKitOcr from 'react-native-mlkit-ocr';
-import { Camera, Save, Phone } from 'lucide-react-native';
+import { Camera, Save, Phone, Upload } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import Header from '../components/Header';
+import { useNavigation } from '@react-navigation/native';
 
 export default function CardScannerScreen() {
     const [text, setText] = useState('');
@@ -21,6 +23,8 @@ export default function CardScannerScreen() {
     useEffect(() => {
         requestPermissions();
     }, []);
+
+    const navigation = useNavigation();
 
     const requestPermissions = async () => {
         if (Platform.OS === 'android') {
@@ -92,13 +96,17 @@ export default function CardScannerScreen() {
                 hideBottomControls: false,
             });
 
-
             if (result?.path) {
                 const ocrResult = await MLKitOcr.detectFromFile(result.path);
                 const fullText = ocrResult.map(b => b.text).join('\n');
-                setText(fullText);
-                parseContact(fullText);
+                parseContactAndNavigate(fullText);
             }
+            // if (result?.path) {
+            //     const ocrResult = await MLKitOcr.detectFromFile(result.path);
+            //     const fullText = ocrResult.map(b => b.text).join('\n');
+            //     setText(fullText);
+            //     parseContact(fullText);
+            // }
         } catch (err) {
             console.log('Scan Error:', err);
             Toast.show({
@@ -123,9 +131,14 @@ export default function CardScannerScreen() {
             if (result?.path) {
                 const ocrResult = await MLKitOcr.detectFromFile(result.path);
                 const fullText = ocrResult.map(b => b.text).join('\n');
-                setText(fullText);
-                parseContact(fullText);
+                parseContactAndNavigate(fullText);
             }
+            // if (result?.path) {
+            //     const ocrResult = await MLKitOcr.detectFromFile(result.path);
+            //     const fullText = ocrResult.map(b => b.text).join('\n');
+            //     setText(fullText);
+            //     parseContact(fullText);
+            // }
         } catch (err) {
             console.log('Gallery Pick Error:', err);
             Toast.show({
@@ -138,82 +151,59 @@ export default function CardScannerScreen() {
     };
 
 
-    const saveContact = async () => {
-        if (!selectedNumber || !contactName.trim()) {
+    const parseContactAndNavigate = (fullText) => {
+        const cleanedText = fullText.replace(/\s+/g, ' ').trim();
+        const lines = fullText.split('\n').map(line => line.trim()).filter(Boolean);
+        const probableName = lines.find(line => /^[A-Za-z\s]+$/.test(line)) || 'Unknown';
+
+        const phones = extractPhoneNumbers(cleanedText);
+
+        if (phones.length === 0) {
             Toast.show({
                 type: 'error',
-                text1: 'Validation',
-                text2: 'Name and number are required',
+                text1: 'Oops!',
+                text2: 'No valid number found',
                 position: 'top',
             });
             return;
         }
 
-        const contact = {
-            givenName: contactName.trim(),
-            phoneNumbers: [selectedNumber],
-        };
-
-        try {
-            await Contacts.addContact(contact);
-            Toast.show({
-                type: 'success',
-                text1: 'Saved!',
-                text2: `Contact "${contactName}" saved`,
-                position: 'top',
-            });
-
-            // reset
-            setText('');
-            setNumbers([]);
-            setSelectedNumber(null);
-            setContactName('');
-            setModalVisible(false);
-        } catch (error) {
-            console.error('Save Contact Error:', error);
-            Toast.show({
-                type: 'error',
-                text1: 'Error!',
-                text2: 'Failed to save contact',
-                position: 'top',
-            });
-        }
+        navigation.navigate('CardResultScreen', {
+            fullText,
+            numbers: phones,
+            name: probableName
+        });
     };
 
+    const theme = useColorScheme();
+    let iconcolor = '';
+    if (theme === 'light') {
+        iconcolor = '#333333'
+    } else {
+        iconcolor = '#E0E0E0'
+    }
+
     return (
-        <SafeAreaView className="flex-1 bg-zinc-900 p-4">
+        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] p-4">
             <Header title='Card Scanner' profilePic={true} />
-            <Text className="text-xl font-bold text-white my-4">Scan Visiting Card</Text>
+            <Text className="text-2xl font-bold text-[#333333] dark:text-[#E0E0E0] text-center mt-8">Add Contacts Instantly</Text>
+            <Text className='text-lg font-medium text-[#888888] dark:text-[#A0A0A0] text-center my-2'>Scan a bussiness card or upload an image to automatically extract the contact details.</Text>
 
-            <TouchableOpacity
-                onPress={handleScan}
-                className="bg-sky-600 rounded-2xl px-4 py-3 flex-row items-center justify-center mb-4"
-            >
-                <Camera color="white" size={20} className="mr-2" />
-                <Text className="text-white text-base font-medium"> Scan Card</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={handlePickFromGallery}
-                className="bg-purple-600 rounded-2xl px-4 py-3 flex-row items-center justify-center mb-4"
-            >
-                <Camera color="white" size={20} className="mr-2" />
-                <Text className="text-white text-base font-medium"> Pick from Gallery</Text>
-            </TouchableOpacity>
 
-            <Text className='text-xl font-semibold text-white'>Instructions :</Text>
+            {/* <Text className='text-xl font-semibold text-white'>Instructions :</Text>
             <View className='my-3 p-4 rounded-xl bg-white'>
                 <Text className='text-lg text-black font-semibold'>1) It Scans all the text in the image.</Text>
                 <Text className='text-lg text-black font-semibold'>2) So crop the image accordigly.</Text>
                 <Text className='text-lg text-black font-semibold'>3) User should verify the number and name before saving the contact.</Text>
                 <Text className='text-lg text-black font-semibold'>4) It will scan only valid Indian numbers.</Text>
-            </View>
-            {text ? (
+            </View> */}
+            {/* {text ? (
                 <View className="bg-zinc-800 p-4 rounded-2xl mb-4 max-h-60">
                     <ScrollView>
-                        <Text className="text-white whitespace-pre-line">{text}</Text>
+                        <Text className="text-[#333333] dark:text-[#E0E0E0] whitespace-pre-line">{text}</Text>
                     </ScrollView>
                 </View>
-            ) : null}
+            ) : null} */}
 
             {/* FAB Save Button */}
             {numbers.length > 0 && (
@@ -225,8 +215,25 @@ export default function CardScannerScreen() {
                 </TouchableOpacity>
             )}
 
+            <View className='flex-1 justify-end items-end'>
+                <TouchableOpacity
+                    onPress={handleScan}
+                    className="bg-[#A8E6CF] dark:bg-[#7ED9B0] rounded-2xl px-4 py-3 flex-row items-center justify-center mb-4 w-full"
+                >
+                    <Camera color="black" size={20} className="mr-2" />
+                    <Text className="text-[#333333] text-base font-medium"> Scan with Camera</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={handlePickFromGallery}
+                    className="border border-[#E0E0E0] dark:border-[#4A5568] rounded-2xl px-4 py-3 flex-row items-center justify-center w-full"
+                >
+                    <Upload color={iconcolor} size={20} className="mr-2" />
+                    <Text className="text-[#333333] dark:text-[#E0E0E0] text-base font-medium"> Upload from Gallery</Text>
+                </TouchableOpacity>
+            </View>
+
             {/* Modal */}
-            <Modal
+            {/* <Modal
                 visible={modalVisible}
                 transparent
                 animationType="slide"
@@ -271,7 +278,7 @@ export default function CardScannerScreen() {
                         </TouchableOpacity>
                     </View>
                 </View>
-            </Modal>
+            </Modal> */}
         </SafeAreaView>
     );
 }

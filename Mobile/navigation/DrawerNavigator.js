@@ -1,13 +1,14 @@
 import React from 'react';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerItem } from '@react-navigation/drawer';
 import DashboardScreen from '../screens/HomeScreen';
 import TemplateScreen from '../screens/Template';
 import PlansPricingScreen from '../screens/PlansPricing';
 import ContactLogScreen from '../screens/ContactLogScreen';
 import CardScannerScreen from '../screens/CardScannerScreen';
-import { TouchableOpacity } from 'react-native';
-import { User } from 'lucide-react-native';
+import { Text, TouchableOpacity } from 'react-native';
+import { Contact, LayoutDashboard, MessageSquareMore, ScanText, ShoppingCart, User } from 'lucide-react-native';
 import CustomDrawerContent from '../screens/CustomDrawerContent';
+import ContactDetails from '../screens/ContactDetails';
 
 const Drawer = createDrawerNavigator();
 
@@ -34,11 +35,36 @@ export default function DrawerNavigator() {
             drawerContent={(props) => <CustomDrawerContent {...props} />}
         >
 
-            <Drawer.Screen name="Dashboard" component={DashboardScreen} />
-            <Drawer.Screen name="Card Scanner" component={CardScannerScreen} />
-            <Drawer.Screen name="Message Template" component={TemplateScreen} />
-            <Drawer.Screen name="Browse Plans" component={PlansPricingScreen} />
-            <Drawer.Screen name="Contact Log" component={ContactLogScreen} />
+            <Drawer.Screen name="Dashboard" component={DashboardScreen}
+                options={{
+                    drawerLabel: 'Dashboard',
+                    drawerIcon: () => <LayoutDashboard color="white" size={20} />
+                }} />
+            <Drawer.Screen name="Card Scanner" component={CardScannerScreen}
+                options={{
+                    drawerLabel: "Card Scanner",
+                    drawerIcon: () => <ScanText color="white" size={20} />
+                }} />
+            <Drawer.Screen name="Message Template" component={TemplateScreen}
+                options={{
+                    drawerLabel: "Message Template",
+                    drawerIcon: () => <MessageSquareMore color="white" size={20} />
+                }} />
+            <Drawer.Screen name="Browse Plans" component={PlansPricingScreen}
+                options={{
+                    drawerLabel: "Browse Plans",
+                    drawerIcon: () => <ShoppingCart color="white" size={20} />
+                }} />
+            <Drawer.Screen name="Contact Log" component={ContactLogScreen}
+                options={{
+                    drawerLabel: "Contact Log",
+                    drawerIcon: () => <Contact color="white" size={20} />
+                }} />
+            {/* <Drawer.Screen name="Contact Details" component={ContactDetails}
+                options={{
+                    drawerLabel: "Contact Details",
+                    drawerIcon: () => <Contact color="white" size={20} />
+                }} /> */}
         </Drawer.Navigator>
     );
 }
