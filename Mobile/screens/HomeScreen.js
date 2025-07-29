@@ -69,7 +69,7 @@ export default function DashboardScreen({ navigation }) {
     const { lineChart, stacked, agent } = dummyData[dataIndex];
     const drawerNav = useNavigation();
     return (
-        <SafeAreaView className="flex-1 bg-black">
+        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50]">
             <ScrollView
                 className="px-4 py-6"
                 refreshControl={
@@ -85,12 +85,12 @@ export default function DashboardScreen({ navigation }) {
                 <View className="mb-6">
                     <Header title='Dashboard' profilePic={img} />
 
-                    <Text className="text-lg text-white mt-2">Welcome back, {name} 👋</Text>
-                    <Text className="text-sm text-white">Here’s an overview of your team's performance.</Text>
+                    <Text className="text-lg text-[#333333] dark:text-[#E0E0E0] mt-2">Welcome back, {name} 👋</Text>
+                    <Text className="text-sm text-[#888888] dark:text-[#A0A0A0]">Here’s an overview of your team's performance.</Text>
                 </View>
 
                 {/* Line Chart */}
-                <Text className="text-lg font-semibold text-white mb-2">Call Progress (Weekly)</Text>
+                <Text className="text-lg font-semibold text-[#333333] dark:text-[#E0E0E0] mb-2">Call Progress (Weekly)</Text>
                 <LineChart
                     data={{
                         labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
@@ -111,7 +111,8 @@ export default function DashboardScreen({ navigation }) {
                         },
                     }}
                     bezier
-                    style={{ borderRadius: 16, marginBottom: 20 }}
+                    style={{ borderRadius: 16, marginBottom: 20, borderWidth: 1, borderColor: '#4A5568' }}
+                    className="border-spacing- border-[#E0E0E0] dark:border-[#4A5568]"
                 />
 
                 {/* Stacked Bar Chart */}
@@ -131,12 +132,12 @@ export default function DashboardScreen({ navigation }) {
                         color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
                         labelColor: () => "#000",
                     }}
-                    style={{ borderRadius: 16, marginBottom: 24 }}
+                    style={{ borderRadius: 16, marginBottom: 24, borderWidth: 1, borderColor: '#4A5568' }}
                 />
 
                 {/* Agent Summary */}
                 <Text className="text-lg font-semibold text-white mb-2">Agent Call Summary</Text>
-                <View className="bg-gray-100 p-4 rounded-xl shadow-sm">
+                <View className="bg-gray-100 p-4 rounded-xl shadow-sm ">
                     <Text className="text-base font-bold text-black mb-2">{agent.name}</Text>
                     <View className="flex-row justify-between mb-1">
                         <Text className="text-gray-700">Inbound</Text>
@@ -152,7 +153,7 @@ export default function DashboardScreen({ navigation }) {
                     </View>
                 </View>
 
-                <Text className='m-1 border border-b-hairline'></Text>
+                <Text className='m-1 border-gray-400 border-b-hairline'></Text>
             </ScrollView>
         </SafeAreaView>
     );

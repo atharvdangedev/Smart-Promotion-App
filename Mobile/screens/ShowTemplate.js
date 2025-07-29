@@ -48,10 +48,10 @@ const ShowTemplate = () => {
 
         // Validate title
         if (!title.trim()) {
-            setError("Please enter title first");
+            setError("Template Name is required");
             hasError = true;
         } else if (title.trim().length < 3 || title.trim().length > 200) {
-            setError("Title must be between 3 and 200 characters");
+            setError("Template name must be between 3 and 200 characters");
             hasError = true;
         } else {
             setError('');
@@ -59,7 +59,7 @@ const ShowTemplate = () => {
 
         // Validate description
         if (!description.trim()) {
-            setError2("Please enter description first");
+            setError2("Template description is required");
             hasError = true;
         } else if (description.trim().length < 3 || description.trim().length > 700) {
             setError2("Description must be between 3 and 700 characters");
@@ -178,9 +178,9 @@ const ShowTemplate = () => {
 
     return (
         <View className='flex-1 bg-black px-6 pt-6'>
-            <Text className='text-white font-semibold text-xl py-2 px-2'>Title</Text>
+            <Text className='text-white font-semibold text-xl py-2 px-2'>Template Name</Text>
             <TextInput
-                placeholder="Template Title"
+                placeholder="Template Name"
                 placeholderTextColor="#ccc"
                 value={title}
                 onChangeText={(text) => {
@@ -235,8 +235,9 @@ const ShowTemplate = () => {
 
                 onFocus={() => setIsDescFocused(true)}
                 onBlur={() => setIsDescFocused(false)}
+
                 onSelectionChange={({ nativeEvent: { selection } }) => setSelection(selection)}
-                className="border border-gray-700 rounded-xl h-44 text-white bg-black px-3 py-2 mb-3"
+                className="border border-gray-700 rounded-xl h-44 bg-black px-3 py-2 mb-3"
             />
             {error2 && (
                 <Text className="text-red-500 text-sm mb-3 text-center py-2">{error2}</Text>
