@@ -6,11 +6,13 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 const schema = yup.object().shape({
   email: yup
     .string()
-    .email("Invalid email format")
-    .required("Email is required"),
+    .required("Email is required")
+    .matches(emailRegex, "Invalid email address"),
 });
 
 const PasswordReset = () => {

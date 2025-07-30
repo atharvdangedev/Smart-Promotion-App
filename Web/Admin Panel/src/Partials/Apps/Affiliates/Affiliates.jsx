@@ -424,7 +424,7 @@ const Affiliates = () => {
               {canSeeExports && (
                 <ExportButtons
                   data={rows.map((row) => row.original)}
-                  fileName="Users"
+                  fileName="Affiliates"
                   fields={[
                     "first_name",
                     "last_name",
