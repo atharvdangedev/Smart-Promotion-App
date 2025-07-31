@@ -47,11 +47,12 @@ export default function DashboardScreen({ navigation }) {
             const username = await AsyncStorage.getItem('username');
             setName(username);
 
-            const pic = await AsyncStorage.getItem('profile_pic');
-
-            if (pic) {
-                const fullPicUrl = `https://swp.smarttesting.in/uploads/profile_pics/${pic}`;
-                setProfilePic(fullPicUrl);
+            const filename = await AsyncStorage.getItem('profile_pic');
+            if (filename) {
+                const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
+                setProfilePic(url);
+            } else {
+                setProfilePic(null); // fallback
             }
         };
         init();
@@ -83,7 +84,7 @@ export default function DashboardScreen({ navigation }) {
             >
                 {/*  Welcome Section */}
                 <View className="mb-6">
-                    <Header title='Dashboard' profilePic={img} />
+                    <Header title='Dashboard' profilePic={profilePic} />
 
                     <Text className="text-lg text-[#333333] dark:text-[#E0E0E0] mt-2">Welcome back, {name} 👋</Text>
                     <Text className="text-sm text-[#888888] dark:text-[#A0A0A0]">Here’s an overview of your team's performance.</Text>

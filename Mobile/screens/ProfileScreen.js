@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useForm, Controller } from 'react-hook-form';
 import Toast from 'react-native-toast-message';
+import SubHeader from '../components/SubHeader';
 
 const vendorFields = [
     { name: 'first_name', label: 'First Name' },
@@ -120,9 +121,10 @@ export default function ProfileScreen({ navigation }) {
                     contentContainerStyle={{ paddingBottom: 30 }}
                     keyboardShouldPersistTaps="handled"
                 >
-                    <Text className="text-3xl font-bold text-[#333333] dark:text-[#E0E0E0] mb-3 text-center">
+                    {/* <Text className="text-3xl font-bold text-[#333333] dark:text-[#E0E0E0] mb-3 text-center">
                         Profile ({userType})
-                    </Text>
+                    </Text> */}
+                    <SubHeader title={`Profile (${userType})`} />
 
                     {/* Header and Profile Pic */}
                     <View className="relative mb-8">

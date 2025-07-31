@@ -7,6 +7,7 @@ import { Save, Phone } from 'lucide-react-native';
 import Contacts from 'react-native-contacts';
 import Toast from 'react-native-toast-message';
 import Header from '../components/Header';
+import SubHeader from '../components/SubHeader';
 
 export default function CardResultScreen({ route, navigation }) {
     const { fullText, numbers, name } = route.params;
@@ -92,6 +93,7 @@ export default function CardResultScreen({ route, navigation }) {
     return (
         <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] p-4">
             {/* <Header title='Scan Result' profilePic={true} /> */}
+            <SubHeader title="Scan Result" />
             <Text className="text-[#333333] dark:text-[#E0E0E0] text-lg font-semibold mt-6">Scanned Text:</Text>
             <View className="bg-zinc-800 p-4 rounded-2xl mt-2 max-h-60">
                 <ScrollView>

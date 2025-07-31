@@ -4,6 +4,8 @@ import { useRoute } from '@react-navigation/native';
 import Header from '../components/Header';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { PhoneIncoming, PhoneMissed, PhoneOff, PhoneOutgoing } from 'lucide-react-native';
+import SubHeader from '../components/SubHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ContactDetails() {
     const route = useRoute();
@@ -32,8 +34,8 @@ export default function ContactDetails() {
     };
 
     return (
-        <View className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] px-4 pt-6">
-            {/* <Header title="Contact Details" profilePic={true} /> */}
+        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] px-4 pt-4">
+            <SubHeader title="Contact Details" />
 
             {/* Profile */}
             <View className="items-center mt-2 ">
@@ -113,6 +115,6 @@ export default function ContactDetails() {
                     </View>
                 </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
