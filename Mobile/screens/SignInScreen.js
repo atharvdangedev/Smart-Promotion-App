@@ -55,6 +55,7 @@ export default function LoginScreen({ navigation }) {
                 await AsyncStorage.setItem('user_id', user.id.toString());
                 await AsyncStorage.setItem('user_type', user.rolename);
                 await AsyncStorage.setItem('profile_pic', user.profile_pic);
+                console.log('this is img: ', user.profile_pic);
                 await AsyncStorage.setItem('username', user.first_name);
 
 
@@ -64,17 +65,30 @@ export default function LoginScreen({ navigation }) {
                 });
             }
             else {
-                setFormError(res.data?.message || 'Invalid credentials');
+                // setFormError(res.data?.message || 'Invalid credentials');
+                Toast.show({
+                    type: 'error',
+                    text1: res.data?.message
+
+                })
             }
         } catch (error) {
             console.error('Login Error:', error);
 
+            let message = 'Something went wrong. Please try again.';
+
             if (error.response && error.response.data?.message) {
-                setFormError(error.response.data.message);
-            } else {
-                setFormError('Something went wrong. Please try again.');
+                message = error.response.data.message;
             }
-        } finally {
+
+            Toast.show({
+                type: 'error',
+                text1: 'Login Failed',
+                text2: message,
+                position: 'top',
+            });
+        }
+        finally {
             setLoading(false);
         }
     };

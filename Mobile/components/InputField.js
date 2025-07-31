@@ -32,9 +32,9 @@ export default function InputField({
             {isPassword && (
                 <TouchableOpacity onPress={togglePasswordVisibility}>
                     {secureTextEntry ? (
-                        <Eye size={16} color="#888" />
-                    ) : (
                         <EyeOff size={16} color="#888" />
+                    ) : (
+                        <Eye size={16} color="#888" />
                     )}
                 </TouchableOpacity>
             )}

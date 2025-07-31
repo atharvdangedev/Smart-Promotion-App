@@ -12,17 +12,31 @@ import { Camera, Save, Phone, Upload } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import Header from '../components/Header';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CardScannerScreen() {
     const [text, setText] = useState('');
     const [numbers, setNumbers] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
-    const [selectedNumber, setSelectedNumber] = useState(null);
+    // const [selectedNumber, setSelectedNumber] = useState(null);
     const [contactName, setContactName] = useState('');
+    const [profilePic, setProfilePic] = useState('');
 
     useEffect(() => {
+        const init = async () => {
+            const filename = await AsyncStorage.getItem('profile_pic');
+            if (filename) {
+                const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
+                setProfilePic(url);
+                console.log('scan Url: ', url);
+            } else {
+                setProfilePic(null); // fallback
+            }
+        }
         requestPermissions();
+        init();
     }, []);
+
 
     const navigation = useNavigation();
 
@@ -185,7 +199,7 @@ export default function CardScannerScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] p-4">
-            <Header title='Card Scanner' profilePic={true} />
+            <Header title='Card Scanner' profilePic={profilePic} />
             <Text className="text-2xl font-bold text-[#333333] dark:text-[#E0E0E0] text-center mt-8">Add Contacts Instantly</Text>
             <Text className='text-lg font-medium text-[#888888] dark:text-[#A0A0A0] text-center my-2'>Scan a bussiness card or upload an image to automatically extract the contact details.</Text>
 

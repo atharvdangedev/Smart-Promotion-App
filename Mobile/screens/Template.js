@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
     View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Switch,
     Pressable, ActivityIndicator,
-    ToastAndroid,
+    useColorScheme,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Pencil, Trash, Plus, Trash2 } from 'lucide-react-native';
@@ -18,6 +18,7 @@ import Header from '../components/Header';
 export default function TemplateScreen({ navigation }) {
     const [templates, setTemplates] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [profilePic, setProfilePic] = useState('');
     // const [modalVisible, setModalVisible] = useState(false);
     // const [newTemplate, setNewTemplate] = useState({
     //     title: '',
@@ -31,7 +32,7 @@ export default function TemplateScreen({ navigation }) {
     const [selectedTemplateId, setSelectedTemplateId] = useState(null);
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedTemplateForStatus, setSelectedTemplateForStatus] = useState(null);
-    const [error, setError] = useState('');
+    // const [error, setError] = useState('');
     // const [error2, setError2] = useState('');
 
     useFocusEffect(
@@ -39,6 +40,14 @@ export default function TemplateScreen({ navigation }) {
             fetchTemplates();
         }, [])
     );
+
+    const theme = useColorScheme();
+    let editcolor = '';
+    if (theme === 'light') {
+        editcolor = '#333333'
+    } else {
+        editcolor = '#E0E0E0'
+    }
 
     // const handleEdit = (template) => {
     //     navigation.navigate('ShowTemplate', {
@@ -312,9 +321,22 @@ export default function TemplateScreen({ navigation }) {
         return elements;
     };
 
+    useEffect(() => {
+        const init = async () => {
+            const filename = await AsyncStorage.getItem('profile_pic');
+            if (filename) {
+                const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
+                setProfilePic(url);
+            } else {
+                setProfilePic(null); // fallback
+            }
+        }
+        init();
+    }, []);
+
     return (
         <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] px-4 py-2">
-            <Header title="Message Template" profilePic={true} />
+            <Header title="Message Template" profilePic={profilePic} />
             <Text className="text-[#333333] dark:text-[#E0E0E0] text-2xl font-bold mb-4">Message Templates </Text>
             {loading ? (
                 <ActivityIndicator size="large" color="#0ea5e9" className="mt-10" />
@@ -355,7 +377,7 @@ export default function TemplateScreen({ navigation }) {
                                             template: template,
                                             isEdit: true,
                                         })}>
-                                            <Pencil color="white" size={20} />
+                                            <Pencil color={editcolor} size={20} />
                                         </TouchableOpacity>
 
                                         <TouchableOpacity onPress={() => handleDelete(template.id)}>

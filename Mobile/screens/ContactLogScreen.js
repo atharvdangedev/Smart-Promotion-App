@@ -8,12 +8,25 @@ import {
 } from 'lucide-react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Header from '../components/Header';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CallLogScreen({ navigation }) {
     const [contacts, setContacts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [profilePic, setProfilePic] = useState('');
+
 
     useEffect(() => {
+        const init = async () => {
+            const filename = await AsyncStorage.getItem('profile_pic');
+            if (filename) {
+                const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
+                setProfilePic(url);
+            } else {
+                setProfilePic(null); // fallback
+            }
+        }
+        init();
         const dummyContacts = [
             {
                 id: 1,
@@ -76,7 +89,7 @@ export default function CallLogScreen({ navigation }) {
 
     return (
         <View className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] px-4 pt-6">
-            <Header title='Contact Log' profilePic={true} />
+            <Header title='Contact Log' profilePic={profilePic} />
             <Text className="text-[#333333] dark:text-[#E0E0E0] text-2xl font-bold mb-4">Call Logs</Text>
 
             {/* Counters */}
