@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-escape */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -9,10 +9,11 @@ import { handleApiError } from "../../utils/handleApiError";
 import { setPageTitle } from "../../utils/docTitle";
 import Select from "react-select";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../../../../Redux/slices/authSlice";
+// import { setUser } from "../../../../Redux/slices/authSlice";
+import BecomeAnAffiliate from "../../BecomeAnAffiliate/BecomeAnAffiliate";
+import { APP_PERMISSIONS, ROLE_PERMISSIONS } from "../../utils/permissions";
 
 const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i;
-// const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 const accountNumberRegex = /^[0-9]{9,18}$/;
 const upiRegex = /^[\w.\-]{2,256}@[a-zA-Z]{2,64}$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -178,13 +179,14 @@ const MyProfile = () => {
   const profilePicRef = useRef();
   const [profilePicPreview, setProfilePicPreview] = useState(null);
   const [updated, setUpdated] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formKey = userData?.rolename || "base";
 
   const selectedSchema = useMemo(() => {
     const role = userData?.rolename?.toLowerCase();
     return schemaMap[role] ?? baseSchema;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData?.rolename]);
 
   // Use form initialisation
@@ -197,7 +199,35 @@ const MyProfile = () => {
   } = useForm({
     resolver: yupResolver(selectedSchema),
     key: formKey,
+    mode: "onChange",
   });
+
+  /**
+   * Checks if the current user has a specific permission.
+   * This function remains the same as it checks for *capability*.
+   * @param permission The permission string (e.g., APP_PERMISSIONS.BECOME_AN_AFFILIATE).
+   * @returns True if the user has the permission, false otherwise.
+   */
+  const hasPermission = useCallback(
+    (permission) => {
+      if (!userData || !userData.role) {
+        return false;
+      }
+
+      const userRoleIds = userData.role
+        .split(",")
+        .map((id) => parseInt(id.trim(), 10));
+
+      for (const roleId of userRoleIds) {
+        const permissionsForRole = ROLE_PERMISSIONS[roleId];
+        if (permissionsForRole && permissionsForRole.includes(permission)) {
+          return true;
+        }
+      }
+      return false;
+    },
+    [userData]
+  );
 
   //fetch user data
   useEffect(() => {
@@ -215,7 +245,6 @@ const MyProfile = () => {
         if (res.status === 200) {
           const user = res.data[userData?.rolename];
 
-          dispatch(setUser(user));
           setValue("firstname", user.first_name);
           setValue("lastname", user.last_name);
           setValue("email", user.email);
@@ -226,14 +255,14 @@ const MyProfile = () => {
             setProfilePicPreview(`${Img_url}/profile/${user.profile_pic}`);
           }
 
-          if (userData?.rolename === "vendor") {
+          if (hasPermission(APP_PERMISSIONS.AGENTS_VIEW)) {
             if (user.business_name)
               setValue("business_name", user.business_name);
             if (user.business_email)
               setValue("business_email", user.business_email);
             if (user.business_contact)
               setValue("business_contact", user.business_contact);
-            if (user.website_url) setValue("website_url", user.website);
+            if (user.website) setValue("website_url", user.website);
             if (user.business_address)
               setValue("business_address", user.business_address);
             if (user.business_type)
@@ -242,7 +271,7 @@ const MyProfile = () => {
             if (user.gst_number) setValue("gst_number", user.gst_number);
           }
 
-          if (userData?.rolename === "affiliate") {
+          if (hasPermission(APP_PERMISSIONS.COMMISSIONS_VIEW)) {
             if (user.account_holder)
               setValue("account_holder", user.account_holder);
             if (user.account_type) setValue("account_type", user.account_type);
@@ -259,7 +288,8 @@ const MyProfile = () => {
       }
     };
 
-    fetchUser();
+    if (userData?.id) fetchUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     token,
     updated,
@@ -267,8 +297,8 @@ const MyProfile = () => {
     setValue,
     Img_url,
     userData?.rolename,
-    userData?.id,
     dispatch,
+    userData?.id,
   ]);
 
   const handleProfilePic = (e) => {
@@ -278,23 +308,53 @@ const MyProfile = () => {
     }
   };
 
+  /**
+   * Determines if the "Become An Affiliate" button should be shown based on specific role conditions.
+   * This handles the new business rule.
+   * @returns True if the button should be shown, false otherwise.
+   */
+  const shouldShowBecomeAffiliateButton = () => {
+    if (!userData || !userData.role) {
+      return false;
+    }
+
+    const userRoleIds = userData.role
+      .split(",")
+      .map((id) => parseInt(id.trim(), 10));
+
+    // Rule 1: User must have exactly one role
+    if (userRoleIds.length !== 1) {
+      return false;
+    }
+
+    const singleRoleId = userRoleIds[0];
+
+    // Rule 2: That single role must be either 5 or 6
+    const eligibleSingleRoles = [5, 6];
+    if (!eligibleSingleRoles.includes(singleRoleId)) {
+      return false;
+    }
+
+    // Rule 3: The user must also have the 'BECOME_AN_AFFILIATE' permission
+    return hasPermission(APP_PERMISSIONS.BECOME_AN_AFFILIATE);
+  };
+
   // Handle submit
   const onSubmit = async (data) => {
     const formData = new FormData();
 
     formData.append("first_name", data.firstname);
     formData.append("last_name", data.lastname);
-    formData.append("email", data.email);
+    formData.append("email", userData.email);
     formData.append("contact_no", data.contact_no);
     formData.append("password", data.password);
-    formData.append("role", "3");
     if (data.profile_pic && data.profile_pic[0] instanceof File)
       formData.append("profile_pic", data.profile_pic[0]);
 
     if (data.old_profile_pic)
       formData.append("old_profile_pic", data.old_profile_pic);
 
-    if (userData?.rolename === "vendor") {
+    if (hasPermission(APP_PERMISSIONS.AGENTS_VIEW)) {
       if (data.gst_number) formData.append("gst_number", data.gst_number);
       if (data.business_name)
         formData.append("business_name", data.business_name);
@@ -308,7 +368,7 @@ const MyProfile = () => {
       formData.append("business_type", data.business_type);
     }
 
-    if (userData?.rolename === "affiliate") {
+    if (hasPermission(APP_PERMISSIONS.COMMISSIONS_VIEW)) {
       formData.append("account_holder", data.account_holder);
       formData.append("account_type", data.account_type);
       formData.append("bank_name", data.bank_name);
@@ -367,6 +427,16 @@ const MyProfile = () => {
                 {userData?.first_name} {userData?.last_name}
               </h4>
               <p>{userData?.email}</p>
+              {shouldShowBecomeAffiliateButton() && (
+                <div className="col-12">
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="btn btn-primary"
+                  >
+                    Become An Affiliate
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -417,6 +487,7 @@ const MyProfile = () => {
                 <div className="form-floating">
                   <input
                     type="text"
+                    disabled
                     className={`form-control ${
                       errors.email ? "is-invalid" : ""
                     }`}
@@ -502,7 +573,7 @@ const MyProfile = () => {
               {/* Additional Information */}
               <h4 className="mt-4">Additional Information</h4>
 
-              {userData?.rolename === "vendor" && (
+              {hasPermission(APP_PERMISSIONS.AGENTS_VIEW) && (
                 <>
                   <div className="col-md-4">
                     <div className="form-floating">
@@ -709,7 +780,7 @@ const MyProfile = () => {
                 </>
               )}
 
-              {userData?.rolename === "affiliate" && (
+              {hasPermission(APP_PERMISSIONS.COMMISSIONS_VIEW) && (
                 <>
                   <div className="col-md-4">
                     <div className="form-floating">
@@ -733,7 +804,6 @@ const MyProfile = () => {
                       )}
                     </div>
                   </div>
-
                   <div className="col-md-4">
                     <div className="form-floating">
                       <input
@@ -754,7 +824,6 @@ const MyProfile = () => {
                       )}
                     </div>
                   </div>
-
                   <div className="col-md-4">
                     <div className="form-floating">
                       <input
@@ -779,7 +848,6 @@ const MyProfile = () => {
                       )}
                     </div>
                   </div>
-
                   <div className="col-md-4">
                     <div className="form-floating">
                       <input
@@ -800,7 +868,6 @@ const MyProfile = () => {
                       )}
                     </div>
                   </div>
-
                   <div className="col-md-4">
                     <div className="form-floating">
                       <input
@@ -821,29 +888,29 @@ const MyProfile = () => {
                       )}
                     </div>
                   </div>
-
-                  <div className="col-md-4">
-                    <div className="form-floating">
-                      <input
-                        type="text"
-                        maxLength={15}
-                        className={`form-control ${
-                          errors.gst_number ? "is-invalid" : ""
-                        }`}
-                        id="gst_number"
-                        {...register("gst_number")}
-                        placeholder="GST Number"
-                        tabIndex="14"
-                      />
-                      <label htmlFor="gst_number">GST Number</label>
-                      {errors.gst_number && (
-                        <div className="invalid-feedback">
-                          {errors.gst_number.message}
-                        </div>
-                      )}
+                  {!hasPermission(APP_PERMISSIONS.AGENTS_VIEW) && (
+                    <div className="col-md-4">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          maxLength={15}
+                          className={`form-control ${
+                            errors.gst_number ? "is-invalid" : ""
+                          }`}
+                          id="gst_number"
+                          {...register("gst_number")}
+                          placeholder="GST Number"
+                          tabIndex="14"
+                        />
+                        <label htmlFor="gst_number">GST Number</label>
+                        {errors.gst_number && (
+                          <div className="invalid-feedback">
+                            {errors.gst_number.message}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-
+                  )}
                   <div className="col-md-4">
                     <div className="form-floating">
                       <Controller
@@ -924,6 +991,13 @@ const MyProfile = () => {
           </form>
         </div>
       </div>
+      {isModalOpen && (
+        <>
+          <div className="modal-backdrop show"></div>
+
+          <BecomeAnAffiliate setIsModalOpen={setIsModalOpen} />
+        </>
+      )}
     </div>
   );
 };

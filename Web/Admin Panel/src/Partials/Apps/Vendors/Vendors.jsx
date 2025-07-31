@@ -96,14 +96,14 @@ const Vendors = () => {
         toast.error("You do not have permission to view vendor agents.");
         return;
       }
-      if (addonCount === "0") {
+      if (addonCount === 0) {
         toast.error(
-          "This vendor has not purchased any add-ons for agents. Please purchase an add-on to visit agents table"
+          `This vendor has not purchased any add-ons. Please ask them to purchase add-ons to add agents`
         );
         return;
+      } else {
+        navigate(`/admin/vendor/agents/${vendorId}`, { state: { userId } });
       }
-
-      navigate(`/admin/vendor/agents/${vendorId}`, { state: { userId } });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [navigate]

@@ -21,7 +21,7 @@ import { APP_PERMISSIONS } from "../utils/permissions.js";
 import Can from "../Can/Can.jsx";
 
 const Templates = () => {
-  const { can } = usePermissions();
+  const { can, canAny } = usePermissions();
 
   const navigate = useNavigate();
 
@@ -171,7 +171,7 @@ const Templates = () => {
   };
 
   const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
-  const canSeeActionsColumn = can([
+  const canSeeActionsColumn = canAny([
     APP_PERMISSIONS.TEMPLATES_EDIT,
     APP_PERMISSIONS.TEMPLATES_DELETE,
   ]);

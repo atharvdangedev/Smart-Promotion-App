@@ -152,7 +152,7 @@ const ChangePassword = () => {
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword.old ? "text" : "password"}
                     className={`form-control ${
                       errors.old_password ? "is-invalid" : ""
                     }`}
@@ -187,7 +187,7 @@ const ChangePassword = () => {
                   }`}
                 >
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword.new ? "text" : "password"}
                     className={`form-control ${
                       errors.newpassword ? "is-invalid" : ""
                     }`}
@@ -227,7 +227,7 @@ const ChangePassword = () => {
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword.confirm ? "text" : "password"}
                     className={`form-control ${
                       errors.confirmPassword ? "is-invalid" : ""
                     }`}

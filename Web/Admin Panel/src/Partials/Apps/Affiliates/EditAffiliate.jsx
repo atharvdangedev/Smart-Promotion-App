@@ -123,6 +123,7 @@ const EditAffiliate = () => {
   // State initialization
   const profilePicRef = useRef();
   const [profilePicPreview, setProfilePicPreview] = useState(null);
+  const [affiliateData, setAffiliateData] = useState({});
 
   const handleProfilePic = (e) => {
     const file = e.target.files[0];
@@ -158,6 +159,7 @@ const EditAffiliate = () => {
           }
         );
         if (res.status === 200) {
+          setAffiliateData(res.data.affiliate);
           setValue("firstname", res.data.affiliate.first_name);
           setValue("lastname", res.data.affiliate.last_name);
           setValue("email", res.data.affiliate.email);
@@ -200,9 +202,9 @@ const EditAffiliate = () => {
 
       formData.append("first_name", data.firstname);
       formData.append("last_name", data.lastname);
-      formData.append("email", data.email);
+      formData.append("role", affiliateData.role);
+      formData.append("email", affiliateData.email);
       formData.append("contact_no", data.contact_no);
-      formData.append("role", "7");
       formData.append("account_holder", data.account_holder);
       formData.append("account_type", data.account_type);
       formData.append("bank_name", data.bank_name);
@@ -300,6 +302,7 @@ const EditAffiliate = () => {
                 <div className="form-floating">
                   <input
                     type="text"
+                    disabled
                     className={`form-control ${
                       errors.email ? "is-invalid" : ""
                     }`}

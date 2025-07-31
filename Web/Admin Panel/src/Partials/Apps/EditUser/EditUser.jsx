@@ -91,15 +91,12 @@ const EditUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(
-          `${APP_URL}/${user.rolename}/users/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const res = await axios.get(`${APP_URL}/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (res.status === 200) {
           setValue("firstname", res.data.user.first_name);
           setValue("lastname", res.data.user.last_name);

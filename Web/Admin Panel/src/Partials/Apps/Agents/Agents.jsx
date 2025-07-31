@@ -457,7 +457,6 @@ const Agents = () => {
                     "last_name",
                     "email",
                     "contact_no",
-                    "role",
                     "status",
                     "vendor_id",
                   ]}

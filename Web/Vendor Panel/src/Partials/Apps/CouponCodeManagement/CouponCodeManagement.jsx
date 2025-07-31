@@ -23,7 +23,7 @@ const CouponCodeManagement = () => {
   // Navigation function
   const navigate = useNavigate();
 
-  const { can } = usePermissions();
+  const { can, canAny } = usePermissions();
 
   // Access token
   const { token, user } = useSelector((state) => state.auth);
@@ -127,7 +127,7 @@ const CouponCodeManagement = () => {
   };
 
   const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
-  const canSeeActionsColumn = can([
+  const canSeeActionsColumn = canAny([
     APP_PERMISSIONS.COUPONS_EDIT,
     APP_PERMISSIONS.COUPONS_DELETE,
   ]);
@@ -151,8 +151,12 @@ const CouponCodeManagement = () => {
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>{row.original.plan_title}</span>
-              <span>{row.original.plan_type}</span>
+              <span>
+                <strong>Plan:</strong> {row.original.plan_title}
+              </span>
+              <span>
+                <strong>Plan Type:</strong> {row.original.plan_type}
+              </span>
             </div>
           </div>
         ),
@@ -174,11 +178,12 @@ const CouponCodeManagement = () => {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
-          <button
+          <span
             className={`btn btn-sm ${
               value === "1" ? "btn-success" : "btn-danger"
             }`}
             style={{
+              cursor: "default",
               backgroundColor: value === "1" ? "#28a745" : "#dc3545",
               borderColor: value === "1" ? "#28a745" : "#dc3545",
               color: "#fff",
@@ -187,7 +192,7 @@ const CouponCodeManagement = () => {
             }}
           >
             {value === "1" ? "Active" : "Inactive"}
-          </button>
+          </span>
         ),
       },
       {
@@ -306,8 +311,10 @@ const CouponCodeManagement = () => {
                   fileName="Coupon Codes"
                   fields={[
                     "coupon_code",
-                    "title",
+                    "plan_title",
                     "plan_type",
+                    "first_name",
+                    "last_name",
                     "valid_from",
                     "valid_till",
                     "status",

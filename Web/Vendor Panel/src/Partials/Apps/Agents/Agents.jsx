@@ -50,7 +50,7 @@ const Agents = () => {
       setIsLoading(true);
       try {
         const response = await axios.get(
-          `${APP_URL}/${user.rolename}/all-agents/${user?.user_id}`,
+          `${APP_URL}/${user.rolename}/all-agents/${user?.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -72,14 +72,14 @@ const Agents = () => {
     };
 
     fetchData();
-  }, [APP_URL, token, user?.user_id, user.rolename]);
+  }, [APP_URL, token, user.rolename, user?.id]);
 
   //fetch vendor data
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await axios.get(
-          `${APP_URL}/${user?.rolename}/${user?.user_id}`,
+          `${APP_URL}/${user?.rolename}/${user?.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ const Agents = () => {
     };
 
     fetchUser();
-  }, [token, APP_URL, Img_url, user?.rolename, user?.user_id]);
+  }, [token, APP_URL, Img_url, user?.rolename, user?.id]);
 
   // Handle add page navigation
   const handleAdd = useCallback(
@@ -393,7 +393,6 @@ const Agents = () => {
                     "last_name",
                     "email",
                     "contact_no",
-                    "role",
                     "status",
                   ]}
                 />

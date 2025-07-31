@@ -93,15 +93,12 @@ const AddUser = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get(
-          `${APP_URL}/${user.rolename}/user-all-roles`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json;",
-            },
-          }
-        );
+        const response = await axios.get(`${APP_URL}/user-all-roles`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json;",
+          },
+        });
         if (response.status === 200) {
           const roleOptions = response.data.roles.map((role) => ({
             value: role.id,

@@ -6,8 +6,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { handleApiError } from "../utils/handleApiError";
 import Select from "react-select";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import WhatsappEditor from "./WhatsappEditor";
 
 // Schema initialization
 const schema = yup.object().shape({
@@ -20,7 +19,7 @@ const schema = yup.object().shape({
     .string()
     .required("Template Description is required")
     .min(3, "Minimum 3 characters required.")
-    .max(500, "Maximum 500 characters allowed."),
+    .max(700, "Maximum 700 characters allowed."),
   type: yup
     .string()
     .required("Template Type is required")
@@ -44,17 +43,6 @@ const AddTemplate = () => {
     { value: "missed", label: "Missed" },
     { value: "rejected", label: "Rejected" },
   ];
-
-  // Quill modules configuration
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      ["link"],
-      ["clean"],
-    ],
-  };
 
   // useForm hook initialization
   const {
@@ -205,17 +193,13 @@ const AddTemplate = () => {
                   defaultValue=""
                   render={({ field }) => (
                     <>
-                      <ReactQuill
-                        theme="snow"
-                        placeholder="Enter template description..."
-                        modules={modules}
-                        value={field.value}
-                        onChange={(value) => field.onChange(value)}
-                        tabIndex="3"
+                      <WhatsappEditor
+                        {...field}
+                        placeholder="Type description with *bold* formatting..."
                         className={errors.description ? "is-invalid" : ""}
                       />
                       {errors.description && (
-                        <div className="invalid-feedback">
+                        <div className="invalid-feedback d-block">
                           {errors.description.message}
                         </div>
                       )}
