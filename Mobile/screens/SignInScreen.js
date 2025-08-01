@@ -51,12 +51,40 @@ export default function LoginScreen({ navigation }) {
                 // } else {
                 //     await AsyncStorage.setItem('remember_me', '0');
                 // }
-                await AsyncStorage.setItem('token', token);
-                await AsyncStorage.setItem('user_id', user.id.toString());
-                await AsyncStorage.setItem('user_type', user.rolename);
-                await AsyncStorage.setItem('profile_pic', user.profile_pic);
+                // await AsyncStorage.setItem('token', token);
+                if (token) {
+                    await AsyncStorage.setItem('token', token);
+                } else {
+                    await AsyncStorage.removeItem('token');
+                }
+                if (user.id) {
+                    await AsyncStorage.setItem('user_id', user.id.toString());
+                } else {
+                    await AsyncStorage.removeItem('user_id');
+                }
+
+                // await AsyncStorage.setItem('user_id', user.id.toString());
+                if (user.rolename) {
+                    await AsyncStorage.setItem('user_type', user.rolename);
+                } else {
+                    await AsyncStorage.removeItem('user_type');
+                }
+
+                // await AsyncStorage.setItem('user_type', user.rolename);
+                if (user.profile_pic) {
+                    await AsyncStorage.setItem('profile_pic', user.profile_pic);
+                } else {
+                    await AsyncStorage.removeItem('profile_pic');
+                }
+
                 // console.log('this is img: ', user.profile_pic);
-                await AsyncStorage.setItem('username', user.first_name);
+                // await AsyncStorage.setItem('username', user.first_name);
+                if (user.first_name) {
+                    await AsyncStorage.setItem('username', user.first_name);
+                } else {
+                    await AsyncStorage.removeItem('username');
+                }
+
 
 
                 navigation.reset({
