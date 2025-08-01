@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Save, Phone } from 'lucide-react-native';
 import Contacts from 'react-native-contacts';
 import Toast from 'react-native-toast-message';
-import Header from '../components/Header';
 import SubHeader from '../components/SubHeader';
 
 export default function CardResultScreen({ route, navigation }) {
@@ -15,42 +14,6 @@ export default function CardResultScreen({ route, navigation }) {
     const [contactName, setContactName] = useState(name);
     const [selectedNumber, setSelectedNumber] = useState(numbers[0]);
 
-    // const saveContact = async () => {
-    //     if (!selectedNumber || !contactName.trim()) {
-    //         Toast.show({
-    //             type: 'error',
-    //             text1: 'Validation',
-    //             text2: 'Name and number are required',
-    //             position: 'top',
-    //         });
-    //         return;
-    //     }
-
-    //     const contact = {
-    //         givenName: contactName.trim(),
-    //         phoneNumbers: [selectedNumber],
-    //     };
-
-    //     try {
-    //         await Contacts.addContact(contact);
-    //         Toast.show({
-    //             type: 'success',
-    //             text1: 'Saved!',
-    //             text2: `Contact "${contactName}" saved`,
-    //             position: 'top',
-    //         });
-
-    //         navigation.navigate('CardScanner');
-    //     } catch (error) {
-    //         console.error('Save Contact Error:', error);
-    //         Toast.show({
-    //             type: 'error',
-    //             text1: 'Error!',
-    //             text2: 'Failed to save contact',
-    //             position: 'top',
-    //         });
-    //     }
-    // };
 
     const saveContact = async () => {
         if (!selectedNumber || !contactName.trim()) {
@@ -134,7 +97,7 @@ export default function CardResultScreen({ route, navigation }) {
                 className={`rounded-2xl px-4 py-3 flex-row items-center justify-center mb-4 w-full ${isSaved ? 'bg-zinc-600' : 'bg-[#A8E6CF]'}`}
                 disabled={isSaved}
             >
-                <Text className="text-center text-[#333333] dark:text-[#E0E0E0] text-base font-medium">
+                <Text className={`text-center ${isSaved ? `text-[#E0E0E0]` : `text-[#333333]`} text-base font-medium`}>
                     {isSaved ? 'Contact Saved' : 'Save Contact'}
                 </Text>
             </TouchableOpacity>

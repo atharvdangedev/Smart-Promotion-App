@@ -46,16 +46,16 @@ export default function LoginScreen({ navigation }) {
                     return;
                 }
 
-                if (rememberMe) {
-                    await AsyncStorage.setItem('remember_me', '1');
-                } else {
-                    await AsyncStorage.setItem('remember_me', '0');
-                }
+                // if (rememberMe) {
+                //     await AsyncStorage.setItem('remember_me', '1');
+                // } else {
+                //     await AsyncStorage.setItem('remember_me', '0');
+                // }
                 await AsyncStorage.setItem('token', token);
                 await AsyncStorage.setItem('user_id', user.id.toString());
                 await AsyncStorage.setItem('user_type', user.rolename);
                 await AsyncStorage.setItem('profile_pic', user.profile_pic);
-                console.log('this is img: ', user.profile_pic);
+                // console.log('this is img: ', user.profile_pic);
                 await AsyncStorage.setItem('username', user.first_name);
 
 
@@ -139,25 +139,27 @@ export default function LoginScreen({ navigation }) {
             )}
 
             {/* Remember Me Checkbox */}
-            <TouchableOpacity
-                className=" mb-4"
-                onPress={() => setRememberMe(!rememberMe)}
-                activeOpacity={0.7}
-            >
-                <View className='flex-row items-center justify-between mx-1'>
-                    <View className='flex-row'>
+
+            <View className='flex-row items-center justify-between mx-1'>
+                <View className='flex-row'>
+                    <TouchableOpacity
+                        className="flex-row mb-2"
+                        onPress={() => setRememberMe(!rememberMe)}
+                        activeOpacity={0.7}
+                    >
                         <View className={`h-5 w-5 mr-2 border-2 rounded ${rememberMe ? 'bg-black border-black' : 'border-gray-400'}`}>
                             {rememberMe && <Check size={16} color="white" />}
                         </View>
                         <Text className="text-[#333333] dark:text-[#E0E0E0]">Remember me</Text>
-                    </View>
-                    <TouchableOpacity
-                        className=''
-                        onPress={() => navigation.navigate('ForgotPassword')}>
-                        <Text className="text-center border-b-hairline text-gray-500">Forgot Password</Text>
                     </TouchableOpacity>
                 </View>
-            </TouchableOpacity>
+                <TouchableOpacity
+                    className='mb-2'
+                    onPress={() => navigation.navigate('ForgotPassword')}>
+                    <Text className="text-center border-b-hairline text-gray-500">Forgot Password</Text>
+                </TouchableOpacity>
+            </View>
+
 
             <TouchableOpacity onPress={handleLogin} className="bg-black py-3 rounded-xl mb-4" disabled={loading}>
                 {loading ? <ActivityIndicator color="#fff" /> : <Text className="text-center text-white font-semibold">Log In</Text>}
@@ -168,7 +170,7 @@ export default function LoginScreen({ navigation }) {
                     Don’t have an account?
                 </Text>
                 <TouchableOpacity >
-                    <Text className="font-semibold text-black border-b-hairline"> Sign Up</Text>
+                    <Text className="font-semibold text-gray-5 border-b-hairline"> Sign Up</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

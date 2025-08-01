@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { CheckCircle } from 'lucide-react-native';
 import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PlansPricingScreen() {
     const [profilePic, setProfilePic] = useState('');
@@ -82,40 +83,42 @@ export default function PlansPricingScreen() {
     };
 
     return (
-        <ScrollView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] px-4 py-6">
-            <Header title='Pans & Pricing ' profilePic={profilePic} />
-            <Text className="text-2xl font-bold text-[#333333] dark:text-[#E0E0E0] mb-4">Explore our plans</Text>
+        <SafeAreaView className='flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] py-2'>
+            <ScrollView className="flex-1 px-4 py-6">
+                <Header title='Plans & Pricing ' profilePic={profilePic} />
+                {/* <Text className="text-2xl font-bold text-[#333333] dark:text-[#E0E0E0] mb-4">Explore our plans</Text> */}
 
-            {plans.map((plan, index) => {
-                const style = getPlanStyles(plan.theme);
-                return (
-                    <View
-                        key={index}
-                        className={`relative rounded-2xl p-5 mb-6 ${style.container}`}
-                    >
-                        {plan.isRecommended && (
-                            <View className="absolute top-2 right-2 bg-yellow-500 px-3 py-1 rounded-full shadow">
-                                <Text className="text-xs font-bold text-white">Most Recommended</Text>
-                            </View>
-                        )}
+                {plans.map((plan, index) => {
+                    const style = getPlanStyles(plan.theme);
+                    return (
+                        <View
+                            key={index}
+                            className={`relative rounded-2xl p-5 mb-6 ${style.container}`}
+                        >
+                            {plan.isRecommended && (
+                                <View className="absolute top-2 right-2 bg-yellow-500 px-3 py-1 rounded-full shadow">
+                                    <Text className="text-xs font-bold text-white">Most Recommended</Text>
+                                </View>
+                            )}
 
-                        <Text className={`text-2xl font-bold mb-2 ${style.text}`}>{plan.name}</Text>
-                        <Text className={`text-xl mb-4 ${style.text}`}>{plan.price}</Text>
+                            <Text className={`text-2xl font-bold mb-2 ${style.text}`}>{plan.name}</Text>
+                            <Text className={`text-xl mb-4 ${style.text}`}>{plan.price}</Text>
 
-                        {plan.features.map((feature, i) => (
-                            <View key={i} className="flex-row items-center mb-2">
-                                <CheckCircle size={18} color={style.icon} />
-                                <Text className={`ml-2 ${style.text}`}>{feature}</Text>
-                            </View>
-                        ))}
+                            {plan.features.map((feature, i) => (
+                                <View key={i} className="flex-row items-center mb-2">
+                                    <CheckCircle size={18} color={style.icon} />
+                                    <Text className={`ml-2 ${style.text}`}>{feature}</Text>
+                                </View>
+                            ))}
 
-                        <TouchableOpacity className="mt-4 bg-slate-800 rounded-xl py-3">
-                            <Text className="text-center text-white font-semibold">{plan.buttonText}</Text>
-                        </TouchableOpacity>
-                    </View>
+                            <TouchableOpacity className="mt-4 bg-slate-800 rounded-xl py-3">
+                                <Text className="text-center text-white font-semibold">{plan.buttonText}</Text>
+                            </TouchableOpacity>
+                        </View>
 
-                );
-            })}
-        </ScrollView>
+                    );
+                })}
+            </ScrollView>
+        </SafeAreaView>
     );
 }

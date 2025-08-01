@@ -15,6 +15,7 @@ import { api } from '../utils/api';
 import { RichTextInput } from '../components/RichTextEditor';
 import Toast from 'react-native-toast-message';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import SubHeader from '../components/SubHeader';
 
 const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
 
@@ -118,6 +119,7 @@ const ShowTemplate = () => {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 className="flex-1 "
             >
+                <SubHeader title="Template" />
                 <ScrollView
                     className="flex-1 px-6"
                     keyboardShouldPersistTaps="always"

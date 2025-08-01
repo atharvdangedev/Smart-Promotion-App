@@ -32,6 +32,7 @@ export default function TemplateScreen({ navigation }) {
     const [selectedTemplateId, setSelectedTemplateId] = useState(null);
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedTemplateForStatus, setSelectedTemplateForStatus] = useState(null);
+    const [selectedTemp, setSelectedTemp] = useState({});
     // const [error, setError] = useState('');
     // const [error2, setError2] = useState('');
 
@@ -187,8 +188,9 @@ export default function TemplateScreen({ navigation }) {
     //     }
     // };
 
-    const handleDelete = (id) => {
-        setSelectedTemplateId(id);
+    const handleDelete = (template) => {
+        setSelectedTemplateId(template.id);
+        setSelectedTemp(template);
         setShowDeleteModal(true);
     };
 
@@ -231,6 +233,7 @@ export default function TemplateScreen({ navigation }) {
 
     const confirmToggleStatus = (template) => {
         setSelectedTemplateForStatus(template);
+        setSelectedTemp(template);
         setShowStatusModal(true);
     };
 
@@ -335,9 +338,9 @@ export default function TemplateScreen({ navigation }) {
     }, []);
 
     return (
-        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] px-4 py-2">
+        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] px-4 py-4">
             <Header title="Message Template" profilePic={profilePic} />
-            <Text className="text-[#333333] dark:text-[#E0E0E0] text-2xl font-bold mb-4">Message Templates </Text>
+            {/* <Text className="text-[#333333] dark:text-[#E0E0E0] text-2xl font-bold mb-4">Message Templates </Text> */}
             {loading ? (
                 <ActivityIndicator size="large" color="#0ea5e9" className="mt-10" />
             ) : templates.length === 0 ? (
@@ -380,7 +383,7 @@ export default function TemplateScreen({ navigation }) {
                                             <Pencil color={editcolor} size={20} />
                                         </TouchableOpacity>
 
-                                        <TouchableOpacity onPress={() => handleDelete(template.id)}>
+                                        <TouchableOpacity onPress={() => handleDelete(template)}>
                                             <Trash2 color="red" size={20} />
                                         </TouchableOpacity>
                                     </View>
@@ -410,7 +413,7 @@ export default function TemplateScreen({ navigation }) {
                     <View className="bg-white w-full rounded-xl p-4">
                         <Text className="text-lg font-semibold text-black mb-2 text-center">Confirm Delete</Text>
                         <Text className="text-base text-gray-700 mb-6 text-center">
-                            Are you sure you want to delete this template?
+                            Are you sure you want to delete {selectedTemp.title} template?
                         </Text>
                         <View className="flex-row justify-between">
                             <TouchableOpacity
@@ -442,7 +445,7 @@ export default function TemplateScreen({ navigation }) {
                     <View className="bg-white w-full rounded-xl p-4">
                         <Text className="text-lg text-center font-semibold text-black mb-2">Confirm Status Change</Text>
                         <Text className="text-base text-center text-gray-700 mb-6">
-                            Are you sure you want to {selectedTemplateForStatus?.status === '1' ? 'inactive' : 'active'} this template?
+                            Are you sure you want to {selectedTemplateForStatus?.status === '1' ? 'inactive' : 'active'} {selectedTemp.title} template?
                         </Text>
                         <View className="flex-row justify-between">
                             <TouchableOpacity

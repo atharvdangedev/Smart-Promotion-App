@@ -1,4 +1,3 @@
-import { Menu, Scan, User } from 'lucide-react-native';
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView, RefreshControl, Dimensions, TouchableOpacity } from 'react-native';
 import { LineChart, StackedBarChart } from 'react-native-chart-kit';
@@ -70,9 +69,9 @@ export default function DashboardScreen({ navigation }) {
     const { lineChart, stacked, agent } = dummyData[dataIndex];
     const drawerNav = useNavigation();
     return (
-        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50]">
+        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] py-2">
             <ScrollView
-                className="px-4 py-6"
+                className="px-4 py-4"
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}

@@ -101,8 +101,8 @@ export default function TemplateDetailScreen({ route }) {
         <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] px-4 py-4">
             <ScrollView>
                 <SubHeader title="Template Details" />
-                <Text className="text-2xl text-white font-bold my-2">{template.title}</Text>
-                <Text className="text-sm text-gray-400 mb-4">Type: {template.template_type}</Text>
+                <Text className="text-2xl text-[#333333] dark:text-[#E0E0E0] font-bold my-2">{template.title}</Text>
+                <Text className="text-sm text-[#333333] dark:text-[#E0E0E0] mb-4">Type: {template.template_type}</Text>
                 <View className="bg-neutral-800 rounded p-4">
                     <Text className="text-white text-lg">{renderFormattedText(template.description)}</Text>
                 </View>
