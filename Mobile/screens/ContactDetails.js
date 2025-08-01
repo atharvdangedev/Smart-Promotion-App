@@ -46,7 +46,7 @@ export default function ContactDetails() {
                         resizeMode="cover"
                     />
                 </View>
-                <Text className="text-white text-2xl font-bold">{contact.first_name} {contact.last_name}</Text>
+                <Text className="text-[#333333] dark:text-[#E0E0E0] text-2xl font-bold">{contact.first_name} {contact.last_name}</Text>
                 <Text className="text-gray-400 text-base mt-1">{contact.phone}</Text>
                 <Text className="bg-purple-600 text-white px-3 py-1 rounded-full mt-2 text-xs">VIP Customer</Text>
             </View>
@@ -60,13 +60,17 @@ export default function ContactDetails() {
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() => openWhatsApp(contact.phone)}
-                    className="bg-sky-600 px-6 py-2 rounded-xl">
-                    <Text className="text-white font-semibold">Manual Message</Text>
+                    className="flex-row bg-sky-600 px-6 py-2 rounded-xl">
+                    <Text className="text-white mr-2 font-semibold">Message on</Text>
+
+                    <FontAwesome name="whatsapp" size={22} color="#25D366" />
+
                 </TouchableOpacity>
             </View>
 
             {/* Info Card */}
-            <View className="bg-zinc-800 rounded-xl p-4 mt-6">
+            <Text className='text-[#333333] dark:text-[#E0E0E0] text-lg font-bold mt-6'> Information</Text>
+            <View className="bg-zinc-800 rounded-xl p-4 ">
                 <Text className="text-white mb-2">
                     <Text className="text-gray-400">Birthday: </Text>
                     <Text className="text-green-400 font-semibold">August 15th</Text>
@@ -77,8 +81,8 @@ export default function ContactDetails() {
                 </Text>
             </View>
 
-
-            <View className="bg-zinc-800 rounded-xl p-4 mt-4">
+            <Text className="text-[#333333] dark:text-[#E0E0E0] text-lg font-bold mt-4">Notes</Text>
+            <View className="bg-zinc-800 rounded-xl p-4">
                 <Text className="text-gray-300">
                     Met at the 2025 Pune tech conference. Interested in the premium plan for his real estate business.{" "}
                     Follow up next week regarding API access.
@@ -87,7 +91,7 @@ export default function ContactDetails() {
 
 
             <View className="mt-5">
-                <Text className="text-white text-lg font-bold mb-2">Recent Activity</Text>
+                <Text className="text-[#333333] dark:text-[#E0E0E0] text-lg font-bold mb-2">Recent Activity</Text>
                 <View className=" rounded-xl overflow-hidden">
                     <Text className='text-[#333333] dark:text-[#E0E0E0] font-medium mb-2'>Logs </Text>
                     <View className="flex-row justify-between items-center bg-[#FFFFFF] dark:bg-[#3A506B] border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl px-4 py-3 mb-3">
@@ -103,15 +107,13 @@ export default function ContactDetails() {
                         </View>
                         <View className="flex-row items-center gap-4">
                             {getCallIcon(contact.type)}
-                            <TouchableOpacity onPress={() => openWhatsApp(contact.phone)}>
-                                <FontAwesome name="whatsapp" size={22} color="#25D366" />
-                            </TouchableOpacity>
+
                         </View>
                     </View>
                     <Text className='text-[#333333] dark:text-[#E0E0E0] font-medium mb-2'>Message Sent </Text>
                     <View className="p-4 bg-[#FFFFFF] dark:bg-[#3A506B] border border-[#E0E0E0] dark:border-[#4A5568]">
-                        <Text className="text-white font-semibold">Sent 'First-Time User Offer'</Text>
-                        <Text className="text-white text-xs mt-1">Jul 21, 2025</Text>
+                        <Text className="text-[#333333] dark:text-[#E0E0E0] font-semibold">Sent 'First-Time User Offer'</Text>
+                        <Text className="text-[#333333] dark:text-[#E0E0E0] text-xs mt-1">Jul 21, 2025</Text>
                     </View>
                 </View>
             </View>

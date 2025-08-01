@@ -11,8 +11,15 @@ export default function ForgotPassword({ navigation }) {
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async () => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
         if (!email) {
             setFormError('Please enter your email');
+            return;
+        }
+
+        if (!emailRegex.test(email)) {
+            setFormError('Please enter a valid email address');
             return;
         }
 
@@ -27,7 +34,7 @@ export default function ForgotPassword({ navigation }) {
 
             if (res.data?.status === true) {
                 setSuccessMsg(res.data.message || 'Reset link sent! Please check your email.');
-                setTimeout(() => navigation.navigate('SignIn'), 2000); // Auto-redirect 
+                setTimeout(() => navigation.navigate('SignIn'), 2000);
             } else {
                 setFormError(res.data.message || 'Failed to send reset link');
             }
@@ -43,8 +50,20 @@ export default function ForgotPassword({ navigation }) {
         }
     };
 
+    const validateEmail = (text) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!text) {
+            setFormError('Email is required');
+        } else if (!emailRegex.test(text)) {
+            setFormError('Please enter a valid email address');
+        } else {
+            setFormError('');
+        }
+    };
+
+
     return (
-        <SafeAreaView className="flex-1 justify-center px-6 bg-[#FDFDFD] dark:bg-[#4A5568]">
+        <SafeAreaView className="flex-1 justify-center px-6 bg-[#FDFDFD] dark:bg-[#2C3E50]">
             <Text className="text-3xl font-bold text-center mb-8 text-[#333333] dark:text-[#E0E0E0]">Forgot Password</Text>
 
             <InputField
@@ -55,7 +74,7 @@ export default function ForgotPassword({ navigation }) {
                 keyboardType="email-address"
                 onChangeText={(text) => {
                     setEmail(text);
-                    if (formError) setFormError('');
+                    validateEmail(text);
                 }}
             />
 
@@ -71,7 +90,7 @@ export default function ForgotPassword({ navigation }) {
             ) : null}
             <View className='flex-row items-center'>
                 {/* <Text className='text-sm font-semibold  text-[#333333] dark:text-[#E0E0E0]'>Note : </Text> */}
-                <Text className='text-sm font-medium text-[#333333] dark:text-[#E0E0E0]'><Text className='text-base font-semibold underline'>Note : </Text> Enter the email associated with your account and we'll send you a link to reset your password.</Text>
+                <Text className='text-sm font-medium text-[#333333] dark:text-[#E0E0E0]'><Text className='text-base font-semibold '>Note : </Text> Enter the email associated with your account and we'll send you a link to reset your password.</Text>
             </View>
             <TouchableOpacity
                 onPress={handleSubmit}

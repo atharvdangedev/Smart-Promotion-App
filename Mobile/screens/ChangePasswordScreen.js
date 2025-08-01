@@ -113,7 +113,7 @@ export default function ChangePasswordScreen({ navigation }) {
             return;
         }
         if (newPassword === oldPassword) {
-            setErrorMsg("Old and new password cannot be same");
+            setErrorMsg("New password must be different from the current password");
             return;
         }
         const passwordValidationError = isValidPassword(newPassword);
@@ -144,7 +144,15 @@ export default function ChangePasswordScreen({ navigation }) {
             );
 
             if (res.data?.status) {
-                setSuccessMsg('Password changed successfully. Logging out...');
+                // setSuccessMsg('Password changed successfully. Logging out...');
+                setTimeout(() => {
+                    Toast.show({
+                        type: 'info',
+                        text1: 'Logging out...',
+                        visibilityTime: 2000,
+                        position: 'top'
+                    });
+                }, 2000);
                 Toast.show({
                     type: 'success',
                     text1: 'Password Changed',

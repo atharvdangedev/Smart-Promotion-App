@@ -33,7 +33,7 @@ export default function App() {
         const userType = await AsyncStorage.getItem('user_type');
         const userId = await AsyncStorage.getItem('user_id');
 
-        if (rememberMe === '1' && token && userType && userId) {
+        if (token && userType && userId) {
           setInitialRoute('HomeScreen');
         } else {
           // Remove everything if remember me was off

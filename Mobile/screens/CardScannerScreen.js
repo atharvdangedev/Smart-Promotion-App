@@ -15,11 +15,9 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CardScannerScreen() {
-    const [text, setText] = useState('');
     const [numbers, setNumbers] = useState([]);
-    const [modalVisible, setModalVisible] = useState(false);
-    // const [selectedNumber, setSelectedNumber] = useState(null);
-    const [contactName, setContactName] = useState('');
+    // const [modalVisible, setModalVisible] = useState(false);
+    // const [contactName, setContactName] = useState('');
     const [profilePic, setProfilePic] = useState('');
 
     useEffect(() => {
@@ -77,28 +75,28 @@ export default function CardScannerScreen() {
             }));
     };
 
-    const parseContact = (rawText) => {
-        const cleanedText = rawText.replace(/\s+/g, ' ').trim();
-        const nameMatch = rawText.split('\n')[0]?.trim();
-        const name = nameMatch || 'Unknown';
+    // const parseContact = (rawText) => {
+    //     const cleanedText = rawText.replace(/\s+/g, ' ').trim();
+    //     const nameMatch = rawText.split('\n')[0]?.trim();
+    //     const name = nameMatch || 'Unknown';
 
-        const phones = extractPhoneNumbers(cleanedText);
+    //     const phones = extractPhoneNumbers(cleanedText);
 
-        if (phones.length === 0) {
-            Toast.show({
-                type: 'error',
-                text1: 'Oops!',
-                text2: 'No valid number found',
-                position: 'top',
-            });
-            return;
-        }
+    //     if (phones.length === 0) {
+    //         Toast.show({
+    //             type: 'error',
+    //             text1: 'Oops!',
+    //             text2: 'No valid number found',
+    //             position: 'top',
+    //         });
+    //         return;
+    //     }
 
-        setContactName(name);
-        setNumbers(phones);
-        setSelectedNumber(phones[0]);
-        setModalVisible(true);
-    };
+    //     setContactName(name);
+    //     setNumbers(phones);
+    //     setSelectedNumber(phones[0]);
+    //     setModalVisible(true);
+    // };
 
     const handleScan = async () => {
         try {
