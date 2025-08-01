@@ -19,15 +19,6 @@ export default function TemplateScreen({ navigation }) {
     const [templates, setTemplates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [profilePic, setProfilePic] = useState('');
-    // const [modalVisible, setModalVisible] = useState(false);
-    // const [newTemplate, setNewTemplate] = useState({
-    //     title: '',
-    //     text: '',
-    //     type: callTypes[0],
-    //     active: false,
-    // });
-    // const [editIndex, setEditIndex] = useState(null);
-    // const webviewRef = useRef(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedTemplateId, setSelectedTemplateId] = useState(null);
     const [showStatusModal, setShowStatusModal] = useState(false);
@@ -50,12 +41,6 @@ export default function TemplateScreen({ navigation }) {
         editcolor = '#E0E0E0'
     }
 
-    // const handleEdit = (template) => {
-    //     navigation.navigate('ShowTemplate', {
-    //         template,
-    //         isEdit: true,
-    //     });
-    // };
 
     const fetchTemplates = async () => {
         try {
@@ -78,115 +63,7 @@ export default function TemplateScreen({ navigation }) {
         }
     };
 
-    // const openModal = (index = null) => {
-    //     setEditIndex(index);
-    //     setNewTemplate(
-    //         index !== null
-    //             ? {
-    //                 title: templates[index].title || '',
-    //                 text: templates[index].description || '',
-    //                 type:
-    //                     callTypes.find(
-    //                         (ct) =>
-    //                             ct.toLowerCase() ===
-    //                             (templates[index].template_type || '').toLowerCase()
-    //                     ) || callTypes[1],
-    //                 active: templates[index].status === '1',
-    //             }
-    //             : {
-    //                 title: '',
-    //                 text: '',
-    //                 type: callTypes[0],
-    //                 active: false,
-    //             }
-    //     );
-    //     setModalVisible(true);
-    // };
 
-    // const saveTemplate = () => {
-    //     if (newTemplate.title.trim().length < 3 || newTemplate.title.trim().length > 200) {
-    //         // return ToastAndroid.show('Title must be 3 to 200 characters', ToastAndroid.SHORT);
-    //         setError("Title must be 3 to 200 characters");
-    //     }
-
-    //     if (webviewRef.current) {
-    //         webviewRef.current.injectJavaScript(`
-    //     document.dispatchEvent(new MessageEvent('message', { data: "getContent" }));
-    //     true;
-    //   `);
-    //     }
-    // };
-
-    // const onMessage = async (event) => {
-    //     const htmlContent = event.nativeEvent.data;
-    //     const plainText = htmlContent.replace(/<[^>]*>?/gm, '').trim();
-    //     if (plainText.length < 3 || plainText.length > 700) {
-    //         return ToastAndroid.show("Description must be 3 to 700 characters", ToastAndroid.SHORT);
-    //         // setError2("Description must be 3 to 700 characters");
-
-    //     }
-
-    //     try {
-    //         const token = await AsyncStorage.getItem('token');
-    //         const currentTemplate = { ...newTemplate };
-
-    //         if (!currentTemplate.title?.trim()) {
-    //             // return ToastAndroid.show('Please enter a title', ToastAndroid.SHORT);
-    //             setError('Please enter a title');
-    //         }
-
-    //         if (!currentTemplate.type?.trim()) {
-    //             return Alert.alert('Validation Error', 'Please select a call type');
-    //         }
-
-    //         const isEditing = editIndex !== null;
-    //         const templateId = isEditing ? templates[editIndex].id : null;
-
-    //         const url = isEditing ? `vendor/templates/${templateId}` : 'vendor/templates';
-
-    //         const response = await api.post(url, {
-    //             title: currentTemplate.title.trim(),
-    //             description: htmlContent,
-    //             template_type: currentTemplate.type.toLowerCase(),
-    //         }, {
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`,
-    //                 Accept: 'application/json'
-    //             }
-    //         });
-
-    //         if (response.data.status) {
-    //             Toast.show({
-    //                 type: 'success',
-    //                 text1: isEditing ? 'Template Updated' : 'Template Saved',
-    //                 text2: isEditing ? 'Template updated successfully' : 'Template saved successfully',
-    //                 position: 'top',
-    //             });
-    //             await fetchTemplates();
-    //             setModalVisible(false);
-    //             setEditIndex(null);
-    //         } else {
-    //             Toast.show({
-    //                 type: 'error',
-    //                 text1: 'Error!',
-    //                 text2: 'Failed to save template',
-    //                 position: 'top',
-    //             });
-    //         }
-    //     } catch (error) {
-    //         console.error('Error saving/updating template:', error);
-    //         Toast.show({
-    //             type: 'error',
-    //             text1: 'Error!',
-    //             text2: 'Error saving/updating template',
-    //             position: 'top',
-    //         });
-    //         // return ToastAndroid.show('Template with same title already exists', ToastAndroid.SHORT);
-    //         setError("Template with same name already exists");
-
-
-    //     }
-    // };
 
     const handleDelete = (template) => {
         setSelectedTemplateId(template.id);
@@ -197,6 +74,14 @@ export default function TemplateScreen({ navigation }) {
     const deleteTemplate = async (id) => {
         try {
             const token = await AsyncStorage.getItem('token');
+            const user = await AsyncStorage.getItem('user_type');
+            if (user === 'agent') {
+                Toast.show({
+                    type: 'info',
+                    text1: 'User not autherized'
+                });
+                return
+            }
             const response = await api.delete(`vendor/templates/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -340,7 +225,6 @@ export default function TemplateScreen({ navigation }) {
     return (
         <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] px-4 py-4">
             <Header title="Message Template" profilePic={profilePic} />
-            {/* <Text className="text-[#333333] dark:text-[#E0E0E0] text-2xl font-bold mb-4">Message Templates </Text> */}
             {loading ? (
                 <ActivityIndicator size="large" color="#0ea5e9" className="mt-10" />
             ) : templates.length === 0 ? (

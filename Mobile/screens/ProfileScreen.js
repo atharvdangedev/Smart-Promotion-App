@@ -253,6 +253,8 @@ export default function ProfileScreen({ navigation }) {
                                                 'token',
                                                 'user_type',
                                                 'user_id',
+                                                'username',
+                                                'profile_pic',
                                             ]);
                                             navigation.reset({
                                                 index: 0,
