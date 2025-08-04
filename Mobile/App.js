@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DrawerNavigator from './navigation/DrawerNavigator';
 import WelcomeScreen from './screens/WelcomeScreen';
 import SignInScreen from './screens/SignInScreen';
-import EnterpriseLoginScreen from './screens/EnterpriseLoginScreen';
 import ForgotPassword from './screens/ForgotPassword';
 import ResetPassword from './screens/ResetPassword';
 import ChangePasswordScreen from './screens/ChangePasswordScreen';
@@ -28,7 +26,7 @@ export default function App() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const rememberMe = await AsyncStorage.getItem('remember_me'); // <- new
+        // const rememberMe = await AsyncStorage.getItem('remember_me'); // <- new
         const token = await AsyncStorage.getItem('token');
         const userType = await AsyncStorage.getItem('user_type');
         const userId = await AsyncStorage.getItem('user_id');
@@ -66,7 +64,6 @@ export default function App() {
         <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="SignIn" component={SignInScreen} />
-          <Stack.Screen name="EnterpriseLogin" component={EnterpriseLoginScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
           <Stack.Screen name="ResetPassword" component={ResetPassword} />
           <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />

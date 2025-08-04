@@ -54,17 +54,17 @@ export default function CardResultScreen({ route, navigation }) {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] p-4">
+        <SafeAreaView className="flex-1 bg-light-background dark:bg-dark-background p-4">
             {/* <Header title='Scan Result' profilePic={true} /> */}
             <SubHeader title="Scan Result" />
-            <Text className="text-[#333333] dark:text-[#E0E0E0] text-lg font-semibold mt-6">Scanned Text:</Text>
+            <Text className="text-light-text dark:text-dark-text text-lg font-semibold mt-6">Scanned Text:</Text>
             <View className="bg-zinc-800 p-4 rounded-2xl mt-2 max-h-60">
                 <ScrollView>
                     <Text className="text-white whitespace-pre-line">{fullText}</Text>
                 </ScrollView>
             </View>
 
-            <Text className="text-[#333333] dark:text-[#E0E0E0] text-lg font-semibold mt-4">Contact Name</Text>
+            <Text className="text-light-text dark:text-dark-text text-lg font-semibold mt-4">Contact Name</Text>
             <View className="bg-zinc-800 rounded-xl px-4 py-1 mb-4">
                 <TextInput
                     placeholder="Enter contact name"
@@ -75,7 +75,7 @@ export default function CardResultScreen({ route, navigation }) {
                 />
             </View>
 
-            <Text className="text-[#333333] dark:text-[#E0E0E0] text-lg font-semibold mb-2">Select Number</Text>
+            <Text className="text-light-text dark:text-dark-text text-lg font-semibold mb-2">Select Number</Text>
 
             {numbers.map((item, index) => (
                 <Pressable
@@ -91,7 +91,7 @@ export default function CardResultScreen({ route, navigation }) {
                 </Pressable>
             ))}
 
-            <Text className='text-[#333333] dark:text-[#E0E0E0] my-3'>Note : Only valid Indian (+91) numbers can be saved</Text>
+            <Text className='text-light-text dark:text-dark-text my-3'>Note : Only valid Indian (+91) numbers can be saved</Text>
             <TouchableOpacity
                 onPress={saveContact}
                 className={`rounded-2xl px-4 py-3 flex-row items-center justify-center mb-4 w-full ${isSaved ? 'bg-zinc-600' : 'bg-[#A8E6CF]'}`}

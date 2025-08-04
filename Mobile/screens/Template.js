@@ -223,20 +223,20 @@ export default function TemplateScreen({ navigation }) {
     }, []);
 
     return (
-        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] px-4 py-4">
+        <SafeAreaView className="flex-1 bg-light-background dark:bg-dark-background px-4 py-4">
             <Header title="Message Template" profilePic={profilePic} />
             {loading ? (
                 <ActivityIndicator size="large" color="#0ea5e9" className="mt-10" />
             ) : templates.length === 0 ? (
                 <View className="flex-1 justify-center items-center mt-20">
-                    <Text className="text-gray-400 text-base">No templates found.</Text>
+                    <Text className="text-light-text dark:text-dark-text text-base">No templates found.</Text>
                 </View>
             ) : (
                 <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
                     {templates.map((template, index) => (
-                        <View key={template.id} className="bg-[#FFFFFF] dark:bg-[#3A506B] rounded-xl p-4 mb-4 border border-[#E0E0E0] dark:border-[#4A5568]">
+                        <View key={template.id} className="bg-light-background dark:bg-dark-background rounded-xl p-4 mb-4 border border-[#E0E0E0] dark:border-[#4A5568]">
                             <TouchableOpacity onPress={() => navigation.navigate('TemplateDetails', { templateId: template.id })}>
-                                <Text className="text-[#333333] dark:text-[#E0E0E0] text-lg font-bold mb-2">{template.title}</Text>
+                                <Text className="text-light-text dark:text-dark-text text-lg font-bold mb-2">{template.title}</Text>
 
                                 <View className="bg-neutral-900 p-2 rounded">
                                     <Text numberOfLines={3} className="text-gray-300">{renderFormattedText(template.description)}</Text>

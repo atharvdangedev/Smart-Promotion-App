@@ -142,16 +142,16 @@ export default function LoginScreen({ navigation }) {
 
 
     return (
-        <SafeAreaView className='flex-1 justify-center px-6 bg-[#FDFDFD] dark:bg-[#2C3E50]'>
-            <Text className="text-3xl font-bold mb-12 text-center text-[#333333] dark:text-[#E0E0E0]">Sign In </Text>
+        <SafeAreaView className='flex-1 justify-center px-6 bg-light-background dark:bg-dark-background'>
+            <Text className="text-3xl font-bold mb-12 text-center text-light-text dark:text-dark-text">Sign In </Text>
 
 
             <InputField icon="user" placeholder="Email" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={handleEmailChange} />
             {error === 'email' && (
-                <Text className="text-[#FF6B6B] text-sm mb-3 text-center">Email is required</Text>
+                <Text className="text-light-danger dark:text-dark-danger text-sm mb-3 text-center">Email is required</Text>
             )}
             {formError ? (
-                <Text className="text-[#FF6B6B] text-sm mb-3 text-center">{formError}</Text>
+                <Text className="text-light-danger dark:text-dark-danger text-sm mb-3 text-center">{formError}</Text>
             ) : null}
             <InputField
                 icon="lock"
@@ -163,7 +163,7 @@ export default function LoginScreen({ navigation }) {
                 togglePasswordVisibility={togglePasswordVisibility}
             />
             {error2 === 'password' && (
-                <Text className="text-[#FF6B6B] text-sm  text-center">Password is required</Text>
+                <Text className="text-light-danger dark:text-dark-danger text-sm  text-center">Password is required</Text>
             )}
 
             {/* Remember Me Checkbox */}
@@ -178,7 +178,7 @@ export default function LoginScreen({ navigation }) {
                         <View className={`h-5 w-5 mr-2 border-2 rounded ${rememberMe ? 'bg-black border-black' : 'border-gray-400'}`}>
                             {rememberMe && <Check size={16} color="white" />}
                         </View>
-                        <Text className="text-[#333333] dark:text-[#E0E0E0]">Remember me</Text>
+                        <Text className="text-light-text dark:text-dark-text">Remember me</Text>
                     </TouchableOpacity>
                 </View>
                 <TouchableOpacity

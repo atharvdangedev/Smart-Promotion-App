@@ -80,7 +80,7 @@ export default function ForgotPassword({ navigation }) {
 
             {/* Error or Success Messages */}
             {formError ? (
-                <Text className="text-[#FF6B6B] dark:text-[#FF8A80] text-sm mt-2 mb-2 text-center">{formError}</Text>
+                <Text className="text-light-danger dark:text-dark-danger text-sm mt-2 mb-2 text-center">{formError}</Text>
             ) : null}
 
             {successMsg ? (
@@ -89,8 +89,7 @@ export default function ForgotPassword({ navigation }) {
                 </Text>
             ) : null}
             <View className='flex-row items-center'>
-                {/* <Text className='text-sm font-semibold  text-[#333333] dark:text-[#E0E0E0]'>Note : </Text> */}
-                <Text className='text-sm font-medium text-[#333333] dark:text-[#E0E0E0]'><Text className='text-base font-semibold '>Note : </Text> Enter the email associated with your account and we'll send you a link to reset your password.</Text>
+                <Text className='text-sm font-medium text-light-text dark:text-dark-text'><Text className='text-base font-semibold '>Note : </Text> Enter the email associated with your account and we'll send you a link to reset your password.</Text>
             </View>
             <TouchableOpacity
                 onPress={handleSubmit}
@@ -105,7 +104,7 @@ export default function ForgotPassword({ navigation }) {
             </TouchableOpacity>
             <TouchableOpacity
                 onPress={() => navigation.goBack()}
-                className='bg-white border border-[#E0E0E0] dark:border-[#4A5568] py-3 rounded-xl'>
+                className='bg-white border border-light-border dark:border-dark-border py-3 rounded-xl'>
                 <Text className='text-center text-black font-semibold'>Back to Log In</Text>
             </TouchableOpacity>
         </SafeAreaView>

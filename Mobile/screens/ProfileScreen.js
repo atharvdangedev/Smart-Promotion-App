@@ -111,7 +111,7 @@ export default function ProfileScreen({ navigation }) {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50]">
+        <SafeAreaView className="flex-1 bg-light-background dark:bg-dark-background">
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
@@ -168,7 +168,7 @@ export default function ProfileScreen({ navigation }) {
                                 fieldState: { error },
                             }) => (
                                 <View className="mb-4 mx-3">
-                                    <Text className="text-[#333333] dark:text-[#E0E0E0] mb-1">
+                                    <Text className="text-light-text dark:text-dark-text mb-1">
                                         {label}
                                     </Text>
                                     <TextInput
@@ -179,14 +179,14 @@ export default function ProfileScreen({ navigation }) {
                                         secureTextEntry={name === 'password'}
                                         editable={name !== 'email'}
                                         selectTextOnFocus={name !== 'email'}
-                                        className={`px-4 py-2 rounded-xl border-[#E0E0E0] dark:border-[#4A5568] text-[#888888] dark:text-[#A0A0A0] border ${error ? 'border-red-500' : 'border-gray-700'} ${name === 'email'
-                                            ? 'bg-[#FDFDFD] dark:bg-[#2C3E50]'
-                                            : 'bg-[#FDFDFD] dark:bg-[#2C3E50]'
+                                        className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} ${name === 'email'
+                                            ? 'bg-light-background dark:bg-dark-background'
+                                            : 'bg-light-background dark:bg-dark-background'
                                             }`}
                                     />
 
                                     {error && (
-                                        <Text className="text-red-500 text-xs mt-1">
+                                        <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
                                             {error.message}
                                         </Text>
                                     )}
@@ -218,7 +218,7 @@ export default function ProfileScreen({ navigation }) {
                     {/* Logout */}
                     <TouchableOpacity
                         onPress={() => setLogoutModalVisible(true)}
-                        className="bg-black border-[#E0E0E0] dark:border-[#4A5568] rounded-xl py-3 mb-6"
+                        className="bg-black border border-light-border dark:border-dark-border rounded-xl py-3 mb-6"
                     >
                         <Text className="text-white text-center font-semibold">Logout</Text>
                     </TouchableOpacity>

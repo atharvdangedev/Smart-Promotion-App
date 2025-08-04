@@ -35,7 +35,6 @@ const ShowTemplate = () => {
         if (isEdit && template) {
             setTitle(template.title || '');
             setDescription(template.description || '');
-
             // Normalize the template_type to match against callTypes
             const matchedType = callTypes.find(
                 (type) => type.toLowerCase() === template.template_type?.toLowerCase()
@@ -93,7 +92,7 @@ const ShowTemplate = () => {
 
         try {
             if (isEdit && template?.id) {
-                await api.put(`vendor/templates/${template.id}`, payload, headers);
+                await api.post(`vendor/templates/${template.id}`, payload, headers);
             } else {
                 await api.post(`vendor/templates`, payload, headers);
             }
@@ -105,16 +104,18 @@ const ShowTemplate = () => {
 
             navigation.goBack();
         } catch (err) {
-            console.log('Template save error:', err);
+            console.log('Template save error:', err.response?.data || err.message);
             Toast.show({
                 type: 'error',
                 text1: 'Failed to save template',
+                text2: err.response?.data?.message || 'Something went wrong',
             });
         }
+
     };
 
     return (
-        <SafeAreaView className='flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] py-4'>
+        <SafeAreaView className='flex-1 bg-light-background dark:bg-dark-background py-4'>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 className="flex-1 "
@@ -125,7 +126,7 @@ const ShowTemplate = () => {
                     keyboardShouldPersistTaps="always"
                     contentContainerStyle={{ paddingBottom: 100 }}
                 >
-                    <Text className="text-[#333333] dark:text-[#E0E0E0] font-semibold text-xl py-2">Title</Text>
+                    <Text className="text-light-text dark:text-dark-text font-semibold text-xl py-2">Title</Text>
                     <TextInput
                         placeholder="Template Title"
                         placeholderTextColor="#ccc"
@@ -137,10 +138,10 @@ const ShowTemplate = () => {
                         className="border border-gray-400 rounded-lg p-3 text-base mb-3 text-white bg-black"
                     />
                     {errorTitle !== '' && (
-                        <Text className="text-red-500 mt-1 ml-1">{errorTitle}</Text>
+                        <Text className="text-light-danger dark:text-dark-danger mt-1 ml-1">{errorTitle}</Text>
                     )}
 
-                    <Text className="text-[#333333] dark:text-[#E0E0E0] font-semibold text-xl py-2">Description</Text>
+                    <Text className="text-light-text dark:text-dark-text font-semibold text-xl py-2">Description</Text>
                     <RichTextInput
                         value={description}
                         onChange={(text) => {
@@ -150,10 +151,10 @@ const ShowTemplate = () => {
                         showPreview={true}
                     />
                     {errorDesc !== '' && (
-                        <Text className="text-red-500 mt-1 ml-1">{errorDesc}</Text>
+                        <Text className="text-light-danger dark:text-dark-danger mt-1 ml-1">{errorDesc}</Text>
                     )}
 
-                    <Text className="text-[#333333] dark:text-[#E0E0E0] mb-1 text-lg font-semibold">Call Type</Text>
+                    <Text className="text-light-text dark:text-dark-text mb-1 text-lg font-semibold">Call Type</Text>
                     {callTypes.map((type) => (
                         <Pressable
                             key={type}
