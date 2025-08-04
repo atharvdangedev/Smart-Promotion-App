@@ -196,8 +196,8 @@ export default function ChangePasswordScreen({ navigation }) {
 
 
     return (
-        <SafeAreaView className="flex-1 bg-white px-6 justify-center">
-            <Text className="text-xl font-bold text-center mb-6 text-black">Change Password</Text>
+        <SafeAreaView className="flex-1 bg-light-background dark:bg-dark-background px-6 justify-center">
+            <Text className="text-2xl font-bold text-center mb-6 text-light-text dark:text-dark-text">Change Password</Text>
             <View className="flex-row items-center bg-gray-100 rounded-xl px-4 mb-4">
                 <TextInput
                     placeholder="Old Password"
@@ -215,7 +215,7 @@ export default function ChangePasswordScreen({ navigation }) {
                     {showOldPassword ? <Eye size={20} color="gray" /> : <EyeOff size={20} color="gray" />}
                 </TouchableOpacity>
             </View>
-            {error3 ? <Text className="text-red-500 mb-2 text-center">{error3}</Text> : null}
+            {error3 ? <Text className="text-light-danger dark:text-dark-danger mb-2 text-center">{error3}</Text> : null}
 
             <View className="flex-row items-center bg-gray-100 rounded-xl px-4 mb-4">
                 <TextInput
@@ -236,11 +236,11 @@ export default function ChangePasswordScreen({ navigation }) {
                     {showNewPassword ? <Eye size={20} color="gray" /> : <EyeOff size={20} color="gray" />}
                 </TouchableOpacity>
             </View>
-            {error2 ? <Text className="text-red-500 mb-2 text-center">{error2}</Text> : null}
+            {error2 ? <Text className="text-light-danger dark:text-dark-danger mb-2 text-center">{error2}</Text> : null}
             {newPassword.length > 0 && passwordValidationMessages.length > 0 && (
                 <View className="mb-4 ml-1">
                     {passwordValidationMessages.map((msg, index) => (
-                        <Text key={index} className="text-red-500 text-sm">
+                        <Text key={index} className="text-light-danger dark:text-dark-danger text-sm">
                             {msg}
                         </Text>
                     ))}
@@ -278,7 +278,7 @@ export default function ChangePasswordScreen({ navigation }) {
                 </View>
                 <Text className="text-black">Show Password</Text>
             </TouchableOpacity> */}
-            {errorMsg ? <Text className="text-red-500 mb-2 text-center">{errorMsg}</Text> : null}
+            {errorMsg ? <Text className="text-light-danger dark:text-dark-danger mb-2 text-center">{errorMsg}</Text> : null}
             {successMsg ? <Text className="text-green-600 mb-2 text-center">{successMsg}</Text> : null}
 
             <TouchableOpacity

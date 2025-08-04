@@ -89,7 +89,7 @@ export default function CallLogScreen({ navigation }) {
     };
 
     return (
-        <SafeAreaView className='flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50]'>
+        <SafeAreaView className='flex-1 bg-light-background dark:bg-dark-background'>
             <View className="px-4 pt-6">
                 <Header title='Contact Log' profilePic={profilePic} />
                 {/* <Text className="text-[#333333] dark:text-[#E0E0E0] text-2xl font-bold mb-4">Call Logs</Text> */}
@@ -145,9 +145,9 @@ export default function CallLogScreen({ navigation }) {
                             <TouchableOpacity onPress={() => navigation.navigate('ContactDetails', { contact: item })}
                                 className='mb-3'
                             >
-                                <View className="flex-row justify-between items-center bg-[#FFFFFF] dark:bg-[#3A506B] border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl px-4 py-3 mb-3">
+                                <View className="flex-row justify-between items-center bg-light-card dark:bg-dark-card border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl px-4 py-3 mb-3">
                                     <View className="flex-1">
-                                        <Text className="text-[#333333] dark:text-[#E0E0E0] font-semibold">
+                                        <Text className="text-light-text dark:text-dark-text font-semibold">
                                             {item.first_name} {item.last_name}
                                         </Text>
                                         <View className='flex-row gap-2'>

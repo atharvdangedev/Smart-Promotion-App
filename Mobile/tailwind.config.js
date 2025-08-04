@@ -4,12 +4,43 @@ module.exports = {
     "./App.{js,jsx,ts,tsx}",
     "./screens/**/*.{js,jsx,ts,tsx}",
     "./components/**/*.{js,jsx,ts,tsx}",
-    "./src/**/*.{js,jsx,ts,tsx}", // if you're using src folder
+    "./src/**/*.{js,jsx,ts,tsx}",
   ],
   presets: [require("nativewind/preset")],
+  darkMode: 'media', // use 'class' if you want manual toggle
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        light: {
+          text: "#333333",
+          subtext: "#888888",
+          background: "#FDFDFD",
+          icon: "#333333",
+          primaryAccent: "#A8E6CF",
+          secondaryAccent: "#DCB2FF",
+          tertiaryAccent: "#A0D9FF",
+          success: "#A5D6A7",
+          warning: "#FFD54F",
+          danger: "#FF6B6B",
+          border: "#E0E0E0",
+          card: "#FFFFFF",
+        },
+        dark: {
+          text: "#E0E0E0",
+          subtext: "#A0A0A0",
+          background: "#2C3E50",
+          icon: "#F1F5F9",
+          primaryAccent: "#7ED9B0",
+          secondaryAccent: "#B88BFF",
+          tertiaryAccent: "#7AC0E8",
+          success: "#C8E6C9",
+          warning: "#FFEB3B",
+          danger: "#FF8A80",
+          border: "#4A5568",
+          card: "#3A506B",
+        },
+      },
+    },
   },
-  darkMode: 'media',
   plugins: [],
 };

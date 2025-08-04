@@ -28,7 +28,7 @@ export default function Header({ title = 'SmartPromotions', profilePic }) {
 
     return (
         <View>
-            <View className='flex-row justify-between items-center border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl p-4 mb-6'>
+            <View className='flex-row justify-between items-center border border-light-border dark:border-dark-border rounded-xl p-4 mb-6'>
                 {/* Drawer button */}
                 <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
                     <Menu size={26} color={sidebarcolor} />
@@ -52,7 +52,7 @@ export default function Header({ title = 'SmartPromotions', profilePic }) {
                     className='border border-gray-700 rounded-full p-1'
                     onPress={() => navigation.navigate('ProfileScreen')}
                 >
-                    <User size={24} color="white" />
+                    <User size={24} color={sidebarcolor} />
                 </TouchableOpacity>)}
             </View>
         </View>

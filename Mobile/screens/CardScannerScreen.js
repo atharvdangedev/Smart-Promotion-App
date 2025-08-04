@@ -196,36 +196,20 @@ export default function CardScannerScreen() {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] p-4">
+        <SafeAreaView className="flex-1 bg-light-background dark:bg-dark-background p-4">
             <Header title='Card Scanner' profilePic={profilePic} />
-            <Text className="text-2xl font-bold text-[#333333] dark:text-[#E0E0E0] text-center mt-8">Add Contacts Instantly</Text>
-            <Text className='text-lg font-medium text-[#888888] dark:text-[#A0A0A0] text-center my-2'>Scan a bussiness card or upload an image to automatically extract the contact details.</Text>
-
-
-            {/* <Text className='text-xl font-semibold text-white'>Instructions :</Text>
-            <View className='my-3 p-4 rounded-xl bg-white'>
-                <Text className='text-lg text-black font-semibold'>1) It Scans all the text in the image.</Text>
-                <Text className='text-lg text-black font-semibold'>2) So crop the image accordigly.</Text>
-                <Text className='text-lg text-black font-semibold'>3) User should verify the number and name before saving the contact.</Text>
-                <Text className='text-lg text-black font-semibold'>4) It will scan only valid Indian numbers.</Text>
-            </View> */}
-            {/* {text ? (
-                <View className="bg-zinc-800 p-4 rounded-2xl mb-4 max-h-60">
-                    <ScrollView>
-                        <Text className="text-[#333333] dark:text-[#E0E0E0] whitespace-pre-line">{text}</Text>
-                    </ScrollView>
-                </View>
-            ) : null} */}
+            <Text className="text-2xl font-bold text-light-text dark:text-dark-text text-center mt-8">Add Contacts Instantly</Text>
+            <Text className='text-lg font-medium text-light-subtext dark:text-dark-subtext text-center my-2'>Scan a bussiness card or upload an image to automatically extract the contact details.</Text>
 
             {/* FAB Save Button */}
-            {numbers.length > 0 && (
+            {/* {numbers.length > 0 && (
                 <TouchableOpacity
                     onPress={() => setModalVisible(true)}
                     className="absolute bottom-6 right-6 bg-zinc-800 p-4 rounded-full border border-white"
                 >
                     <Save color="white" size={24} />
                 </TouchableOpacity>
-            )}
+            )} */}
 
             <View className='flex-1 justify-end items-end'>
                 <TouchableOpacity
@@ -237,10 +221,10 @@ export default function CardScannerScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={handlePickFromGallery}
-                    className="border border-[#E0E0E0] dark:border-[#4A5568] rounded-2xl px-4 py-3 flex-row items-center justify-center w-full"
+                    className="border border-light-border dark:border-dark-border rounded-2xl px-4 py-3 flex-row items-center justify-center w-full"
                 >
                     <Upload color={iconcolor} size={20} className="mr-2" />
-                    <Text className="text-[#333333] dark:text-[#E0E0E0] text-base font-medium"> Upload from Gallery</Text>
+                    <Text className="text-light-text dark:text-dark-text text-base font-medium"> Upload from Gallery</Text>
                 </TouchableOpacity>
             </View>
 

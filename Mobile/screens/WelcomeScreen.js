@@ -10,17 +10,16 @@ export default function WelcomeScreen({ navigation }) {
 
     const theme = useColorScheme();
     return (
-        // <SafeAreaView className={theme === 'light' ? `flex-1 bg-[#FDFDFD] px-6` : `flex-1 bg-[#2C3E50] px-6`}>
-        <SafeAreaView className='flex-1 px-6 bg-[#FDFDFD] dark:bg-[#2C3E50]'>
+        <SafeAreaView className='flex-1 px-6 bg-light-background dark:bg-dark-background'>
             {/* Title */}
             <View className="items-center mt-[15%]">
-                <Text className="text-[#333333] dark:text-[#E0E0E0] font-bold text-4xl my-4 mt-6 text-center">
+                <Text className="text-light-text dark:text-dark-text font-bold text-4xl my-4 mt-6 text-center">
                     Automate your call Follow-ups (exp)
                 </Text>
             </View>
 
 
-            <Text className="text-[#888888] dark:text-[#A0A0A0] font-semibold text-lg my-2 text-center">
+            <Text className="text-light-subtext dark:text-dark-subtext font-semibold text-lg my-2 text-center">
                 Send smart WhatsApp messages Automatically after incoming and outgoing, or missed calls.
             </Text>
 
@@ -41,7 +40,7 @@ export default function WelcomeScreen({ navigation }) {
             <View className="items-center mb-4 space-y-3">
                 <TouchableOpacity
                     onPress={() => navigation.navigate('SignIn')}
-                    className="bg-[#FDFDFD] dark:bg-[#2C3E50] px-6 py-3 rounded-md w-full border border-[#E0E0E0] dark:border mb-3">
+                    className="bg-light-background dark:bg-dark-background px-6 py-3 rounded-md w-full border border-light-border dark:border-dark-border mb-3">
                     <Text className="text-center text-black dark:text-white font-semibold">APP-Sign In</Text>
                 </TouchableOpacity>
 
@@ -53,7 +52,7 @@ export default function WelcomeScreen({ navigation }) {
 
             {/* Footer */}
             <View className="items-center pb-4">
-                <Text className="text-xs text-zinc-400 text-center">
+                <Text className="text-xs text-light-subtext dark:text-dark-subtext text-center">
                     By signing in you accept our{' '}
                     <Text className="underline text-blue-500">Terms of use</Text> and{' '}
                     <Text className="underline text-blue-500">Privacy policy</Text>.

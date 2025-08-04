@@ -83,7 +83,7 @@ export default function PlansPricingScreen() {
     };
 
     return (
-        <SafeAreaView className='flex-1 bg-[#FDFDFD] dark:bg-[#2C3E50] py-2'>
+        <SafeAreaView className='flex-1 bg-light-background dark:bg-dark-background py-2'>
             <ScrollView className="flex-1 px-4 py-6">
                 <Header title='Plans & Pricing ' profilePic={profilePic} />
                 {/* <Text className="text-2xl font-bold text-[#333333] dark:text-[#E0E0E0] mb-4">Explore our plans</Text> */}

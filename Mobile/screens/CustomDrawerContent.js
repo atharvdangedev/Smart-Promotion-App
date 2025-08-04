@@ -14,15 +14,6 @@ export default function CustomDrawerContent(props) {
 
             {/* Menu List */}
             <DrawerItemList {...props} />
-
-            {/* Logout Option */}
-            {/* <TouchableOpacity
-                onPress={() => alert('Logout')}
-                style={{ padding: 20, flexDirection: 'row', alignItems: 'center' }}
-            >
-                <LogOut color="#fff" />
-                <Text style={{ color: '#fff', marginLeft: 10 }}>Logout</Text>
-            </TouchableOpacity> */}
         </DrawerContentScrollView>
     );
 }
