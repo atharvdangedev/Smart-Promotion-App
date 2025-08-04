@@ -24,6 +24,7 @@ export default function TemplateScreen({ navigation }) {
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedTemplateForStatus, setSelectedTemplateForStatus] = useState(null);
     const [selectedTemp, setSelectedTemp] = useState({});
+    const [user, setUser] = useState('');
     // const [error, setError] = useState('');
     // const [error2, setError2] = useState('');
 
@@ -211,6 +212,8 @@ export default function TemplateScreen({ navigation }) {
 
     useEffect(() => {
         const init = async () => {
+            const ActiveUser = await AsyncStorage.getItem('user_type');
+            setUser(ActiveUser);
             const filename = await AsyncStorage.getItem('profile_pic');
             if (filename) {
                 const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
@@ -241,7 +244,7 @@ export default function TemplateScreen({ navigation }) {
                                 <View className="bg-neutral-900 p-2 rounded">
                                     <Text numberOfLines={3} className="text-gray-300">{renderFormattedText(template.description)}</Text>
                                 </View>
-                                <View className="flex-row justify-between items-center mt-3">
+                                {user === 'agent' ? null : (<View className="flex-row justify-between items-center mt-3">
                                     <View className="flex-row gap-2">
                                         <TouchableOpacity onPress={() => {
                                             confirmToggleStatus(template);
@@ -271,7 +274,7 @@ export default function TemplateScreen({ navigation }) {
                                             <Trash2 color="red" size={20} />
                                         </TouchableOpacity>
                                     </View>
-                                </View>
+                                </View>)}
                             </TouchableOpacity>
                         </View>
                     ))}
