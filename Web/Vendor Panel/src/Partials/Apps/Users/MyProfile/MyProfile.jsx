@@ -9,7 +9,6 @@ import { handleApiError } from "../../utils/handleApiError";
 import { setPageTitle } from "../../utils/docTitle";
 import Select from "react-select";
 import { useDispatch, useSelector } from "react-redux";
-// import { setUser } from "../../../../Redux/slices/authSlice";
 import BecomeAnAffiliate from "../../BecomeAnAffiliate/BecomeAnAffiliate";
 import { APP_PERMISSIONS, ROLE_PERMISSIONS } from "../../utils/permissions";
 
@@ -571,7 +570,10 @@ const MyProfile = () => {
               </div>
 
               {/* Additional Information */}
-              <h4 className="mt-4">Additional Information</h4>
+              {(hasPermission(APP_PERMISSIONS.AGENTS_VIEW) ||
+                hasPermission(APP_PERMISSIONS.COMMISSIONS_VIEW)) && (
+                <h4 className="mt-4">Additional Information</h4>
+              )}
 
               {hasPermission(APP_PERMISSIONS.AGENTS_VIEW) && (
                 <>
