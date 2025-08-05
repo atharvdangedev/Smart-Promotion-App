@@ -9,6 +9,7 @@ import { api } from '../utils/api';
 import { ArrowLeft } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import SubHeader from '../components/SubHeader';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 export default function TemplateDetailScreen({ route }) {
     const { templateId } = route.params;
@@ -20,9 +21,20 @@ export default function TemplateDetailScreen({ route }) {
     useEffect(() => {
         const fetchTemplateDetail = async () => {
             try {
-                const token = await AsyncStorage.getItem('token');
+                // const token = await AsyncStorage.getItem('token');
 
-                const response = await api.get(`vendor/templates/${templateId}`, {
+                // const response = await api.get(`vendor/templates/${templateId}`, {
+                //     headers: {
+                //         Authorization: `Bearer ${token}`,
+                //         Accept: 'application/json',
+                //     },
+                // });
+                const token = await AsyncStorage.getItem('token');
+                const ActiveUser = await AsyncStorage.getItem('user_type');
+                console.log('name:', ActiveUser);
+                const endpoint = ActiveUser === 'agent' ? `agent/templates/${templateId}` : `vendor/templates/${templateId}`;
+
+                const response = await api.get(endpoint, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         Accept: 'application/json',
@@ -98,15 +110,15 @@ export default function TemplateDetailScreen({ route }) {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-light-background dark:bg-dark-background px-4 py-4">
-            <ScrollView>
+        <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background px-4 py-4">
+            <ScrollView showsVerticalScrollIndicator={false}>
                 <SubHeader title="Template Details" />
-                <Text className="text-2xl text-light-text dark:text-dark-text font-bold my-2">{template.title}</Text>
+                <Text className="text-2xl text-light-text dark:text-dark-text font-bold mt-6">{template.title}</Text>
                 <Text className="text-sm text-light-text dark:text-dark-text mb-4">Type: {template.template_type}</Text>
                 <View className="bg-neutral-800 rounded p-4">
                     <Text className="text-white text-lg">{renderFormattedText(template.description)}</Text>
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 }

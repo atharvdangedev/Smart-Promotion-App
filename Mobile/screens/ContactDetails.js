@@ -6,6 +6,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { PhoneIncoming, PhoneMissed, PhoneOff, PhoneOutgoing } from 'lucide-react-native';
 import SubHeader from '../components/SubHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 export default function ContactDetails() {
     const route = useRoute();
@@ -34,10 +35,9 @@ export default function ContactDetails() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-light-background dark:bg-dark-background px-4 pt-4">
-            <ScrollView>
+        <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background px-4 pt-4">
+            <ScrollView showsVerticalScrollIndicator={false}>
                 <SubHeader title="Contact Details" />
-
                 {/* Profile */}
                 <View className="items-center mt-2 ">
                     <View className="w-24 h-24 rounded-full bg-gray-700 mb-3 border-4 border-sky-500 overflow-hidden">
@@ -56,22 +56,22 @@ export default function ContactDetails() {
                 <View className="flex-row justify-center gap-4 mt-5">
                     <TouchableOpacity
                         onPress={() => handleCall()}
-                        className="bg-green-500 px-6 py-2 rounded-xl">
+                        className="bg-green-500 px-4 items-center justify-center py-2 rounded-xl">
                         <Text className="text-white font-semibold">Call</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => openWhatsApp(contact.phone)}
-                        className="flex-row bg-blue-400 px-6 py-2 rounded-xl">
+                        className="flex-row bg-blue-400 px-6 items-center justify-center py-2 rounded-xl">
                         <Text className="text-white mr-2 font-semibold">Message on</Text>
 
-                        <FontAwesome name="whatsapp" size={22} color="#25D366" />
+                        <FontAwesome name="whatsapp" size={20} color="#25D366" />
 
                     </TouchableOpacity>
                 </View>
 
                 {/* Info Card */}
                 <Text className='text-light-text dark:text-dark-text text-lg font-bold mt-6'> Information</Text>
-                <View className="bg-zinc-800 rounded-xl p-4 ">
+                <View className="bg-light-background dark:bg-dark-background border dark:border-dark-border rounded-xl p-4 ">
                     <Text className="text-white mb-2">
                         <Text className="text-gray-400">Birthday: </Text>
                         <Text className="text-green-400 font-semibold">August 15th</Text>
@@ -83,7 +83,7 @@ export default function ContactDetails() {
                 </View>
 
                 <Text className="text-light-text dark:text-dark-text text-lg font-bold mt-4">Notes</Text>
-                <View className="bg-zinc-800 rounded-xl p-4">
+                <View className="bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-xl p-4">
                     <Text className="text-gray-300">
                         Met at the 2025 Pune tech conference. Interested in the premium plan for his real estate business.{" "}
                         Follow up next week regarding API access.
@@ -112,13 +112,14 @@ export default function ContactDetails() {
                             </View>
                         </View>
                         <Text className='text-light-text dark:text-dark-text font-medium mb-2'>Message Sent </Text>
-                        <View className="p-4 bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">
+                        <View className="p-4 bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-xl">
                             <Text className="text-light-text dark:text-dark-text font-semibold">Sent 'First-Time User Offer'</Text>
                             <Text className="text-light-subtext dark:text-dark-subtext text-xs mt-1">Jul 21, 2025</Text>
                         </View>
                     </View>
+                    <Text className='border-gray-400 border-b-hairline'></Text>
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 }
