@@ -311,7 +311,7 @@ export default function TemplateScreen({ navigation }) {
                     <View className="bg-light-background dark:bg-dark-background w-full rounded-xl p-4">
                         <Text className="text-xl font-semibold text-light-text dark:text-dark-text mb-2 text-center">Confirm Delete</Text>
                         <Text className="text-base text-light-text dark:text-dark-text mb-6 text-center">
-                            Are you sure you want to delete template ({selectedTemp.title})?
+                            Are you sure you want to delete template {selectedTemp.title}?
                         </Text>
                         <View className="flex-row justify-between">
                             <TouchableOpacity
@@ -343,7 +343,7 @@ export default function TemplateScreen({ navigation }) {
                     <View className="bg-light-background dark:bg-dark-background w-full rounded-xl p-4">
                         <Text className="text-xl text-center font-semibold text-light-text dark:text-dark-text mb-2">Confirm Status Change</Text>
                         <Text className="text-base text-center text-light-text dark:text-dark-text mb-6">
-                            Are you sure you want to {selectedTemplateForStatus?.status === '1' ? 'inactive' : 'active'} template ({selectedTemp.title})?
+                            Are you sure you want to {selectedTemplateForStatus?.status === '1' ? 'deactive' : 'active'} template {selectedTemp.title}?
                         </Text>
                         <View className="flex-row justify-between">
                             <TouchableOpacity

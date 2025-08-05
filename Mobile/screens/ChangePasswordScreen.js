@@ -180,7 +180,12 @@ export default function ChangePasswordScreen({ navigation }) {
             }
         } catch (error) {
             console.error('Change Password Error:', error);
-            setErrorMsg('Please enter correct current password');
+            // setErrorMsg('Please enter correct current password');
+            Toast.show({
+                type: 'error',
+                text1: 'Change Password Error',
+                text2: 'Please enter correct current password'
+            })
         } finally {
             setLoading(false);
         }
