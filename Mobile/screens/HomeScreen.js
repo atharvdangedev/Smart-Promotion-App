@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import img from '../assets/image.png';
 import { useColorScheme } from 'react-native';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -89,9 +90,10 @@ export default function DashboardScreen({ navigation }) {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-light-background dark:bg-dark-background py-2">
+        <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background py-2">
             <ScrollView
-                className="px-4 py-4"
+                className="px-4 py-0"
+                showsVerticalScrollIndicator={false}
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -185,6 +187,6 @@ export default function DashboardScreen({ navigation }) {
 
                 <Text className='m-1 border-gray-400 border-b-hairline'></Text>
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 }

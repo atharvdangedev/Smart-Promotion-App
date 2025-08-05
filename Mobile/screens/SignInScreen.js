@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator, useColorScheme } from 'react-native';
 import InputField from '../components/InputField';
 import { api } from '../utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Check } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -15,6 +17,13 @@ export default function LoginScreen({ navigation }) {
     const [error, setError] = useState('');
     const [error2, setError2] = useState('');
 
+    useFocusEffect(
+        React.useCallback(() => {
+            setError('');
+            setError2('');
+            setFormError('');
+        }, [])
+    );
     const handleLogin = async () => {
         if (!email || !password) {
             // setFormError('Please enter both email and password');
@@ -142,9 +151,8 @@ export default function LoginScreen({ navigation }) {
 
 
     return (
-        <SafeAreaView className='flex-1 justify-center px-6 bg-light-background dark:bg-dark-background'>
+        <SafeAreaWrapper className='flex-1 justify-center px-6 bg-light-background dark:bg-dark-background'>
             <Text className="text-3xl font-bold mb-12 text-center text-light-text dark:text-dark-text">Sign In </Text>
-
 
             <InputField icon="user" placeholder="Email" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={handleEmailChange} />
             {error === 'email' && (
@@ -171,7 +179,7 @@ export default function LoginScreen({ navigation }) {
             <View className='flex-row items-center justify-between mx-1'>
                 <View className='flex-row'>
                     <TouchableOpacity
-                        className="flex-row mb-2"
+                        className="flex-row mb-2 items-center justify-center"
                         onPress={() => setRememberMe(!rememberMe)}
                         activeOpacity={0.7}
                     >
@@ -201,6 +209,6 @@ export default function LoginScreen({ navigation }) {
                     <Text className="font-semibold text-gray-5 border-b-hairline"> Sign Up</Text>
                 </TouchableOpacity>
             </View>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 }

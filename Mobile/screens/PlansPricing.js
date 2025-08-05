@@ -4,6 +4,7 @@ import { CheckCircle } from 'lucide-react-native';
 import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 export default function PlansPricingScreen() {
     const [profilePic, setProfilePic] = useState('');
@@ -83,8 +84,10 @@ export default function PlansPricingScreen() {
     };
 
     return (
-        <SafeAreaView className='flex-1 bg-light-background dark:bg-dark-background py-2'>
-            <ScrollView className="flex-1 px-4 py-6">
+        <SafeAreaWrapper className='flex-1 bg-light-background dark:bg-dark-background'>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                className="flex-1 px-4 py-0">
                 <Header title='Plans & Pricing ' profilePic={profilePic} />
                 {/* <Text className="text-2xl font-bold text-[#333333] dark:text-[#E0E0E0] mb-4">Explore our plans</Text> */}
 
@@ -119,6 +122,6 @@ export default function PlansPricingScreen() {
                     );
                 })}
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 }

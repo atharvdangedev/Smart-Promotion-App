@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import InputField from '../components/InputField';
 import { api } from '../utils/api';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 
 export default function ForgotPassword({ navigation }) {
@@ -14,7 +15,7 @@ export default function ForgotPassword({ navigation }) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!email) {
-            setFormError('Please enter your email');
+            setFormError('Email is required');
             return;
         }
 
@@ -63,7 +64,7 @@ export default function ForgotPassword({ navigation }) {
 
 
     return (
-        <SafeAreaView className="flex-1 justify-center px-6 bg-[#FDFDFD] dark:bg-[#2C3E50]">
+        <SafeAreaWrapper className="flex-1 justify-center px-6 bg-[#FDFDFD] dark:bg-[#2C3E50]">
             <Text className="text-3xl font-bold text-center mb-8 text-[#333333] dark:text-[#E0E0E0]">Forgot Password</Text>
 
             <InputField
@@ -107,6 +108,6 @@ export default function ForgotPassword({ navigation }) {
                 className='bg-white border border-light-border dark:border-dark-border py-3 rounded-xl'>
                 <Text className='text-center text-black font-semibold'>Back to Log In</Text>
             </TouchableOpacity>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 }

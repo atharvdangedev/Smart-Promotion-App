@@ -12,6 +12,7 @@ import { api } from '../utils/api';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 // const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
 
@@ -30,9 +31,12 @@ export default function TemplateScreen({ navigation }) {
 
     useFocusEffect(
         React.useCallback(() => {
-            fetchTemplates();
-        }, [])
+            if (user) {
+                fetchTemplates(user);
+            }
+        }, [user])
     );
+
 
     const theme = useColorScheme();
     let editcolor = '';
@@ -43,15 +47,18 @@ export default function TemplateScreen({ navigation }) {
     }
 
 
-    const fetchTemplates = async () => {
+    const fetchTemplates = async (userType) => {
         try {
             const token = await AsyncStorage.getItem('token');
-            const response = await api.get('vendor/templates', {
+            const endpoint = userType === 'agent' ? 'agent/templates' : 'vendor/templates';
+
+            const response = await api.get(endpoint, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: 'application/json',
                 },
             });
+
             if (response.data.status && Array.isArray(response.data.templates)) {
                 setTemplates(response.data.templates);
             } else {
@@ -63,6 +70,7 @@ export default function TemplateScreen({ navigation }) {
             setLoading(false);
         }
     };
+
 
 
 
@@ -219,14 +227,17 @@ export default function TemplateScreen({ navigation }) {
                 const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
                 setProfilePic(url);
             } else {
-                setProfilePic(null); // fallback
+                setProfilePic(null);
             }
-        }
+
+            await fetchTemplates(ActiveUser);
+        };
         init();
     }, []);
 
+
     return (
-        <SafeAreaView className="flex-1 bg-light-background dark:bg-dark-background px-4 py-4">
+        <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background px-4 py-6">
             <Header title="Message Template" profilePic={profilePic} />
             {loading ? (
                 <ActivityIndicator size="large" color="#0ea5e9" className="mt-10" />
@@ -235,10 +246,10 @@ export default function TemplateScreen({ navigation }) {
                     <Text className="text-light-text dark:text-dark-text text-base">No templates found.</Text>
                 </View>
             ) : (
-                <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
+                <ScrollView showsVerticalScrollIndicator={false} className="flex-1" keyboardShouldPersistTaps="handled">
                     {templates.map((template, index) => (
                         <View key={template.id} className="bg-light-background dark:bg-dark-background rounded-xl p-4 mb-4 border border-[#E0E0E0] dark:border-[#4A5568]">
-                            <TouchableOpacity onPress={() => navigation.navigate('TemplateDetails', { templateId: template.id })}>
+                            <TouchableOpacity onPress={() => { user === 'agent' ? null : navigation.navigate('TemplateDetails', { templateId: template.id }) }}>
                                 <Text className="text-light-text dark:text-dark-text text-lg font-bold mb-2">{template.title}</Text>
 
                                 <View className="bg-neutral-900 p-2 rounded">
@@ -282,12 +293,12 @@ export default function TemplateScreen({ navigation }) {
             )}
 
             {/* FAB */}
-            <TouchableOpacity
+            {user === 'agent' ? null : (<TouchableOpacity
                 onPress={() => navigation.navigate('ShowTemplate')}
                 className="absolute bottom-6 right-6 bg-sky-500 p-4 rounded-full"
             >
                 <Plus color="white" size={24} />
-            </TouchableOpacity>
+            </TouchableOpacity>)}
 
 
             <Modal
@@ -297,10 +308,10 @@ export default function TemplateScreen({ navigation }) {
                 onRequestClose={() => setShowDeleteModal(false)}
             >
                 <View className="flex-1 bg-black/60 justify-center items-center px-6">
-                    <View className="bg-white w-full rounded-xl p-4">
-                        <Text className="text-lg font-semibold text-black mb-2 text-center">Confirm Delete</Text>
-                        <Text className="text-base text-gray-700 mb-6 text-center">
-                            Are you sure you want to delete {selectedTemp.title} template?
+                    <View className="bg-light-background dark:bg-dark-background w-full rounded-xl p-4">
+                        <Text className="text-xl font-semibold text-light-text dark:text-dark-text mb-2 text-center">Confirm Delete</Text>
+                        <Text className="text-base text-light-text dark:text-dark-text mb-6 text-center">
+                            Are you sure you want to delete template ({selectedTemp.title})?
                         </Text>
                         <View className="flex-row justify-between">
                             <TouchableOpacity
@@ -329,10 +340,10 @@ export default function TemplateScreen({ navigation }) {
                 onRequestClose={() => setShowStatusModal(false)}
             >
                 <View className="flex-1 bg-black/60 justify-center items-center px-6">
-                    <View className="bg-white w-full rounded-xl p-4">
-                        <Text className="text-lg text-center font-semibold text-black mb-2">Confirm Status Change</Text>
-                        <Text className="text-base text-center text-gray-700 mb-6">
-                            Are you sure you want to {selectedTemplateForStatus?.status === '1' ? 'inactive' : 'active'} {selectedTemp.title} template?
+                    <View className="bg-light-background dark:bg-dark-background w-full rounded-xl p-4">
+                        <Text className="text-xl text-center font-semibold text-light-text dark:text-dark-text mb-2">Confirm Status Change</Text>
+                        <Text className="text-base text-center text-light-text dark:text-dark-text mb-6">
+                            Are you sure you want to {selectedTemplateForStatus?.status === '1' ? 'inactive' : 'active'} template ({selectedTemp.title})?
                         </Text>
                         <View className="flex-row justify-between">
                             <TouchableOpacity
@@ -354,6 +365,6 @@ export default function TemplateScreen({ navigation }) {
                     </View>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 }

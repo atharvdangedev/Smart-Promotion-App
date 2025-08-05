@@ -13,6 +13,7 @@ import Toast from 'react-native-toast-message';
 import Header from '../components/Header';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 export default function CardScannerScreen() {
     const [numbers, setNumbers] = useState([]);
@@ -196,7 +197,7 @@ export default function CardScannerScreen() {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-light-background dark:bg-dark-background p-4">
+        <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background p-4">
             <Header title='Card Scanner' profilePic={profilePic} />
             <Text className="text-2xl font-bold text-light-text dark:text-dark-text text-center mt-8">Add Contacts Instantly</Text>
             <Text className='text-lg font-medium text-light-subtext dark:text-dark-subtext text-center my-2'>Scan a bussiness card or upload an image to automatically extract the contact details.</Text>
@@ -228,53 +229,6 @@ export default function CardScannerScreen() {
                 </TouchableOpacity>
             </View>
 
-            {/* Modal */}
-            {/* <Modal
-                visible={modalVisible}
-                transparent
-                animationType="slide"
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View className="flex-1 bg-black/60 justify-end">
-                    <View className="bg-zinc-900 p-4 rounded-t-2xl">
-                        <Text className="text-white mb-1">Contact Name</Text>
-                        <View className="bg-zinc-800 rounded-xl px-4 py-2 mb-4">
-                            <TextInput
-                                placeholder="Enter contact name"
-                                placeholderTextColor="#aaa"
-                                className="text-white text-base"
-                                value={contactName}
-                                onChangeText={setContactName}
-                            />
-                        </View>
-
-                        <Text className="text-white text-lg font-semibold mb-2">Select Number</Text>
-
-                        {numbers.map((item, index) => (
-                            <Pressable
-                                key={index}
-                                onPress={() => setSelectedNumber(item)}
-                                className={`flex-row items-center px-4 py-3 rounded-xl mb-2 ${selectedNumber?.number === item.number
-                                    ? 'bg-sky-600'
-                                    : 'bg-zinc-800'
-                                    }`}
-                            >
-                                <Phone color="white" size={18} className="mr-2" />
-                                <Text className="text-white text-base">{item.number}</Text>
-                            </Pressable>
-                        ))}
-
-                        <TouchableOpacity
-                            onPress={saveContact}
-                            className="bg-green-600 rounded-xl py-3 mt-4"
-                        >
-                            <Text className="text-center text-white text-base font-medium">
-                                Save Contact
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal> */}
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 }
