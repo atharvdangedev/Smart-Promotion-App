@@ -10,6 +10,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 export default function CallLogScreen({ navigation }) {
     const [contacts, setContacts] = useState([]);
@@ -89,46 +90,46 @@ export default function CallLogScreen({ navigation }) {
     };
 
     return (
-        <SafeAreaView className='flex-1 bg-light-background dark:bg-dark-background'>
-            <View className="px-4 pt-6">
+        <SafeAreaWrapper className='flex-1 bg-light-background dark:bg-dark-background'>
+            <View className="px-4">
                 <Header title='Contact Log' profilePic={profilePic} />
                 {/* <Text className="text-[#333333] dark:text-[#E0E0E0] text-2xl font-bold mb-4">Call Logs</Text> */}
 
                 {/* Counters */}
                 <View className="flex-row flex-wrap justify-between mb-5">
-                    <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-zinc-800">
+                    <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">
                         <Text className="text-red-400 text-xl font-bold">{counts.missed}</Text>
-                        <View className='flex-row'>
-                            <Text className="text-white">Missed  </Text>
-                            <View className='p-1'>
-                                <PhoneMissed size={13} color="#f87171" />
+                        <View className='flex-row items-center justify-center'>
+                            <Text className="text-light-text dark:text-dark-text">Missed  </Text>
+                            <View className=''>
+                                <PhoneMissed size={12} color="#f87171" />
                             </View>
                         </View>
                     </View>
-                    <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-zinc-800">
+                    <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">
                         <Text className="text-green-400 text-xl font-bold">{counts.received}</Text>
-                        <View className='flex-row'>
-                            <Text className="text-white">Received  </Text>
-                            <View className='p-1'>
-                                <PhoneIncoming size={13} color="#34d399" />
+                        <View className='flex-row items-center justify-center'>
+                            <Text className="text-light-text dark:text-dark-text">Received  </Text>
+                            <View className=''>
+                                <PhoneIncoming size={12} color="#34d399" />
                             </View>
                         </View>
                     </View>
-                    <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-zinc-800">
+                    <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">
                         <Text className="text-blue-400 text-xl font-bold">{counts.outgoing}</Text>
-                        <View className='flex-row'>
-                            <Text className="text-white">Outgoing  </Text>
-                            <View className='p-1'>
-                                <PhoneOutgoing size={13} color="#60a5fa" />
+                        <View className='flex-row items-center justify-center'>
+                            <Text className="text-light-text dark:text-dark-text">Outgoing  </Text>
+                            <View className=''>
+                                <PhoneOutgoing size={12} color="#60a5fa" />
                             </View>
                         </View>
                     </View>
-                    <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-zinc-800">
+                    <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">
                         <Text className="text-purple-400 text-xl font-bold">{counts.rejected}</Text>
-                        <View className='flex-row'>
-                            <Text className="text-white">Rejected  </Text>
-                            <View className='p-1'>
-                                <PhoneOff size={13} color="#a855f7" />
+                        <View className='flex-row items-center justify-center'>
+                            <Text className="text-light-text dark:text-dark-text">Rejected  </Text>
+                            <View className=''>
+                                <PhoneOff size={12} color="#a855f7" />
                             </View>
                         </View>
                     </View>
@@ -140,6 +141,7 @@ export default function CallLogScreen({ navigation }) {
 
                     <FlatList
                         data={contacts}
+                        showsVerticalScrollIndicator={false}
                         keyExtractor={(item, index) => item.id?.toString() || index.toString()}
                         renderItem={({ item }) => (
                             <TouchableOpacity onPress={() => navigation.navigate('ContactDetails', { contact: item })}
@@ -152,7 +154,7 @@ export default function CallLogScreen({ navigation }) {
                                         </Text>
                                         <View className='flex-row gap-2'>
                                             <Text className="text-gray-400">{item.phone}</Text>
-                                            <Text className="text-gray-500 text-xs mt-1">{item.date}</Text>
+                                            <Text className="text-gray-400 text-xs mt-1">{item.date}</Text>
                                         </View>
                                         {/* <Text className="text-sm text-gray-400 mt-1 capitalize">{item.type} call</Text> */}
                                     </View>
@@ -169,6 +171,6 @@ export default function CallLogScreen({ navigation }) {
                     />
                 )}
             </View>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 }

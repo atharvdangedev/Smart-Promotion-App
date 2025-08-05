@@ -15,13 +15,13 @@ export default function ({ title }) {
     }
 
     return (
-        <SafeAreaView>
-            <View className='flex-row p-3 items-center border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl my-4'>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <ArrowLeft size={25} color={iconcolor} />
-                </TouchableOpacity>
-                <Text className='text-2xl font-bold text-sky-500 text-center mx-6'>{title}</Text>
-            </View>
-        </SafeAreaView>
+
+        <View className='flex-row p-3 items-center border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl '>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+                <ArrowLeft size={25} color={iconcolor} />
+            </TouchableOpacity>
+            <Text className='text-2xl font-bold text-sky-500 text-center mx-6'>{title}</Text>
+        </View>
+
     )
 }

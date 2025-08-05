@@ -16,6 +16,7 @@ import { RichTextInput } from '../components/RichTextEditor';
 import Toast from 'react-native-toast-message';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SubHeader from '../components/SubHeader';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
 
@@ -115,7 +116,7 @@ const ShowTemplate = () => {
     };
 
     return (
-        <SafeAreaView className='flex-1 bg-light-background dark:bg-dark-background py-4'>
+        <SafeAreaWrapper className='flex-1 bg-light-background dark:bg-dark-background py-4'>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 className="flex-1 "
@@ -123,6 +124,7 @@ const ShowTemplate = () => {
                 <SubHeader title="Template" />
                 <ScrollView
                     className="flex-1 px-6"
+                    showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="always"
                     contentContainerStyle={{ paddingBottom: 100 }}
                 >
@@ -183,7 +185,7 @@ const ShowTemplate = () => {
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 };
 

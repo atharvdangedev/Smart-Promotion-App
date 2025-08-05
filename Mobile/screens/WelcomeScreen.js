@@ -5,15 +5,15 @@ import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 export default function WelcomeScreen({ navigation }) {
 
-    const theme = useColorScheme();
     return (
-        <SafeAreaView className='flex-1 px-6 bg-light-background dark:bg-dark-background'>
+        <SafeAreaWrapper className='flex-1 px-6 bg-light-background dark:bg-dark-background'>
             {/* Title */}
             <View className="items-center mt-[15%]">
-                <Text className="text-light-text dark:text-dark-text font-bold text-4xl my-4 mt-6 text-center">
+                <Text className="text-light-text dark:text-dark-text font-bold text-4xl my-4 mt-4 text-center">
                     Automate your call Follow-ups (exp)
                 </Text>
             </View>
@@ -59,6 +59,6 @@ export default function WelcomeScreen({ navigation }) {
                 </Text>
                 <Text className="text-xs text-blue-500 mt-2 underline">Trouble signing in?</Text>
             </View>
-        </SafeAreaView >
+        </SafeAreaWrapper >
     );
 }

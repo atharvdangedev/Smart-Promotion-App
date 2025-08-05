@@ -18,6 +18,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { useForm, Controller } from 'react-hook-form';
 import Toast from 'react-native-toast-message';
 import SubHeader from '../components/SubHeader';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 const vendorFields = [
     { name: 'first_name', label: 'First Name' },
@@ -111,14 +112,15 @@ export default function ProfileScreen({ navigation }) {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-light-background dark:bg-dark-background">
+        <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background">
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
             >
                 <ScrollView
-                    className="px-5 py-2"
-                    contentContainerStyle={{ paddingBottom: 30 }}
+                    className="px-5"
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                    showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
                     {/* <Text className="text-3xl font-bold text-[#333333] dark:text-[#E0E0E0] mb-3 text-center">
@@ -127,7 +129,7 @@ export default function ProfileScreen({ navigation }) {
                     <SubHeader title={`Profile (${userType})`} />
 
                     {/* Header and Profile Pic */}
-                    <View className="relative mb-8">
+                    <View className="relative mt-4 mb-8">
                         <ImageBackground
                             source={require('../assets/header-bg.jpg')}
                             resizeMode="cover"
@@ -229,11 +231,11 @@ export default function ProfileScreen({ navigation }) {
                         onRequestClose={() => setLogoutModalVisible(false)}
                     >
                         <View className="flex-1 justify-center items-center bg-black/50 px-6">
-                            <View className="bg-white w-full rounded-xl p-6">
-                                <Text className="text-lg font-semibold mb-4 text-black text-center">
+                            <View className="bg-light-background dark:bg-dark-background w-full rounded-xl p-6">
+                                <Text className="text-xl font-semibold mb-4 text-light-text dark:text-dark-text text-center">
                                     Confirm Logout
                                 </Text>
-                                <Text className="text-gray-700 text-center mb-6">
+                                <Text className="text-light-text dark:text-dark-text text-center mb-6">
                                     Are you sure you want to logout?
                                 </Text>
                                 <View className="flex-row justify-between">
@@ -272,6 +274,6 @@ export default function ProfileScreen({ navigation }) {
                     </Modal>
                 </ScrollView>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </SafeAreaWrapper>
     );
 }

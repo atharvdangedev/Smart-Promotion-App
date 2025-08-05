@@ -134,7 +134,7 @@ export const RichTextInput = ({ value, onChange, showPreview = true }) => {
                         { label: 'B', symbol: '*' },
                         { label: 'I', symbol: '_' },
                         { label: 'S', symbol: '~' },
-                        { label: '<>', symbol: '`' },
+                        { label: '<>', symbol: '```' },
                     ].map(btn => (
                         <TouchableOpacity
                             key={btn.symbol}
