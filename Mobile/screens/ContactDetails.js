@@ -71,20 +71,20 @@ export default function ContactDetails() {
 
                 {/* Info Card */}
                 <Text className='text-light-text dark:text-dark-text text-lg font-bold mt-6'> Information</Text>
-                <View className="bg-light-background dark:bg-dark-background border dark:border-dark-border rounded-xl p-4 ">
+                <View className="bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-xl p-4 ">
                     <Text className="text-white mb-2">
-                        <Text className="text-gray-400">Birthday: </Text>
+                        <Text className="text-light-text dark:text-dark-text">Birthday: </Text>
                         <Text className="text-green-400 font-semibold">August 15th</Text>
                     </Text>
                     <Text className="text-white">
-                        <Text className="text-gray-400">Last Message Sent: </Text>
+                        <Text className="text-light-text dark:text-dark-text">Last Message Sent: </Text>
                         <Text className="text-blue-400 font-semibold">2 days ago</Text>
                     </Text>
                 </View>
 
                 <Text className="text-light-text dark:text-dark-text text-lg font-bold mt-4">Notes</Text>
                 <View className="bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-xl p-4">
-                    <Text className="text-gray-300">
+                    <Text className="text-light-text dark:text-dark-text">
                         Met at the 2025 Pune tech conference. Interested in the premium plan for his real estate business.{" "}
                         Follow up next week regarding API access.
                     </Text>
@@ -101,8 +101,8 @@ export default function ContactDetails() {
                                     {contact.first_name} {contact.last_name}
                                 </Text>
                                 <View className='flex-row gap-2'>
-                                    <Text className="text-gray-400">{contact.phone}</Text>
-                                    <Text className="text-gray-500 text-xs mt-1">{contact.date}</Text>
+                                    <Text className="text-light-subtext dark:text-dark-subtext">{contact.phone}</Text>
+                                    <Text className="text-light-text dark:text-dark-text text-xs mt-1">{contact.date}</Text>
                                 </View>
                                 {/* <Text className="text-sm text-gray-400 mt-1 capitalize">{item.type} call</Text> */}
                             </View>
@@ -114,7 +114,7 @@ export default function ContactDetails() {
                         <Text className='text-light-text dark:text-dark-text font-medium mb-2'>Message Sent </Text>
                         <View className="p-4 bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-xl">
                             <Text className="text-light-text dark:text-dark-text font-semibold">Sent 'First-Time User Offer'</Text>
-                            <Text className="text-light-subtext dark:text-dark-subtext text-xs mt-1">Jul 21, 2025</Text>
+                            <Text className="text-light-text dark:text-dark-text text-xs mt-1">Jul 21, 2025</Text>
                         </View>
                     </View>
                     <Text className='border-gray-400 border-b-hairline'></Text>

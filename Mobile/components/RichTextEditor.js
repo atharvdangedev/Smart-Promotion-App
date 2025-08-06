@@ -15,7 +15,7 @@ const parseMessage = message => {
         { regex: /\*([^\*]+)\*/g, style: 'bold' },
         { regex: /_([^_]+)_/g, style: 'italic' },
         { regex: /~([^~]+)~/g, style: 'strike' },
-        { regex: /`([^`]+)`/g, style: 'mono' },
+        { regex: /```([^`]+)```/g, style: 'mono' },
     ];
 
     const replaceRecursive = text => {
