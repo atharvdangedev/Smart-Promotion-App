@@ -11,7 +11,7 @@ const SafeAreaWrapper = ({
     style = {},
     contentContainerClassName = '',
 }) => {
-    const paddingTop = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0;
+    const paddingTop = Platform.OS === 'android' ? 8 || 0 : 0;
 
     if (scrollable) {
         return (
