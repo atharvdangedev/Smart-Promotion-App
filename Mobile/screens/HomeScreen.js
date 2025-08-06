@@ -90,7 +90,7 @@ export default function DashboardScreen({ navigation }) {
     };
 
     return (
-        <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background py-2">
+        <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background py-0">
             <ScrollView
                 className="px-4 py-0"
                 showsVerticalScrollIndicator={false}
@@ -131,7 +131,6 @@ export default function DashboardScreen({ navigation }) {
                         borderColor: theme === 'dark' ? '#4A5568' : '#E0E0E0',
                     }}
                 />
-
 
                 {/* Stacked Bar Chart */}
                 <Text className="text-lg font-semibold text-light-text dark:text-dark-text mb-2">Call Types by Day</Text>
