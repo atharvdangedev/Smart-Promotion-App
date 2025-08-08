@@ -14,9 +14,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../utils/api';
 import { RichTextInput } from '../components/RichTextEditor';
 import Toast from 'react-native-toast-message';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import { useUserRole } from '../hooks/UserRoleHook';
 
 const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
 
@@ -34,9 +34,14 @@ const ShowTemplate = () => {
 
     useEffect(() => {
         if (isEdit && template) {
+            const role = useUserRole();
+            if (role === 'agent') {
+                navigation.navigate('HomeScreen');
+            }
+
             setTitle(template.title || '');
             setDescription(template.description || '');
-            // Normalize the template_type to match against callTypes
+
             const matchedType = callTypes.find(
                 (type) => type.toLowerCase() === template.template_type?.toLowerCase()
             );
@@ -115,6 +120,7 @@ const ShowTemplate = () => {
 
     };
 
+
     return (
         <SafeAreaWrapper className='flex-1 bg-light-background dark:bg-dark-background py-4'>
             <KeyboardAvoidingView
@@ -128,7 +134,7 @@ const ShowTemplate = () => {
                     keyboardShouldPersistTaps="always"
                     contentContainerStyle={{ paddingBottom: 100 }}
                 >
-                    <Text className="text-light-text dark:text-dark-text font-semibold text-xl py-2">Title</Text>
+                    <Text className="text-light-text dark:text-dark-text font-semibold text-xl py-2 mt-4">Title</Text>
                     <TextInput
                         placeholder="Template Title"
                         placeholderTextColor="#ccc"
@@ -156,7 +162,7 @@ const ShowTemplate = () => {
                         <Text className="text-light-danger dark:text-dark-danger mt-1 ml-1">{errorDesc}</Text>
                     )}
 
-                    <Text className="text-light-text dark:text-dark-text mb-1 text-lg font-semibold">Call Type</Text>
+                    <Text className="text-light-text dark:text-dark-text mb-1 text-lg font-semibold ">Call Type</Text>
                     {callTypes.map((type) => (
                         <Pressable
                             key={type}

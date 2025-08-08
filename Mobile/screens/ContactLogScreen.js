@@ -35,7 +35,7 @@ export default function CallLogScreen({ navigation }) {
                 first_name: 'John',
                 last_name: 'Doe',
                 phone: '+919876543210',
-                date: '27 Jul',
+                date: '27 Jul 1:22',
                 type: 'missed',
             },
             {
@@ -43,7 +43,7 @@ export default function CallLogScreen({ navigation }) {
                 first_name: 'Jane',
                 last_name: 'Smith',
                 phone: '+918123456789',
-                date: '27 Jul',
+                date: '27 Jul 2:33',
                 type: 'received',
             },
             {
@@ -51,7 +51,7 @@ export default function CallLogScreen({ navigation }) {
                 first_name: 'Mike',
                 last_name: 'Johnson',
                 phone: '+917654321098',
-                date: '26 Jul',
+                date: '26 Jul 3:13',
                 type: 'outgoing',
             },
             {
@@ -59,7 +59,7 @@ export default function CallLogScreen({ navigation }) {
                 first_name: 'Emily',
                 last_name: 'Brown',
                 phone: '+916543210987',
-                date: '25 Jul',
+                date: '25 Jul 6:08',
                 type: 'rejected',
             },
         ];
@@ -109,7 +109,7 @@ export default function CallLogScreen({ navigation }) {
                     <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">
                         <Text className="text-green-400 text-xl font-bold">{counts.received}</Text>
                         <View className='flex-row items-center justify-center'>
-                            <Text className="text-light-text dark:text-dark-text">Received  </Text>
+                            <Text className="text-light-text dark:text-dark-text">Incoming  </Text>
                             <View className=''>
                                 <PhoneIncoming size={12} color="#34d399" />
                             </View>
