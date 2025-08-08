@@ -95,7 +95,7 @@ export const RichTextInput = ({ value, onChange, showPreview = true }) => {
     const formatted = parseMessage(value || 'Nothing to preview');
 
     return (
-        <View className="pb-2" style={{ paddingBottom: keyboardHeight }}>
+        <View className="pb-2" style={{ paddingBottom: 0 }}>
             <TextInput
                 multiline
                 className="border border-gray-400 rounded-lg p-3 min-h-[100px] text-base mb-3 text-white bg-black"
@@ -113,7 +113,7 @@ export const RichTextInput = ({ value, onChange, showPreview = true }) => {
             {showPreview && (
                 <>
                     <Text className="text-base text-[#333333] dark:text-[#E0E0E0] font-bold ml-3 my-2">Preview</Text>
-                    <ScrollView className="max-h-32 mx-3 mb-20">
+                    <ScrollView className="max-h-32 mx-3 pb-3 mb-20">
                         <Text className="text-sm leading-[22px] p-3 text-white bg-black">
                             {formatted.map((chunk, idx) => (
                                 <Text key={idx} style={chunkStyle(chunk.style)}>
@@ -128,7 +128,7 @@ export const RichTextInput = ({ value, onChange, showPreview = true }) => {
             {isFocused && keyboardHeight > 0 && (
                 <View
                     className="absolute left-0 right-0 h-12 bg-zinc-900 flex-row justify-around items-center border-t border-zinc-800 z-50"
-                    style={{ bottom: keyboardHeight }}
+                    style={{ bottom: 20 }}
                 >
                     {[
                         { label: 'B', symbol: '*' },
