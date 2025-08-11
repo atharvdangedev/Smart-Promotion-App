@@ -80,7 +80,9 @@ export default function LoginScreen({ navigation }) {
                     await AsyncStorage.removeItem('user_type');
                 }
 
-                await AsyncStorage.setItem('Contact_Popup', 'true');
+                const pop = await AsyncStorage.getItem('Contact_Popup');
+                if (pop === null)
+                    await AsyncStorage.setItem('Contact_Popup', 'true');
 
                 // await AsyncStorage.setItem('user_type', user.rolename);
                 if (user.profile_pic) {

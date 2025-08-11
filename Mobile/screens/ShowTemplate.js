@@ -31,10 +31,10 @@ const ShowTemplate = () => {
     const [errorTitle, setErrorTitle] = useState('');
     const [errorDesc, setErrorDesc] = useState('');
     const [callType, setCallType] = useState(callTypes[0]);
+    const role = useUserRole();
 
     useEffect(() => {
         if (isEdit && template) {
-            const role = useUserRole();
             if (role === 'agent') {
                 navigation.navigate('HomeScreen');
             }
@@ -59,7 +59,7 @@ const ShowTemplate = () => {
             setErrorTitle('Template Name is required');
             valid = false;
         } else if (title.length < 3 || title.length > 200) {
-            setErrorTitle('Template name must be between 3 and 200 characters');
+            setErrorTitle('Template name must be between 3 to 200 characters');
             valid = false;
         } else {
             setErrorTitle('');
@@ -69,7 +69,7 @@ const ShowTemplate = () => {
             setErrorDesc('Template Description is required');
             valid = false;
         } else if (description.length < 3 || description.length > 700) {
-            setErrorDesc('Description must be between 3 and 700 characters');
+            setErrorDesc('Description must be between 3 to 700 characters');
             valid = false;
         } else {
             setErrorDesc('');
