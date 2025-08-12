@@ -17,6 +17,8 @@ import Header from './components/Header';
 import ContactDetails from './screens/ContactDetails';
 import CardResultScreen from './screens/CardResultScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import ContactsShow from './screens/SelectContacts';
+import SelectContacts from './screens/SelectContacts';
 
 const Stack = createNativeStackNavigator();
 
@@ -74,6 +76,7 @@ export default function App() {
           <Stack.Screen name="HomeScreen" component={DrawerNavigator} />
           <Stack.Screen name="ContactDetails" component={ContactDetails} />
           <Stack.Screen name="CardResultScreen" component={CardResultScreen} />
+          <Stack.Screen name="SelectContacts" component={SelectContacts} />
         </Stack.Navigator>
       </NavigationContainer>
       <Toast />

@@ -24,6 +24,7 @@ export default function LoginScreen({ navigation }) {
             setFormError('');
         }, [])
     );
+
     const handleLogin = async () => {
         if (!email || !password) {
             // setFormError('Please enter both email and password');
@@ -78,6 +79,10 @@ export default function LoginScreen({ navigation }) {
                 } else {
                     await AsyncStorage.removeItem('user_type');
                 }
+
+                const pop = await AsyncStorage.getItem('Contact_Popup');
+                if (pop === null)
+                    await AsyncStorage.setItem('Contact_Popup', 'true');
 
                 // await AsyncStorage.setItem('user_type', user.rolename);
                 if (user.profile_pic) {

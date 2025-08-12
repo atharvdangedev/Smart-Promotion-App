@@ -249,7 +249,7 @@ export default function TemplateScreen({ navigation }) {
                 <ScrollView showsVerticalScrollIndicator={false} className="flex-1" keyboardShouldPersistTaps="handled">
                     {templates.map((template, index) => (
                         <View key={template.id} className="bg-light-background dark:bg-dark-background rounded-xl p-4 mb-4 border border-[#E0E0E0] dark:border-[#4A5568]">
-                            <TouchableOpacity onPress={() => { user === 'agent' ? null : navigation.navigate('TemplateDetails', { templateId: template.id }) }}>
+                            <TouchableOpacity onPress={() => { navigation.navigate('TemplateDetails', { templateId: template.id }) }}>
                                 <Text className="text-light-text dark:text-dark-text text-lg font-bold mb-2">{template.title}</Text>
 
                                 <View className="bg-neutral-900 p-2 rounded">

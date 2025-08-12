@@ -39,7 +39,7 @@ export default function ContactDetails() {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <SubHeader title="Contact Details" />
                 {/* Profile */}
-                <View className="items-center mt-2 ">
+                <View className="items-center mt-4 ">
                     <View className="w-24 h-24 rounded-full bg-gray-700 mb-3 border-4 border-sky-500 overflow-hidden">
                         <Image
                             source={require('../assets/avatar-placeholder.jpg')}
@@ -91,7 +91,7 @@ export default function ContactDetails() {
                 </View>
 
 
-                <View className="mt-5">
+                <View className="my-5">
                     <Text className="text-light-text dark:text-dark-text text-lg font-bold mb-2">Recent Activity</Text>
                     <View className=" rounded-xl overflow-hidden">
                         <Text className='text-light-text dark:text-dark-text font-medium mb-2'>Logs </Text>
@@ -117,7 +117,7 @@ export default function ContactDetails() {
                             <Text className="text-light-text dark:text-dark-text text-xs mt-1">Jul 21, 2025</Text>
                         </View>
                     </View>
-                    <Text className='border-gray-400 border-b-hairline'></Text>
+                    {/* <Text className='border-gray-400 border-b-hairline'></Text> */}
                 </View>
             </ScrollView>
         </SafeAreaWrapper>

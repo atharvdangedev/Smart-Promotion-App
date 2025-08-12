@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, ScrollView, RefreshControl, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, Dimensions, TouchableOpacity, Modal } from 'react-native';
 import { LineChart, StackedBarChart } from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { DrawerActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import img from '../assets/image.png';
@@ -42,23 +42,43 @@ export default function DashboardScreen({ navigation }) {
     const [dataIndex, setDataIndex] = useState(0);
     const [name, setName] = useState('');
     const [profilePic, setProfilePic] = useState('');
+    const [showPopup, setShowPopup] = useState(false);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const init = async () => {
+                const username = await AsyncStorage.getItem('username');
+                setName(username);
+
+                const filename = await AsyncStorage.getItem('profile_pic');
+                // console.log(filename);
+                if (filename) {
+                    const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
+                    setProfilePic(url);
+                } else {
+                    setProfilePic(null); // fallback
+                }
+            };
+            init();
+        }, [])
+    );
 
     useEffect(() => {
         const init = async () => {
-            const username = await AsyncStorage.getItem('username');
-            setName(username);
-
-            const filename = await AsyncStorage.getItem('profile_pic');
-            if (filename) {
-                const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
-                setProfilePic(url);
-            } else {
-                setProfilePic(null); // fallback
+            try {
+                const hasShown = await AsyncStorage.getItem('Contact_Popup');
+                console.log('Pop is ', hasShown);
+                if (hasShown === 'true') {
+                    setShowPopup(true);
+                    await AsyncStorage.setItem('Contact_Popup', 'false');
+                }
+            } catch (error) {
+                console.log('Error checking popup status:', error);
             }
-        };
+
+        }
         init();
     }, []);
-
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -168,7 +188,7 @@ export default function DashboardScreen({ navigation }) {
 
                 {/* Agent Summary */}
                 <Text className="text-lg font-semibold text-light-text dark:text-dark-text mb-2">Agent Call Summary</Text>
-                <View className="bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border p-4 rounded-xl shadow-sm ">
+                <View className="bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border p-4 rounded-xl shadow-sm mb-2">
                     <Text className="text-base font-bold text-light-text dark:text-dark-text mb-2">{agent.name}</Text>
                     <View className="flex-row justify-between mb-1">
                         <Text className="text-light-subtext dark:text-dark-subtext">Inbound</Text>
@@ -184,7 +204,43 @@ export default function DashboardScreen({ navigation }) {
                     </View>
                 </View>
 
-                <Text className='m-1 border-gray-400 border-b-hairline'></Text>
+                <Modal
+                    visible={showPopup}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setShowPopup(false)}
+                >
+                    <View className="flex-1 bg-black/60 justify-center items-center px-6">
+                        <View className="bg-light-background dark:bg-dark-background w-full rounded-xl p-4">
+                            <Text className="text-xl font-semibold text-light-text dark:text-dark-text mb-2 text-center">Get Started</Text>
+                            <Text className="text-base text-light-text dark:text-dark-text mb-6 text-center">
+                                Add Your Contacts to get started
+                            </Text>
+                            <View className="flex-row justify-between">
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setShowPopup(false);
+
+                                    }}
+                                    className="flex-1 py-3 rounded-md bg-gray-200 mr-2"
+                                >
+                                    <Text className="text-black font-medium text-center">Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setShowPopup(false);
+                                        navigation.navigate('SelectContacts');
+                                    }}
+                                    className="flex-1 py-3 mr-2 rounded-md bg-black"
+                                >
+                                    <Text className="text-white font-medium text-center"> Export Contacts</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* <Text className='m-1 border-gray-400 border-b-hairline'></Text> */}
             </ScrollView>
         </SafeAreaWrapper>
     );
