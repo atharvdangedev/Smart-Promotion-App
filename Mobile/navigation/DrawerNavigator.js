@@ -8,7 +8,7 @@ import CardScannerScreen from '../screens/CardScannerScreen';
 import { Text, TouchableOpacity } from 'react-native';
 import { Contact, LayoutDashboard, MessageSquareMore, ScanText, ShoppingCart, User } from 'lucide-react-native';
 import CustomDrawerContent from '../screens/CustomDrawerContent';
-import ContactDetails from '../screens/ContactDetails';
+
 
 const Drawer = createDrawerNavigator();
 

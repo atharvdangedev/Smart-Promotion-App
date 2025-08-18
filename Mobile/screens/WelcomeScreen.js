@@ -11,7 +11,7 @@ export default function WelcomeScreen({ navigation }) {
 
     return (
         <SafeAreaWrapper className='flex-1 px-6 bg-light-background dark:bg-dark-background'>
-            {/* Title */}
+
             <View className="items-center mt-[15%]">
                 <Text className="text-light-text dark:text-dark-text font-bold text-4xl my-4 mt-4 text-center">
                     Automate your call Follow-ups (exp)
@@ -23,7 +23,6 @@ export default function WelcomeScreen({ navigation }) {
                 Send smart WhatsApp messages Automatically after incoming and outgoing, or missed calls.
             </Text>
 
-            {/* Logo */}
             <View className="flex-1 justify-center items-center">
                 <Image
                     source={require('../assets/logo.png')}
@@ -36,7 +35,6 @@ export default function WelcomeScreen({ navigation }) {
                 />
             </View>
 
-            {/* Buttons */}
             <View className="items-center mb-4 space-y-3">
                 <TouchableOpacity
                     onPress={() => navigation.navigate('SignIn')}
@@ -50,7 +48,6 @@ export default function WelcomeScreen({ navigation }) {
                 </TouchableOpacity>
             </View>
 
-            {/* Footer */}
             <View className="items-center pb-4">
                 <Text className="text-xs text-light-subtext dark:text-dark-subtext text-center">
                     By signing in you accept our{' '}

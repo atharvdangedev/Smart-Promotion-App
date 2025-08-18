@@ -10,13 +10,12 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../utils/api';
 import { RichTextInput } from '../components/RichTextEditor';
 import Toast from 'react-native-toast-message';
 import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
-import { useUserRole } from '../hooks/UserRoleHook';
+import { useAuthStore } from '../store/useAuthStore';
 
 const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
 
@@ -31,7 +30,8 @@ const ShowTemplate = () => {
     const [errorTitle, setErrorTitle] = useState('');
     const [errorDesc, setErrorDesc] = useState('');
     const [callType, setCallType] = useState(callTypes[0]);
-    const role = useUserRole();
+    const role = useAuthStore((state) => state.rolename);
+    const token = useAuthStore((state) => state.token);
 
     useEffect(() => {
         if (isEdit && template) {
@@ -80,8 +80,6 @@ const ShowTemplate = () => {
 
     const saveTemplate = async () => {
         if (!validate()) return;
-
-        const token = await AsyncStorage.getItem('token');
         if (!token) return;
 
         const payload = {
