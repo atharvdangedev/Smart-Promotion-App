@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import InputField from '../components/InputField';
 import { api } from '../utils/api';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
@@ -33,7 +33,7 @@ export default function ForgotPassword({ navigation }) {
 
             console.log('Forgot Password Response:', res.data);
 
-            if (res.data?.status === true) {
+            if (res.status === 200) {
                 setSuccessMsg(res.data.message || 'Reset link sent! Please check your email.');
                 setTimeout(() => navigation.navigate('SignIn'), 2000);
             } else {
@@ -79,7 +79,6 @@ export default function ForgotPassword({ navigation }) {
                 }}
             />
 
-            {/* Error or Success Messages */}
             {formError ? (
                 <Text className="text-light-danger dark:text-dark-danger text-sm mt-2 mb-2 text-center">{formError}</Text>
             ) : null}

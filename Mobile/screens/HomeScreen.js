@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView, RefreshControl, Dimensions, TouchableOpacity, Modal } from 'react-native';
 import { LineChart, StackedBarChart } from 'react-native-chart-kit';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { DrawerActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import img from '../assets/image.png';
 import { useColorScheme } from 'react-native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import { API_URL } from '@env';
+import { useAuthStore } from '../store/useAuthStore';
+
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -41,44 +41,42 @@ export default function DashboardScreen({ navigation }) {
     const [refreshing, setRefreshing] = useState(false);
     const [dataIndex, setDataIndex] = useState(0);
     const [name, setName] = useState('');
-    const [profilePic, setProfilePic] = useState('');
+    const [profilePhoto, setProfilePhoto] = useState('');
     const [showPopup, setShowPopup] = useState(false);
+    const username = useAuthStore((state) => state.username);
+    const profilePic = useAuthStore((state) => state.profilePic);
 
     useFocusEffect(
-        React.useCallback(() => {
+        useCallback(() => {
             const init = async () => {
-                const username = await AsyncStorage.getItem('username');
                 setName(username);
+                const filename = profilePic;
 
-                const filename = await AsyncStorage.getItem('profile_pic');
-                // console.log(filename);
                 if (filename) {
-                    const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
-                    setProfilePic(url);
+                    const url = `${API_URL}/${filename}`;
+                    setProfilePhoto(url);
                 } else {
-                    setProfilePic(null); // fallback
+                    setProfilePhoto(null);
                 }
             };
             init();
-        }, [])
+        }, [username])
     );
 
-    useEffect(() => {
-        const init = async () => {
-            try {
-                const hasShown = await AsyncStorage.getItem('Contact_Popup');
-                console.log('Pop is ', hasShown);
-                if (hasShown === 'true') {
-                    setShowPopup(true);
-                    await AsyncStorage.setItem('Contact_Popup', 'false');
-                }
-            } catch (error) {
-                console.log('Error checking popup status:', error);
-            }
-
-        }
-        init();
-    }, []);
+    // useEffect(() => {
+    //     const init = async () => {
+    //         try {
+    //             console.log('Pop is ', hasShown);
+    //             if (hasShown === 'true') {
+    //                 setShowPopup(true);
+    //                 await AsyncStorage.setItem('Contact_Popup', 'false');
+    //             }
+    //         } catch (error) {
+    //             console.log('Error checking popup status:', error);
+    //         }
+    //     }
+    //     init();
+    // }, []);
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -91,8 +89,6 @@ export default function DashboardScreen({ navigation }) {
     const { lineChart, stacked, agent } = dummyData[dataIndex];
 
     const theme = useColorScheme();
-
-
     const isDark = theme === 'dark';
 
     const chartConfig = {
@@ -123,15 +119,14 @@ export default function DashboardScreen({ navigation }) {
                     />
                 }
             >
-                {/*  Welcome Section */}
+
                 <View className="mb-6">
-                    <Header title='Dashboard' profilePic={profilePic} />
+                    <Header title='Dashboard' profilePic={profilePhoto} />
 
                     <Text className="text-lg text-light-text dark:text-dark-text mt-2">Welcome back, {name} 👋</Text>
                     <Text className="text-sm text-light-subtext dark:text-dark-subtext">Here’s an overview of your team's performance.</Text>
                 </View>
 
-                {/* Line Chart */}
                 <Text className="text-lg font-semibold text-light-text dark:text-dark-text mb-2">Call Progress (Weekly)</Text>
 
                 <LineChart
@@ -152,7 +147,6 @@ export default function DashboardScreen({ navigation }) {
                     }}
                 />
 
-                {/* Stacked Bar Chart */}
                 <Text className="text-lg font-semibold text-light-text dark:text-dark-text mb-2">Call Types by Day</Text>
                 <StackedBarChart
                     data={{
@@ -220,7 +214,6 @@ export default function DashboardScreen({ navigation }) {
                                 <TouchableOpacity
                                     onPress={() => {
                                         setShowPopup(false);
-
                                     }}
                                     className="flex-1 py-3 rounded-md bg-gray-200 mr-2"
                                 >
@@ -233,7 +226,7 @@ export default function DashboardScreen({ navigation }) {
                                     }}
                                     className="flex-1 py-3 mr-2 rounded-md bg-black"
                                 >
-                                    <Text className="text-white font-medium text-center"> Export Contacts</Text>
+                                    <Text className="text-white font-medium text-center"> Import Contacts</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

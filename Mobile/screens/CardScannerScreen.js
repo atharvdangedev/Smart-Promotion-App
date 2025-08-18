@@ -1,35 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import {
-    View, Text, TouchableOpacity, ScrollView,
-    Modal, Pressable, PermissionsAndroid, Platform, TextInput,
+    View, Text, TouchableOpacity,
+    PermissionsAndroid, Platform,
     useColorScheme
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Contacts from 'react-native-contacts';
 import ImagePicker from 'react-native-image-crop-picker';
 import MLKitOcr from 'react-native-mlkit-ocr';
-import { Camera, Save, Phone, Upload } from 'lucide-react-native';
+import { Camera, Upload } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import Header from '../components/Header';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import { API_URL } from '@env';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function CardScannerScreen() {
-    const [numbers, setNumbers] = useState([]);
-    // const [modalVisible, setModalVisible] = useState(false);
-    // const [contactName, setContactName] = useState('');
     const [profilePic, setProfilePic] = useState('');
+    const profile_pic = useAuthStore((state) => state.profilePic);
 
     useEffect(() => {
         const init = async () => {
-            const filename = await AsyncStorage.getItem('profile_pic');
-            if (filename) {
-                const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
+            if (profile_pic) {
+                const url = `${API_URL}/${profile_pic}`;
                 setProfilePic(url);
                 console.log('scan Url: ', url);
             } else {
-                setProfilePic(null); // fallback
+                setProfilePic(null);
             }
         }
         requestPermissions();
@@ -68,7 +64,7 @@ export default function CardScannerScreen() {
         if (!matches) return [];
 
         return matches
-            .map(num => num.replace(/[^\d]/g, '')) // digits only
+            .map(num => num.replace(/[^\d]/g, ''))
             .filter(num => num.length >= 10 && num.length <= 13)
             .map(num => ({
                 label: 'mobile',
@@ -76,28 +72,6 @@ export default function CardScannerScreen() {
             }));
     };
 
-    // const parseContact = (rawText) => {
-    //     const cleanedText = rawText.replace(/\s+/g, ' ').trim();
-    //     const nameMatch = rawText.split('\n')[0]?.trim();
-    //     const name = nameMatch || 'Unknown';
-
-    //     const phones = extractPhoneNumbers(cleanedText);
-
-    //     if (phones.length === 0) {
-    //         Toast.show({
-    //             type: 'error',
-    //             text1: 'Oops!',
-    //             text2: 'No valid number found',
-    //             position: 'top',
-    //         });
-    //         return;
-    //     }
-
-    //     setContactName(name);
-    //     setNumbers(phones);
-    //     setSelectedNumber(phones[0]);
-    //     setModalVisible(true);
-    // };
 
     const handleScan = async () => {
         try {
@@ -114,12 +88,6 @@ export default function CardScannerScreen() {
                 const fullText = ocrResult.map(b => b.text).join('\n');
                 parseContactAndNavigate(fullText);
             }
-            // if (result?.path) {
-            //     const ocrResult = await MLKitOcr.detectFromFile(result.path);
-            //     const fullText = ocrResult.map(b => b.text).join('\n');
-            //     setText(fullText);
-            //     parseContact(fullText);
-            // }
         } catch (err) {
             console.log('Scan Error:', err);
             Toast.show({
@@ -146,12 +114,6 @@ export default function CardScannerScreen() {
                 const fullText = ocrResult.map(b => b.text).join('\n');
                 parseContactAndNavigate(fullText);
             }
-            // if (result?.path) {
-            //     const ocrResult = await MLKitOcr.detectFromFile(result.path);
-            //     const fullText = ocrResult.map(b => b.text).join('\n');
-            //     setText(fullText);
-            //     parseContact(fullText);
-            // }
         } catch (err) {
             console.log('Gallery Pick Error:', err);
             Toast.show({
@@ -201,16 +163,6 @@ export default function CardScannerScreen() {
             <Header title='Card Scanner' profilePic={profilePic} />
             <Text className="text-2xl font-bold text-light-text dark:text-dark-text text-center mt-8">Add Contacts Instantly</Text>
             <Text className='text-lg font-medium text-light-subtext dark:text-dark-subtext text-center my-2'>Scan a bussiness card or upload an image to automatically extract the contact details.</Text>
-
-            {/* FAB Save Button */}
-            {/* {numbers.length > 0 && (
-                <TouchableOpacity
-                    onPress={() => setModalVisible(true)}
-                    className="absolute bottom-6 right-6 bg-zinc-800 p-4 rounded-full border border-white"
-                >
-                    <Save color="white" size={24} />
-                </TouchableOpacity>
-            )} */}
 
             <View className='flex-1 justify-end items-end'>
                 <TouchableOpacity

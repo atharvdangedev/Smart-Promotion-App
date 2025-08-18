@@ -1,18 +1,16 @@
 import React from 'react';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, } from 'react-native';
 
 
 export default function CustomDrawerContent(props) {
     return (
         <DrawerContentScrollView {...props} style={{ backgroundColor: 'black' }}>
-            {/* Profile Section */}
+
             <View style={{ padding: 20, alignItems: 'center', borderBottomWidth: 0.5, borderBottomColor: '#334155' }}>
-                {/* <User color="white" size={30} /> */}
                 <Text className='text-2xl font-bold text-white'> SmartPromotions</Text>
             </View>
 
-            {/* Menu List */}
             <DrawerItemList {...props} />
         </DrawerContentScrollView>
     );
