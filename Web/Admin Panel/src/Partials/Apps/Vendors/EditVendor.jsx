@@ -59,7 +59,10 @@ const schema = yup.object().shape({
     .email("Invalid business email")
     .required("Business Email is required"),
 
-  business_contact: yup.string().required("Business Contact is required"),
+  business_contact: yup
+    .string()
+    .min(10, "Business Contact must be minimun 10 digits")
+    .required("Business Contact is required"),
 
   website_url: yup.string().notRequired().url("Invalid website URL"),
 
