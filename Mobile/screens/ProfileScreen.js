@@ -12,16 +12,15 @@ import {
     Modal,
     ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Camera } from 'lucide-react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useForm, Controller } from 'react-hook-form';
 import Toast from 'react-native-toast-message';
 import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
-import { useUserRole } from '../hooks/UserRoleHook';
-import { api } from '../utils/api';
+import { useAuthStore } from '../store/useAuthStore';
+import { profileApi } from '../APIs/ProfileApi';
+import { API_PROFILE } from '@env';
 
 const vendorFields = [
     { name: 'first_name', label: 'First Name' },
@@ -54,8 +53,6 @@ const businessTypes = [
 ];
 
 export default function ProfileScreen({ navigation }) {
-    const role = useUserRole();
-    const [userType, setUserType] = useState(null);
     const [fields, setFields] = useState([]);
     const [profilePic, setProfilePic] = useState(null);
     const [profilePicPreview, setProfilePicPreview] = useState(null);
@@ -63,6 +60,9 @@ export default function ProfileScreen({ navigation }) {
     const { control, handleSubmit, reset } = useForm();
     const [logoutModalVisible, setLogoutModalVisible] = useState(false);
     const [businessTypeModal, setBusinessTypeModal] = useState(false);
+    const role = useAuthStore((state) => state.rolename);
+    const UserId = useAuthStore((state) => state.userId);
+    const logout = useAuthStore((state) => state.logout);
 
     useEffect(() => {
         fetchProfile();
@@ -71,10 +71,7 @@ export default function ProfileScreen({ navigation }) {
     const fetchProfile = async () => {
         try {
             if (!role) return;
-
-            setUserType(role);
-            const userId = await AsyncStorage.getItem('user_id');
-            const response = await api.get(`${role}/${userId}`);
+            const response = await profileApi.fetchProfile(role, UserId);
 
             const data = role === 'vendor' ? response.data?.vendor : response.data?.agent;
 
@@ -85,9 +82,9 @@ export default function ProfileScreen({ navigation }) {
                 setFields(agentFields);
                 reset({ ...data });
             }
-            await AsyncStorage.setItem('profile_pic', data.profile_pic);
+
             if (data?.profile_pic) {
-                const uri = `https://swp.smarttesting.in/uploads/profile/${data.profile_pic}`;
+                const uri = `${API_PROFILE}/${data.profile_pic}`;
                 setProfilePicPreview(uri);
             }
         } catch (error) {
@@ -118,14 +115,10 @@ export default function ProfileScreen({ navigation }) {
 
     const handleSave = async (data) => {
         try {
-            const userType = await AsyncStorage.getItem('user_type');
-            const userId = await AsyncStorage.getItem('user_id');
-
-            if (!userType || !userId) {
+            if (!role || !UserId) {
                 console.error('User data not found in storage.');
                 return;
             }
-
             const formData = new FormData();
 
             Object.entries(data).forEach(([key, value]) => {
@@ -142,9 +135,7 @@ export default function ProfileScreen({ navigation }) {
                 });
             }
 
-            const response = await api.post(`${userType}/${userId}`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+            await profileApi.updateProfile(role, UserId, formData);
 
             fetchProfile();
             Toast.show({
@@ -174,7 +165,7 @@ export default function ProfileScreen({ navigation }) {
                         showsVerticalScrollIndicator={false}
                         keyboardShouldPersistTaps="handled"
                     >
-                        <SubHeader title={`Profile (${userType})`} />
+                        <SubHeader title={`Profile (${role})`} />
 
                         {/* Header and Profile Pic */}
                         <View className="relative mt-4 mb-8">
@@ -402,19 +393,9 @@ export default function ProfileScreen({ navigation }) {
                                         </TouchableOpacity>
                                         <TouchableOpacity
                                             className="flex-1 bg-black rounded-xl py-3 ml-2"
-                                            onPress={async () => {
+                                            onPress={() => {
                                                 setLogoutModalVisible(false);
-                                                await AsyncStorage.multiRemove([
-                                                    'token',
-                                                    'user_type',
-                                                    'user_id',
-                                                    'username',
-                                                    'profile_pic',
-                                                ]);
-                                                navigation.reset({
-                                                    index: 0,
-                                                    routes: [{ name: 'SignIn' }],
-                                                });
+                                                logout();
                                             }}
                                         >
                                             <Text className="text-center text-white font-semibold">

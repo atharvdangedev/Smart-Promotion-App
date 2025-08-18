@@ -1,45 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import {
     View, Text, ScrollView, ActivityIndicator,
-    TouchableOpacity
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api } from '../utils/api';
-import { ArrowLeft } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
 import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import { useAuthStore } from '../store/useAuthStore';
+import { TemplateApis } from '../APIs/TemplateApi';
 
 export default function TemplateDetailScreen({ route }) {
     const { templateId } = route.params;
     const [template, setTemplate] = useState(null);
     const [loading, setLoading] = useState(true);
-
-    // const navigation = useNavigation();
+    const token = useAuthStore((state) => state.token);
+    const ActiveUser = useAuthStore((state) => state.rolename);
 
     useEffect(() => {
         const fetchTemplateDetail = async () => {
             try {
-                // const token = await AsyncStorage.getItem('token');
-
-                // const response = await api.get(`vendor/templates/${templateId}`, {
-                //     headers: {
-                //         Authorization: `Bearer ${token}`,
-                //         Accept: 'application/json',
-                //     },
-                // });
-                const token = await AsyncStorage.getItem('token');
-                const ActiveUser = await AsyncStorage.getItem('user_type');
-                console.log('name:', ActiveUser);
-                const endpoint = ActiveUser === 'agent' ? `agent/templates/${templateId}` : `vendor/templates/${templateId}`;
-
-                const response = await api.get(endpoint, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                    },
-                });
+                const response = await TemplateApis.templateDetails(token, templateId, ActiveUser);
 
                 if (response.data.status) {
                     setTemplate(response.data.template);
@@ -58,17 +36,17 @@ export default function TemplateDetailScreen({ route }) {
 
     if (loading) {
         return (
-            <SafeAreaView className="flex-1 bg-black justify-center items-center">
+            <SafeAreaWrapper className="flex-1 bg-black justify-center items-center">
                 <ActivityIndicator size="large" color="#0ea5e9" />
-            </SafeAreaView>
+            </SafeAreaWrapper>
         );
     }
 
     if (!template) {
         return (
-            <SafeAreaView className="flex-1 bg-black justify-center items-center">
+            <SafeAreaWrapper className="flex-1 bg-black justify-center items-center">
                 <Text className="text-white">Template not found</Text>
-            </SafeAreaView>
+            </SafeAreaWrapper>
         );
     }
 
@@ -105,7 +83,6 @@ export default function TemplateDetailScreen({ route }) {
                 break;
             }
         }
-
         return elements;
     };
 

@@ -1,11 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, Linking, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import Header from '../components/Header';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { PhoneIncoming, PhoneMissed, PhoneOff, PhoneOutgoing } from 'lucide-react-native';
 import SubHeader from '../components/SubHeader';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 export default function ContactDetails() {
@@ -38,7 +36,7 @@ export default function ContactDetails() {
         <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background px-4 pt-4">
             <ScrollView showsVerticalScrollIndicator={false}>
                 <SubHeader title="Contact Details" />
-                {/* Profile */}
+
                 <View className="items-center mt-4 ">
                     <View className="w-24 h-24 rounded-full bg-gray-700 mb-3 border-4 border-sky-500 overflow-hidden">
                         <Image
@@ -52,7 +50,7 @@ export default function ContactDetails() {
                     <Text className="bg-purple-600 text-white px-3 py-1 rounded-full mt-2 text-xs">VIP Customer</Text>
                 </View>
 
-                {/* Action Buttons */}
+
                 <View className="flex-row justify-center gap-4 mt-5">
                     <TouchableOpacity
                         onPress={() => handleCall()}
@@ -69,7 +67,7 @@ export default function ContactDetails() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Info Card */}
+
                 <Text className='text-light-text dark:text-dark-text text-lg font-bold mt-6'> Information</Text>
                 <View className="bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-xl p-4 ">
                     <Text className="text-white mb-2">
@@ -104,7 +102,6 @@ export default function ContactDetails() {
                                     <Text className="text-light-subtext dark:text-dark-subtext">{contact.phone}</Text>
                                     <Text className="text-light-text dark:text-dark-text text-xs mt-1">{contact.date}</Text>
                                 </View>
-                                {/* <Text className="text-sm text-gray-400 mt-1 capitalize">{item.type} call</Text> */}
                             </View>
                             <View className="flex-row items-center gap-4">
                                 {getCallIcon(contact.type)}
@@ -117,7 +114,6 @@ export default function ContactDetails() {
                             <Text className="text-light-text dark:text-dark-text text-xs mt-1">Jul 21, 2025</Text>
                         </View>
                     </View>
-                    {/* <Text className='border-gray-400 border-b-hairline'></Text> */}
                 </View>
             </ScrollView>
         </SafeAreaWrapper>

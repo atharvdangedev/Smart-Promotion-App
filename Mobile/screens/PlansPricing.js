@@ -2,20 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { CheckCircle } from 'lucide-react-native';
 import Header from '../components/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import { API_URL } from '@env';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function PlansPricingScreen() {
     const [profilePic, setProfilePic] = useState('');
+    const profile_pic = useAuthStore((state) => state.profilePic);
+
     useEffect(() => {
         const init = async () => {
-            const filename = await AsyncStorage.getItem('profile_pic');
-            if (filename) {
-                const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
+
+            if (profile_pic) {
+                const url = `${API_URL}/${profile_pic}`;
                 setProfilePic(url);
             } else {
-                setProfilePic(null); // fallback
+                setProfilePic(null);
             }
         }
         init();

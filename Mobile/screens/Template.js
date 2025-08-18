@@ -1,18 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-    View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Switch,
-    Pressable, ActivityIndicator,
+    View, Text, ScrollView, TouchableOpacity, Modal, ActivityIndicator,
     useColorScheme,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Pencil, Trash, Plus, Trash2 } from 'lucide-react-native';
-// import { WebView } from 'react-native-webview';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { api } from '../utils/api';
+import { Pencil, Plus, Trash2 } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import { API_URL } from '@env';
+import { useAuthStore } from '../store/useAuthStore';
+import { TemplateApis } from '../APIs/TemplateApi';
 
 // const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
 
@@ -25,12 +23,13 @@ export default function TemplateScreen({ navigation }) {
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedTemplateForStatus, setSelectedTemplateForStatus] = useState(null);
     const [selectedTemp, setSelectedTemp] = useState({});
-    const [user, setUser] = useState('');
-    // const [error, setError] = useState('');
-    // const [error2, setError2] = useState('');
+
+    const user = useAuthStore((state) => state.rolename);
+    const token = useAuthStore((state) => state.token);
+    const profile_pic = useAuthStore((state) => state.profilePic);
 
     useFocusEffect(
-        React.useCallback(() => {
+        useCallback(() => {
             if (user) {
                 fetchTemplates(user);
             }
@@ -40,29 +39,15 @@ export default function TemplateScreen({ navigation }) {
 
     const theme = useColorScheme();
     let editcolor = '';
-    if (theme === 'light') {
-        editcolor = '#333333'
-    } else {
-        editcolor = '#E0E0E0'
-    }
+    theme === 'light' ? editcolor = '#333333' : editcolor = '#E0E0E0';
 
-
-    const fetchTemplates = async (userType) => {
+    const fetchTemplates = async (user) => {
         try {
-            const token = await AsyncStorage.getItem('token');
-            const endpoint = userType === 'agent' ? 'agent/templates' : 'vendor/templates';
 
-            const response = await api.get(endpoint, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                },
-            });
+            const response = await TemplateApis.fetchTemplate(user, token);
 
-            if (response.data.status && Array.isArray(response.data.templates)) {
+            if (response.status === 200) {
                 setTemplates(response.data.templates);
-            } else {
-                console.error('Invalid API response', response.data);
             }
         } catch (error) {
             console.error('Failed to load templates:', error);
@@ -70,9 +55,6 @@ export default function TemplateScreen({ navigation }) {
             setLoading(false);
         }
     };
-
-
-
 
     const handleDelete = (template) => {
         setSelectedTemplateId(template.id);
@@ -82,8 +64,6 @@ export default function TemplateScreen({ navigation }) {
 
     const deleteTemplate = async (id) => {
         try {
-            const token = await AsyncStorage.getItem('token');
-            const user = await AsyncStorage.getItem('user_type');
             if (user === 'agent') {
                 Toast.show({
                     type: 'info',
@@ -91,12 +71,8 @@ export default function TemplateScreen({ navigation }) {
                 });
                 return
             }
-            const response = await api.delete(`vendor/templates/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                },
-            });
+
+            const response = await TemplateApis.deleteTemplate(id, token);
 
             if (response.data.status) {
                 Toast.show({
@@ -108,7 +84,7 @@ export default function TemplateScreen({ navigation }) {
                 await fetchTemplates();
             } else {
                 Toast.show({
-                    type: 'Error',
+                    type: 'error',
                     text1: 'Error!',
                     text2: 'Failed to delete template',
                     position: 'top',
@@ -133,18 +109,8 @@ export default function TemplateScreen({ navigation }) {
 
     const toggleTemplateStatus = async (template) => {
         try {
-            const token = await AsyncStorage.getItem('token');
 
-            const response = await api.put(
-                `vendor/update-template-status/${template.id}`,
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                    },
-                }
-            );
+            const response = await TemplateApis.toggleStatus(token, template.id);
 
             if (response.data.status) {
                 Toast.show({
@@ -220,17 +186,13 @@ export default function TemplateScreen({ navigation }) {
 
     useEffect(() => {
         const init = async () => {
-            const ActiveUser = await AsyncStorage.getItem('user_type');
-            setUser(ActiveUser);
-            const filename = await AsyncStorage.getItem('profile_pic');
-            if (filename) {
-                const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
+            if (profile_pic) {
+                const url = `${API_URL}/${profile_pic}`;
                 setProfilePic(url);
             } else {
                 setProfilePic(null);
             }
-
-            await fetchTemplates(ActiveUser);
+            // await fetchTemplates(ActiveUser);
         };
         init();
     }, []);

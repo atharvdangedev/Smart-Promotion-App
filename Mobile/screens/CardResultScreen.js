@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import {
     View, Text, ScrollView, TouchableOpacity, TextInput, Pressable
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Save, Phone } from 'lucide-react-native';
+import { Phone } from 'lucide-react-native';
 import Contacts from 'react-native-contacts';
 import Toast from 'react-native-toast-message';
 import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
-export default function CardResultScreen({ route, navigation }) {
+export default function CardResultScreen({ route }) {
     const { fullText, numbers, name } = route.params;
     const [isSaved, setIsSaved] = useState(false);
     const [contactName, setContactName] = useState(name);
@@ -41,8 +40,6 @@ export default function CardResultScreen({ route, navigation }) {
                 position: 'top',
             });
             setIsSaved(true);
-            // ✅ DO NOT navigate — stay on this screen
-            // Optionally disable Save button or show "Contact already saved" notice
         } catch (error) {
             console.error('Save Contact Error:', error);
             Toast.show({
@@ -56,7 +53,6 @@ export default function CardResultScreen({ route, navigation }) {
 
     return (
         <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background p-4">
-            {/* <Header title='Scan Result' profilePic={true} /> */}
             <SubHeader title="Scan Result" />
             <Text className="text-light-text dark:text-dark-text text-lg font-semibold mt-6">Scanned Text:</Text>
             <View className="bg-zinc-800 p-4 rounded-2xl mt-2 max-h-60">

@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, ActivityIndicator, useColorScheme } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator, } from 'react-native';
 import InputField from '../components/InputField';
 import { api } from '../utils/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Check } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useFocusEffect } from '@react-navigation/native';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -16,18 +16,19 @@ export default function LoginScreen({ navigation }) {
     const [formError, setFormError] = useState('');
     const [error, setError] = useState('');
     const [error2, setError2] = useState('');
+    const setAuth = useAuthStore((state) => state.setAuth);
 
     useFocusEffect(
-        React.useCallback(() => {
+        useCallback(() => {
             setError('');
             setError2('');
             setFormError('');
         }, [])
     );
 
+
     const handleLogin = async () => {
         if (!email || !password) {
-            // setFormError('Please enter both email and password');
             if (!email) setError('email');
             if (!password) setError2('password');
             return;
@@ -41,9 +42,7 @@ export default function LoginScreen({ navigation }) {
                 remember: rememberMe ? 1 : 0,
             });
 
-            console.log('Login Response:', JSON.stringify(res.data, null, 2));
-
-            if (res.data?.status === true && res.data.token) {
+            if (res.status === 200 && res.data.token) {
                 const { token, user } = res.data;
 
                 if (user.rolename === 'affiliate') {
@@ -56,84 +55,36 @@ export default function LoginScreen({ navigation }) {
                     return;
                 }
 
-                // if (rememberMe) {
-                //     await AsyncStorage.setItem('remember_me', '1');
-                // } else {
-                //     await AsyncStorage.setItem('remember_me', '0');
-                // }
-                // await AsyncStorage.setItem('token', token);
-                if (token) {
-                    await AsyncStorage.setItem('token', token);
-                } else {
-                    await AsyncStorage.removeItem('token');
-                }
-                if (user.id) {
-                    await AsyncStorage.setItem('user_id', user.id.toString());
-                } else {
-                    await AsyncStorage.removeItem('user_id');
-                }
-
-                // await AsyncStorage.setItem('user_id', user.id.toString());
-                if (user.rolename) {
-                    await AsyncStorage.setItem('user_type', user.rolename);
-                } else {
-                    await AsyncStorage.removeItem('user_type');
-                }
-
-                const pop = await AsyncStorage.getItem('Contact_Popup');
-                if (pop === null)
-                    await AsyncStorage.setItem('Contact_Popup', 'true');
-
-                // await AsyncStorage.setItem('user_type', user.rolename);
-                if (user.profile_pic) {
-                    await AsyncStorage.setItem('profile_pic', user.profile_pic);
-                } else {
-                    await AsyncStorage.removeItem('profile_pic');
-                }
-
-                // console.log('this is img: ', user.profile_pic);
-                // await AsyncStorage.setItem('username', user.first_name);
-                if (user.first_name) {
-                    await AsyncStorage.setItem('username', user.first_name);
-                } else {
-                    await AsyncStorage.removeItem('username');
-                }
-
-
+                setAuth({
+                    token,
+                    user,
+                    contactPopup: 'true',
+                });
 
                 navigation.reset({
                     index: 0,
                     routes: [{ name: 'HomeScreen' }]
                 });
-            }
-            else {
-                // setFormError(res.data?.message || 'Invalid credentials');
+            } else {
                 Toast.show({
                     type: 'error',
                     text1: res.data?.message
-
-                })
+                });
             }
         } catch (error) {
             console.error('Login Error:', error);
-
-            let message = 'Something went wrong. Please try again.';
-
-            if (error.response && error.response.data?.message) {
-                message = error.response.data.message;
-            }
-
+            let message = error.response?.data?.message || 'Something went wrong. Please try again.';
             Toast.show({
                 type: 'error',
                 text1: 'Login Failed',
                 text2: message,
                 position: 'top',
             });
-        }
-        finally {
+        } finally {
             setLoading(false);
         }
     };
+
 
 
     const handleEmailChange = (text) => {
@@ -178,8 +129,6 @@ export default function LoginScreen({ navigation }) {
             {error2 === 'password' && (
                 <Text className="text-light-danger dark:text-dark-danger text-sm  text-center">Password is required</Text>
             )}
-
-            {/* Remember Me Checkbox */}
 
             <View className='flex-row items-center justify-between mx-1'>
                 <View className='flex-row'>

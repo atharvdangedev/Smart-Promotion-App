@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { api } from '../utils/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Check } from 'lucide-react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import { useAuthStore } from '../store/useAuthStore';
 
 
 export default function ChangePasswordScreen({ navigation }) {
@@ -15,13 +15,15 @@ export default function ChangePasswordScreen({ navigation }) {
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
-    const [passwordVisible, setPasswordVisible] = useState(true);
+    // const [passwordVisible, setPasswordVisible] = useState(true);
     const [passwordValidationMessages, setPasswordValidationMessages] = useState([]);
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error2, setError2] = useState('');
     const [error3, setError3] = useState('');
+    const token = useAuthStore((state) => state.token);
+    const logout = useAuthStore((state) => state.logout);
 
 
 
@@ -49,7 +51,7 @@ export default function ChangePasswordScreen({ navigation }) {
             }
         }
 
-        return ''; // Empty string means valid
+        return '';
     };
 
     const getPasswordValidationMessages = (password) => {
@@ -122,8 +124,6 @@ export default function ChangePasswordScreen({ navigation }) {
         setSuccessMsg('');
 
         try {
-            const token = await AsyncStorage.getItem('token');
-
             const res = await api.post(
                 'change-password',
                 {
@@ -139,8 +139,7 @@ export default function ChangePasswordScreen({ navigation }) {
 
             );
 
-            if (res.data?.status) {
-                // setSuccessMsg('Password changed successfully. Logging out...');
+            if (res.status === 200) {
                 setTimeout(() => {
                     Toast.show({
                         type: 'info',
@@ -155,32 +154,16 @@ export default function ChangePasswordScreen({ navigation }) {
                     text2: 'Password changed successfully',
                     position: 'top',
                 });
-                // 👇 Optional logout API call
-                await api.post(
-                    'logout',
-                    {},
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-
-                // Clear token and navigate to SignIn
-                await AsyncStorage.removeItem('token');
 
                 setTimeout(() => {
-                    navigation.reset({
-                        index: 0,
-                        routes: [{ name: 'SignIn' }],
-                    });
+                    logout();
                 }, 2000);
+
             } else {
                 setErrorMsg(res.data.message || 'Failed to change password');
             }
         } catch (error) {
             console.error('Change Password Error:', error);
-            // setErrorMsg('Please enter correct current password');
             Toast.show({
                 type: 'error',
                 text1: 'Change Password Error',
@@ -190,10 +173,6 @@ export default function ChangePasswordScreen({ navigation }) {
             setLoading(false);
         }
     };
-
-    // const togglePasswordVisibility = () => {
-    //     setPasswordVisible(!passwordVisible);
-    // }
 
 
     return (

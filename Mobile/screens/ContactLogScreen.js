@@ -4,28 +4,28 @@ import {
 } from 'react-native';
 import {
     PhoneMissed, PhoneIncoming, PhoneOutgoing, PhoneOff,
-    Navigation,
 } from 'lucide-react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Header from '../components/Header';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import { API_URL } from '@env';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function CallLogScreen({ navigation }) {
     const [contacts, setContacts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [profilePic, setProfilePic] = useState('');
+    const profile_pic = useAuthStore((state) => state.profilePic);
 
 
     useEffect(() => {
         const init = async () => {
-            const filename = await AsyncStorage.getItem('profile_pic');
-            if (filename) {
-                const url = `https://swp.smarttesting.in/public/uploads/profile/${filename}`;
+            if (profile_pic) {
+                const url = `${API_URL}/${profile_pic}`;
                 setProfilePic(url);
             } else {
-                setProfilePic(null); // fallback
+                setProfilePic(null);
             }
         }
         init();
@@ -93,9 +93,7 @@ export default function CallLogScreen({ navigation }) {
         <SafeAreaWrapper className='flex-1 bg-light-background dark:bg-dark-background'>
             <View className="px-4">
                 <Header title='Contact Log' profilePic={profilePic} />
-                {/* <Text className="text-[#333333] dark:text-[#E0E0E0] text-2xl font-bold mb-4">Call Logs</Text> */}
 
-                {/* Counters */}
                 <View className="flex-row flex-wrap justify-between mb-5">
                     <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">
                         <Text className="text-red-400 text-xl font-bold">{counts.missed}</Text>
@@ -156,7 +154,7 @@ export default function CallLogScreen({ navigation }) {
                                             <Text className="text-gray-400">{item.phone}</Text>
                                             <Text className="text-gray-400 text-xs mt-1">{item.date}</Text>
                                         </View>
-                                        {/* <Text className="text-sm text-gray-400 mt-1 capitalize">{item.type} call</Text> */}
+
                                     </View>
                                     <View className="flex-row items-center gap-4">
                                         {getCallIcon(item.type)}
