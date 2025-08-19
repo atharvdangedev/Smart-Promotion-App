@@ -1,4 +1,3 @@
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -11,7 +10,6 @@ export const useAuthStore = create(
             rolename: null,
             profilePic: null,
             username: null,
-            contactPopup: null,
 
             setAuth: (data = {}) => {
                 set({
@@ -20,7 +18,6 @@ export const useAuthStore = create(
                     rolename: data?.user?.rolename || null,
                     profilePic: data?.user?.profile_pic || null,
                     username: data?.user?.first_name || null,
-                    contactPopup: false,
                 });
             },
 
@@ -40,4 +37,4 @@ export const useAuthStore = create(
             storage: createJSONStorage(() => AsyncStorage),
         }
     )
-)
+);
