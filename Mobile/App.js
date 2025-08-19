@@ -1,4 +1,3 @@
-// App.js
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -19,7 +18,6 @@ import CardResultScreen from './screens/CardResultScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SelectContacts from './screens/SelectContacts';
 import { useAuthStore } from './store/useAuthStore';
-// import { useAuthStore } from './store/AuthStore';
 
 const Stack = createNativeStackNavigator();
 

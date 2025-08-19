@@ -6,7 +6,8 @@ import Header from '../components/Header';
 import { useColorScheme } from 'react-native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { API_URL } from '@env';
-import { useAuthStore } from '../store/useAuthStore';
+import { useAuthStore, usePopUpStore } from '../store/useAuthStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const screenWidth = Dimensions.get('window').width;
@@ -63,20 +64,26 @@ export default function DashboardScreen({ navigation }) {
         }, [username])
     );
 
-    // useEffect(() => {
-    //     const init = async () => {
-    //         try {
-    //             console.log('Pop is ', hasShown);
-    //             if (hasShown === 'true') {
-    //                 setShowPopup(true);
-    //                 await AsyncStorage.setItem('Contact_Popup', 'false');
-    //             }
-    //         } catch (error) {
-    //             console.log('Error checking popup status:', error);
-    //         }
-    //     }
-    //     init();
-    // }, []);
+    useEffect(() => {
+        const checkPopupStatus = async () => {
+            try {
+                const hasSeenPopup = await AsyncStorage.getItem('hasSeenPopup');
+                if (!hasSeenPopup) {
+                    setShowPopup(true);
+                }
+            } catch (error) {
+                console.log('Error checking popup status:', error);
+            }
+        };
+
+        checkPopupStatus();
+    }, []);
+
+    const handleChoice = async () => {
+        // console.log("User chose:", ); // Just for debugging
+        setShowPopup(false);
+        await AsyncStorage.setItem('hasSeenPopup', 'true'); // Save so it never shows again
+    };
 
     const onRefresh = useCallback(() => {
         setRefreshing(true);
@@ -214,6 +221,7 @@ export default function DashboardScreen({ navigation }) {
                                 <TouchableOpacity
                                     onPress={() => {
                                         setShowPopup(false);
+                                        handleChoice();
                                     }}
                                     className="flex-1 py-3 rounded-md bg-gray-200 mr-2"
                                 >
@@ -222,6 +230,7 @@ export default function DashboardScreen({ navigation }) {
                                 <TouchableOpacity
                                     onPress={() => {
                                         setShowPopup(false);
+                                        handleChoice();
                                         navigation.navigate('SelectContacts');
                                     }}
                                     className="flex-1 py-3 mr-2 rounded-md bg-black"

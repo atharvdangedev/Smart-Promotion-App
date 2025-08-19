@@ -57,7 +57,10 @@ export default function ProfileScreen({ navigation }) {
     const [profilePic, setProfilePic] = useState(null);
     const [profilePicPreview, setProfilePicPreview] = useState(null);
     const [loading, setLoading] = useState(true);
-    const { control, handleSubmit, reset } = useForm();
+    const { control, handleSubmit, reset } = useForm({
+        mode: "onChange",
+        reValidateMode: "onChange",
+    });
     const [logoutModalVisible, setLogoutModalVisible] = useState(false);
     const [businessTypeModal, setBusinessTypeModal] = useState(false);
     const role = useAuthStore((state) => state.rolename);
@@ -167,7 +170,6 @@ export default function ProfileScreen({ navigation }) {
                     >
                         <SubHeader title={`Profile (${role})`} />
 
-                        {/* Header and Profile Pic */}
                         <View className="relative mt-4 mb-8">
                             <ImageBackground
                                 source={require('../assets/header-bg.jpg')}
@@ -197,7 +199,6 @@ export default function ProfileScreen({ navigation }) {
                             </View>
                         </View>
 
-                        {/* Form Inputs */}
                         {fields.map(({ name, label }) => (
                             <Controller
                                 key={name}
@@ -209,6 +210,10 @@ export default function ProfileScreen({ navigation }) {
                                         ? {
                                             minLength: { value: 2, message: `${label} must be at least 2 characters` },
                                             maxLength: { value: 50, message: `${label} must be less than 50 characters` },
+                                            pattern: {
+                                                value: /^[A-Za-z\s]+$/,
+                                                message: `${label} must contain only letters`,
+                                            },
                                         }
                                         : {}),
                                     ...(name === 'business_name'
@@ -217,38 +222,34 @@ export default function ProfileScreen({ navigation }) {
                                             maxLength: { value: 100, message: 'Business name must be less than 100 characters' },
                                         }
                                         : {}),
-                                    ...(name === 'email'
+                                    ...(name === 'business_email'
                                         ? {
+                                            required: "Business email is required",
                                             pattern: {
                                                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                                message: 'Invalid email format',
+                                                message: "Invalid business email format",
                                             },
                                         }
                                         : {}),
+
                                     ...(name === 'website'
                                         ? {
                                             pattern: {
-                                                value: /^(https?:\/\/)?([\w\d-]+\.)+[\w]{2,}(\/.*)?$/,
+                                                value: /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/,
                                                 message: 'Invalid website URL',
                                             },
                                         }
                                         : {}),
-                                    ...(name === 'contact_no'
+
+                                    ...(name === 'contact_no' || name === 'business_contact'
                                         ? {
                                             pattern: {
-                                                value: /^[0-9]{7,15}$/,
-                                                message: 'Contact number must be 7-15 digits',
+                                                value: /^[0-9]{10}$/,
+                                                message: `${label} must be exactly 10 digits`,
                                             },
                                         }
                                         : {}),
-                                    ...(name === 'business_contact'
-                                        ? {
-                                            pattern: {
-                                                value: /^[0-9]{7,15}$/,
-                                                message: 'Business contact number must be 7-15 digits',
-                                            },
-                                        }
-                                        : {}),
+
                                 }}
                                 render={({
                                     field: { onChange, value },
@@ -305,11 +306,16 @@ export default function ProfileScreen({ navigation }) {
                                                 value={value}
                                                 onChangeText={(text) => {
                                                     if (name === 'contact_no' || name === 'business_contact') {
-                                                        onChange(text.replace(/[^0-9]/g, ''));
+                                                        onChange(text.replace(/[^0-9]/g, '').slice(0, 10));
+                                                    } else if (name === 'first_name' || name === 'last_name') {
+                                                        onChange(text.replace(/[^A-Za-z\s]/g, ''));
                                                     } else {
                                                         onChange(text);
                                                     }
                                                 }}
+                                                multiline={name === 'business_address'}
+                                                numberOfLines={name === 'business_address' ? 4 : 1}
+                                                textAlignVertical={name === 'business_address' ? 'top' : 'center'}
                                                 placeholder={`Enter ${label.toLowerCase()}`}
                                                 placeholderTextColor="#9ca3af"
                                                 keyboardType={name === 'contact_no' || name === 'business_contact' ? 'numeric' : 'default'}
