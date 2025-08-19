@@ -18,6 +18,7 @@ export default function LoginScreen({ navigation }) {
     const [error2, setError2] = useState('');
     const setAuth = useAuthStore((state) => state.setAuth);
 
+
     useFocusEffect(
         useCallback(() => {
             setError('');
@@ -58,7 +59,6 @@ export default function LoginScreen({ navigation }) {
                 setAuth({
                     token,
                     user,
-                    contactPopup: 'true',
                 });
 
                 navigation.reset({
