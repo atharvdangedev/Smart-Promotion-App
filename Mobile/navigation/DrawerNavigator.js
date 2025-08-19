@@ -18,13 +18,13 @@ export default function DrawerNavigator() {
             screenOptions={{
                 headerShown: false,
                 drawerStyle: {
-                    backgroundColor: '#0f172a',
+                    backgroundColor: '#ffffff',
                     width: 280,
-                    padding: 3,
+                    padding: 0,
                 },
-                drawerActiveBackgroundColor: '#0284c7',
-                drawerActiveTintColor: '#fff',
-                drawerInactiveTintColor: '#94a3b8',
+                drawerActiveBackgroundColor: '#233140',
+                drawerActiveTintColor: '#0088cc',
+                drawerInactiveTintColor: '#fff',
                 drawerLabelStyle: {
                     fontSize: 16,
                     marginLeft: 5,

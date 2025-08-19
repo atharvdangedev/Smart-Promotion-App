@@ -6,7 +6,7 @@ import Header from '../components/Header';
 import { useColorScheme } from 'react-native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { API_URL } from '@env';
-import { useAuthStore, usePopUpStore } from '../store/useAuthStore';
+import { useAuthStore } from '../store/useAuthStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
