@@ -334,7 +334,7 @@ export default function ProfileScreen({ navigation }) {
                                                 editable={name !== 'email'}
                                                 selectTextOnFocus={name !== 'email'}
                                                 maxLength={name === 'contact_no' || name === 'business_contact' ? 15 : undefined}
-                                                className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-light-background dark:bg-dark-background`}
+                                                className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
                                             />
                                         )}
 

@@ -130,7 +130,7 @@ export default function DashboardScreen({ navigation }) {
                 <View className="mb-6">
                     <Header title='Dashboard' profilePic={profilePhoto} />
 
-                    <Text className="text-lg text-light-text dark:text-dark-text mt-2">Welcome back, {name} 👋</Text>
+                    <Text className="text-lg text-light-text dark:text-dark-text mt-0">Welcome back, {name} 👋</Text>
                     <Text className="text-sm text-light-subtext dark:text-dark-subtext">Here’s an overview of your team's performance.</Text>
                 </View>
 
