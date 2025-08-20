@@ -1,5 +1,4 @@
 import { View, Text, TouchableOpacity, Image, useColorScheme } from 'react-native';
-import React, { useEffect, useState } from 'react';
 import { Menu, User } from 'lucide-react-native';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 
@@ -27,7 +26,7 @@ export default function Header({ title = 'SmartPromotions', profilePic }) {
     // }, []);
 
     return (
-        <View className='flex-row justify-between items-center border border-light-border dark:border-dark-border rounded-xl p-4 mb-6'>
+        <View className='flex-row justify-between items-center bg-[#e6ebf0] dark:bg-[#233140] border border-light-border dark:border-dark-border rounded-xl p-4 mb-6'>
             {/* Drawer button */}
             <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
                 <Menu size={26} color={sidebarcolor} />
