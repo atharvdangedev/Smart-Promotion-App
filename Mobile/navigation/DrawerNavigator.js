@@ -5,7 +5,6 @@ import TemplateScreen from '../screens/Template';
 import PlansPricingScreen from '../screens/PlansPricing';
 import ContactLogScreen from '../screens/ContactLogScreen';
 import CardScannerScreen from '../screens/CardScannerScreen';
-import { Text, TouchableOpacity } from 'react-native';
 import { Contact, LayoutDashboard, MessageSquareMore, ScanText, ShoppingCart, User } from 'lucide-react-native';
 import CustomDrawerContent from '../screens/CustomDrawerContent';
 
@@ -18,13 +17,13 @@ export default function DrawerNavigator() {
             screenOptions={{
                 headerShown: false,
                 drawerStyle: {
-                    backgroundColor: '#0f172a',
+                    backgroundColor: '#ffffff',
                     width: 280,
-                    padding: 3,
+                    padding: 0,
                 },
-                drawerActiveBackgroundColor: '#0284c7',
-                drawerActiveTintColor: '#fff',
-                drawerInactiveTintColor: '#94a3b8',
+                drawerActiveBackgroundColor: '#242f3d',
+                drawerActiveTintColor: '#3390ec',
+                drawerInactiveTintColor: '#fff',
                 drawerLabelStyle: {
                     fontSize: 16,
                     marginLeft: 5,

@@ -6,7 +6,7 @@ import Header from '../components/Header';
 import { useColorScheme } from 'react-native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { API_URL } from '@env';
-import { useAuthStore, usePopUpStore } from '../store/useAuthStore';
+import { useAuthStore } from '../store/useAuthStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -130,7 +130,7 @@ export default function DashboardScreen({ navigation }) {
                 <View className="mb-6">
                     <Header title='Dashboard' profilePic={profilePhoto} />
 
-                    <Text className="text-lg text-light-text dark:text-dark-text mt-2">Welcome back, {name} 👋</Text>
+                    <Text className="text-lg text-light-text dark:text-dark-text mt-0">Welcome back, {name} 👋</Text>
                     <Text className="text-sm text-light-subtext dark:text-dark-subtext">Here’s an overview of your team's performance.</Text>
                 </View>
 
