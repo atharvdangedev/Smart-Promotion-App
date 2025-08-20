@@ -31,6 +31,9 @@ export const useAuthStore = create(
                 })
             },
 
+            setProfilePic: (pic) => set({ profilePic: pic }),
+            setUsername: (name) => set({ username: name }),
+
         }),
         {
             name: "auth-storage",
