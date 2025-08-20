@@ -66,6 +66,8 @@ export default function ProfileScreen({ navigation }) {
     const role = useAuthStore((state) => state.rolename);
     const UserId = useAuthStore((state) => state.userId);
     const logout = useAuthStore((state) => state.logout);
+    const updateProfilePic = useAuthStore((state) => state.setProfilePic);
+    const updateUsername = useAuthStore((state) => state.setUsername);
 
     useEffect(() => {
         fetchProfile();
@@ -90,6 +92,9 @@ export default function ProfileScreen({ navigation }) {
                 const uri = `${API_PROFILE}/${data.profile_pic}`;
                 setProfilePicPreview(uri);
             }
+            console.log(data.profile_pic, data.first_name);
+            updateProfilePic(data.profile_pic);
+            updateUsername(data.first_name);
         } catch (error) {
             console.error('API error:', error?.response?.data || error.message);
             Toast.show({
@@ -141,6 +146,7 @@ export default function ProfileScreen({ navigation }) {
             await profileApi.updateProfile(role, UserId, formData);
 
             fetchProfile();
+
             Toast.show({
                 type: 'success',
                 text1: 'Saved',
@@ -149,7 +155,12 @@ export default function ProfileScreen({ navigation }) {
             });
         } catch (error) {
             console.error('Update error:', error.response?.data || error.message);
-            alert('Failed to update profile. Please try again.');
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Failed to update prfile',
+                position: 'top',
+            });
         }
     };
 
@@ -340,7 +351,7 @@ export default function ProfileScreen({ navigation }) {
                         {/* Save */}
                         <TouchableOpacity
                             onPress={handleSubmit(handleSave)}
-                            className="mt-6 bg-white border border-black rounded-xl py-3 mb-6"
+                            className="mt-6 bg-white border border-black rounded-xl py-3 mb-4"
                         >
                             <Text className="text-black text-center font-semibold">
                                 Save Profile
@@ -350,7 +361,7 @@ export default function ProfileScreen({ navigation }) {
                         {/* Change Password */}
                         <TouchableOpacity
                             onPress={() => navigation.navigate('ChangePassword')}
-                            className="bg-white border border-black rounded-xl py-3 mb-6"
+                            className="bg-white border border-black rounded-xl py-3 mb-4"
                         >
                             <Text className="text-black text-center font-semibold">
                                 Change Password
@@ -359,7 +370,7 @@ export default function ProfileScreen({ navigation }) {
 
                         <TouchableOpacity
                             onPress={() => navigation.navigate('SelectContacts')}
-                            className="bg-white border border-black rounded-xl py-3 mb-6"
+                            className="bg-white border border-black rounded-xl py-3 mb-4"
                         >
                             <Text className="text-black text-center font-semibold">
                                 Export Contacts
@@ -369,7 +380,7 @@ export default function ProfileScreen({ navigation }) {
                         {/* Logout */}
                         <TouchableOpacity
                             onPress={() => setLogoutModalVisible(true)}
-                            className="bg-black border border-light-border dark:border-dark-border rounded-xl py-3 mb-6"
+                            className="bg-black border border-light-border dark:border-dark-border rounded-xl py-3 mb-4"
                         >
                             <Text className="text-white text-center font-semibold">Logout</Text>
                         </TouchableOpacity>

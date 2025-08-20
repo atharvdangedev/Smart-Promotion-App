@@ -7,7 +7,7 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   presets: [require("nativewind/preset")],
-  darkMode: 'media', // use 'class' if you want manual toggle
+  darkMode: 'media',
   theme: {
     extend: {
       colors: {
@@ -28,7 +28,7 @@ module.exports = {
         dark: {
           text: "#E0E0E0",
           subtext: "#A0A0A0",
-          background: "#2C3E50",
+          background: "#17212b",
           icon: "#F1F5F9",
           primaryAccent: "#7ED9B0",
           secondaryAccent: "#B88BFF",
