@@ -1,110 +1,114 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, PermissionsAndroid, Platform } from "react-native";
-import Contacts from "react-native-contacts";
-import SafeAreaWrapper from "../components/SafeAreaWrapper";
-import SubHeader from "../components/SubHeader";
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  PermissionsAndroid,
+  Platform,
+} from 'react-native';
+import Contacts from 'react-native-contacts';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import SubHeader from '../components/SubHeader';
 
 export default function SelectContacts() {
-    const [contacts, setContacts] = useState([]);
-    const [selectedContacts, setSelectedContacts] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [selectedContacts, setSelectedContacts] = useState([]);
 
-    useEffect(() => {
-        getContacts();
-    }, []);
+  useEffect(() => {
+    getContacts();
+  }, []);
 
-    const getContacts = async () => {
-        if (Platform.OS === "android") {
-            const granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.READ_CONTACTS
-            );
-            if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-                console.warn("Contacts permission denied");
-                return;
-            }
-        }
-        Contacts.getAll()
-            .then(contactsList => {
-                const sortedContacts = contactsList.sort((a, b) =>
-                    a.displayName.localeCompare(b.displayName)
-                );
-                setContacts(sortedContacts);
-            })
-            .catch(err => console.error(err));
-    };
-
-    const toggleSelect = (contact) => {
-        const phoneNumber = contact.phoneNumbers?.[0]?.number || "No number";
-
-        const exists = selectedContacts.find(
-            c => typeof c === "object" && c.recordID === contact.recordID
+  const getContacts = async () => {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+      );
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        console.warn('Contacts permission denied');
+        return;
+      }
+    }
+    Contacts.getAll()
+      .then(contactsList => {
+        const sortedContacts = contactsList.sort((a, b) =>
+          a.displayName.localeCompare(b.displayName),
         );
+        setContacts(sortedContacts);
+      })
+      .catch(err => console.error(err));
+  };
 
+  const toggleSelect = contact => {
+    const phoneNumber = contact.phoneNumbers?.[0]?.number || 'No number';
 
-        if (exists) {
-            setSelectedContacts(prev =>
-                prev.filter(c => c.recordID !== contact.recordID)
-            );
-        } else {
-            // Add full contact details
-            setSelectedContacts(prev => [
-                ...prev,
-                {
-                    recordID: contact.recordID,
-                    name: contact.displayName,
-                    number: phoneNumber
-                }
-            ]);
-        }
-    };
+    const exists = selectedContacts.find(
+      c => typeof c === 'object' && c.recordID === contact.recordID,
+    );
 
-    const renderItem = ({ item }) => {
-        const isSelected = selectedContacts.some(
-            c => c.recordID === item.recordID
-        );
-        const phoneNumber = item.phoneNumbers?.[0]?.number || "No number";
+    if (exists) {
+      setSelectedContacts(prev =>
+        prev.filter(c => c.recordID !== contact.recordID),
+      );
+    } else {
+      setSelectedContacts(prev => [
+        ...prev,
+        {
+          recordID: contact.recordID,
+          name: contact.displayName,
+          number: phoneNumber,
+        },
+      ]);
+    }
+  };
 
-        return (
-            <TouchableOpacity
-                onPress={() => toggleSelect(item)}
-                className={`flex-row justify-between items-center p-4 border-b border-gray-300 ${isSelected ? "bg-sky-100" : "bg-white"
-                    }`}
-            >
-                <View>
-                    <Text className="text-black">{item.displayName}</Text>
-                    <Text className="text-gray-500 text-sm">{phoneNumber}</Text>
-                </View>
-                {isSelected && <Text className="text-sky-600 font-bold">✓</Text>}
-            </TouchableOpacity>
-        );
-    };
+  const renderItem = ({ item }) => {
+    const isSelected = selectedContacts.some(c => c.recordID === item.recordID);
+    const phoneNumber = item.phoneNumbers?.[0]?.number || 'No number';
 
     return (
-        <SafeAreaWrapper className="bg-light-background dark:bg-dark-background">
-            <View className="flex-1 px-4">
-                <SubHeader title="Contacts selection" />
-                <View className="flex-1 rounded-xl p-2">
-                    <View className="p-4 bg-light-card dark:bg-dark-card rounded-xl">
-                        <Text className="text-light-text dark:text-dark-text text-lg text-center font-bold">
-                            Select Contacts To Add
-                        </Text>
-                    </View>
-
-                    <FlatList
-                        data={contacts}
-                        keyExtractor={(item) => item.recordID}
-                        renderItem={renderItem}
-                    />
-
-                    <TouchableOpacity
-                        onPress={() => console.log("Selected:", selectedContacts)}
-                        className="m-4 bg-sky-600 p-4 rounded-xl"
-                    >
-                        <Text className="text-center text-white font-bold">
-                            Done ({selectedContacts.length})
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </SafeAreaWrapper>
+      <TouchableOpacity
+        onPress={() => toggleSelect(item)}
+        className={`flex-row justify-between items-center p-4 border-b border-gray-300 ${
+          isSelected ? 'bg-sky-100' : 'bg-white'
+        }`}
+      >
+        <View>
+          <Text className="text-black">{item.displayName}</Text>
+          <Text className="text-gray-500 text-sm">{phoneNumber}</Text>
+        </View>
+        {isSelected && <Text className="text-sky-600 font-bold">✓</Text>}
+      </TouchableOpacity>
     );
+  };
+
+  return (
+    <SafeAreaWrapper className="bg-light-background dark:bg-dark-background">
+      <View className="flex-1 px-4">
+        <SubHeader title="Contacts selection" />
+        <View className="flex-1 rounded-xl p-2">
+          <View className="p-4 bg-light-card dark:bg-dark-card rounded-xl">
+            <Text className="text-light-text dark:text-dark-text text-lg text-center font-bold">
+              Select Contacts To Add
+            </Text>
+          </View>
+
+          <FlatList
+            data={contacts}
+            keyExtractor={item => item.recordID}
+            renderItem={renderItem}
+          />
+
+          <TouchableOpacity
+            onPress={() => console.log('Selected:', selectedContacts)}
+            className="m-4 bg-sky-600 p-4 rounded-xl"
+          >
+            <Text className="text-center text-white font-bold">
+              Done ({selectedContacts.length})
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaWrapper>
+  );
 }
