@@ -41,7 +41,6 @@ export default function DashboardScreen({ navigation }) {
 
     const [refreshing, setRefreshing] = useState(false);
     const [dataIndex, setDataIndex] = useState(0);
-    const [name, setName] = useState('');
     const [profilePhoto, setProfilePhoto] = useState('');
     const [showPopup, setShowPopup] = useState(false);
     const username = useAuthStore((state) => state.username);
@@ -50,18 +49,15 @@ export default function DashboardScreen({ navigation }) {
     useFocusEffect(
         useCallback(() => {
             const init = async () => {
-                setName(username);
-                const filename = profilePic;
-
-                if (filename) {
-                    const url = `${API_URL}/${filename}`;
+                if (profilePic) {
+                    const url = `${API_URL}/${profilePic}`;
                     setProfilePhoto(url);
                 } else {
                     setProfilePhoto(null);
                 }
             };
             init();
-        }, [username])
+        }, [username, profilePic])
     );
 
     useEffect(() => {
@@ -80,9 +76,9 @@ export default function DashboardScreen({ navigation }) {
     }, []);
 
     const handleChoice = async () => {
-        // console.log("User chose:", ); // Just for debugging
+        // console.log("User chose:", ); 
         setShowPopup(false);
-        await AsyncStorage.setItem('hasSeenPopup', 'true'); // Save so it never shows again
+        await AsyncStorage.setItem('hasSeenPopup', 'true');
     };
 
     const onRefresh = useCallback(() => {
@@ -130,7 +126,7 @@ export default function DashboardScreen({ navigation }) {
                 <View className="mb-6">
                     <Header title='Dashboard' profilePic={profilePhoto} />
 
-                    <Text className="text-lg text-light-text dark:text-dark-text mt-0">Welcome back, {name} 👋</Text>
+                    <Text className="text-lg text-light-text dark:text-dark-text mt-0">Welcome back, {username} 👋</Text>
                     <Text className="text-sm text-light-subtext dark:text-dark-subtext">Here’s an overview of your team's performance.</Text>
                 </View>
 
