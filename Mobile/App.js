@@ -22,7 +22,7 @@ import { useAuthStore } from './store/useAuthStore';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const token = useAuthStore((state) => state.token);
+  const token = useAuthStore(state => state.token);
   const [isRehydrated, setIsRehydrated] = useState(false);
 
   useEffect(() => {
@@ -48,7 +48,6 @@ export default function App() {
           initialRouteName={token ? 'HomeScreen' : 'Welcome'}
           screenOptions={{ headerShown: false }}
         >
-
           {!token && (
             <>
               <Stack.Screen name="Welcome" component={WelcomeScreen} />
@@ -60,13 +59,22 @@ export default function App() {
           {token && (
             <>
               <Stack.Screen name="HomeScreen" component={DrawerNavigator} />
-              <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-              <Stack.Screen name="TemplateDetails" component={TemplateDetailScreen} />
+              <Stack.Screen
+                name="ChangePassword"
+                component={ChangePasswordScreen}
+              />
+              <Stack.Screen
+                name="TemplateDetails"
+                component={TemplateDetailScreen}
+              />
               <Stack.Screen name="ShowTemplate" component={ShowTemplate} />
               <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
               <Stack.Screen name="Header" component={Header} />
               <Stack.Screen name="ContactDetails" component={ContactDetails} />
-              <Stack.Screen name="CardResultScreen" component={CardResultScreen} />
+              <Stack.Screen
+                name="CardResultScreen"
+                component={CardResultScreen}
+              />
               <Stack.Screen name="SelectContacts" component={SelectContacts} />
             </>
           )}

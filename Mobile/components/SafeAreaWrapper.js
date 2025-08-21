@@ -5,39 +5,39 @@ import { Platform, StatusBar, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SafeAreaWrapper = ({
-    children,
-    scrollable = false,
-    className = '',
-    style = {},
-    contentContainerClassName = '',
+  children,
+  scrollable = false,
+  className = '',
+  style = {},
+  contentContainerClassName = '',
 }) => {
-    const paddingTop = Platform.OS === 'android' ? 6 || 0 : 0;
+  const paddingTop = Platform.OS === 'android' ? 6 || 0 : 0;
 
-    if (scrollable) {
-        return (
-            <SafeAreaView
-                style={[{ flex: 1, paddingTop }, style]}
-                className={`bg-light-background dark:bg-dark-background ${className}`}
-            >
-                <ScrollView
-                    keyboardShouldPersistTaps="handled"
-                    className="flex-1"
-                    contentContainerClassName={contentContainerClassName}
-                >
-                    {children}
-                </ScrollView>
-            </SafeAreaView>
-        );
-    }
-
+  if (scrollable) {
     return (
-        <SafeAreaView
-            style={[{ flex: 1, paddingTop }, style]}
-            className={`bg-light-background dark:bg-dark-background ${className}`}
+      <SafeAreaView
+        style={[{ flex: 1, paddingTop }, style]}
+        className={`bg-light-background dark:bg-dark-background ${className}`}
+      >
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          className="flex-1"
+          contentContainerClassName={contentContainerClassName}
         >
-            {children}
-        </SafeAreaView>
+          {children}
+        </ScrollView>
+      </SafeAreaView>
     );
+  }
+
+  return (
+    <SafeAreaView
+      style={[{ flex: 1, paddingTop }, style]}
+      className={`bg-light-background dark:bg-dark-background ${className}`}
+    >
+      {children}
+    </SafeAreaView>
+  );
 };
 
 export default SafeAreaWrapper;
