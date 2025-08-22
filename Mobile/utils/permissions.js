@@ -1,0 +1,63 @@
+export const APP_PERMISSIONS = {
+  // Agent Management
+  AGENTS_VIEW: 'agents:view',
+  AGENTS_CREATE: 'agents:create',
+  AGENTS_EDIT: 'agents:edit',
+  AGENTS_CHANGE_STATUS: 'agents:change_status',
+  AGENTS_DELETE: 'agents:delete',
+
+  // Commissions Management
+  COMMISSIONS_VIEW: 'commissions:view',
+
+  // Contacts Management
+  CONTACTS_VIEW: 'contacts:view',
+  CONTACTS_CREATE: 'contacts:create',
+  CONTACTS_EDIT: 'contacts:edit',
+  CONTACTS_DELETE: 'contacts:delete',
+
+  // Template Management
+  TEMPLATES_VIEW: 'templates:view',
+  TEMPLATES_CREATE: 'templates:create',
+  TEMPLATES_EDIT: 'templates:edit',
+  TEMPLATES_CHANGE_STATUS: 'templates:change_status',
+  TEMPLATES_DELETE: 'templates:delete',
+
+  // Exports Management
+  EXPORTS: 'data:export_data',
+
+  // Become an affiliate
+  BECOME_AN_AFFILIATE: 'profile:become_an_affiliate',
+};
+
+export const ROLE_PERMISSIONS = {
+  5: [
+    APP_PERMISSIONS.AGENTS_VIEW,
+    APP_PERMISSIONS.AGENTS_CREATE,
+    APP_PERMISSIONS.AGENTS_EDIT,
+    APP_PERMISSIONS.AGENTS_CHANGE_STATUS,
+    APP_PERMISSIONS.AGENTS_DELETE,
+
+    APP_PERMISSIONS.CONTACTS_VIEW,
+    APP_PERMISSIONS.CONTACTS_CREATE,
+    APP_PERMISSIONS.CONTACTS_EDIT,
+    APP_PERMISSIONS.CONTACTS_DELETE,
+
+    APP_PERMISSIONS.TEMPLATES_VIEW,
+    APP_PERMISSIONS.TEMPLATES_CREATE,
+    APP_PERMISSIONS.TEMPLATES_EDIT,
+    APP_PERMISSIONS.TEMPLATES_CHANGE_STATUS,
+    APP_PERMISSIONS.TEMPLATES_DELETE,
+
+    APP_PERMISSIONS.EXPORTS,
+  ],
+  6: [
+    APP_PERMISSIONS.CONTACTS_VIEW,
+    APP_PERMISSIONS.CONTACTS_CREATE,
+    APP_PERMISSIONS.CONTACTS_EDIT,
+    APP_PERMISSIONS.CONTACTS_DELETE,
+
+    APP_PERMISSIONS.TEMPLATES_VIEW,
+
+    APP_PERMISSIONS.EXPORTS,
+  ],
+};

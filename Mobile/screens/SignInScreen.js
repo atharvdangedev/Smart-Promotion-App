@@ -1,180 +1,212 @@
-import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
-import InputField from '../components/InputField';
-import { api } from '../utils/api';
-import { Check } from 'lucide-react-native';
-import Toast from 'react-native-toast-message';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  TextInput,
+  useColorScheme,
+} from 'react-native';
+import { Eye, EyeOff, CheckSquare, Square } from 'lucide-react-native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
-import { useFocusEffect } from '@react-navigation/native';
 import { useAuthStore } from '../store/useAuthStore';
+import { signinSchema } from '../utils/schemas';
+import { handleApiSuccess } from '../utils/handleApiSuccess';
+import { handleApiError } from '../utils/handleApiError';
+import { Controller, useForm } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { BASE_URL, API_KEY } from '@env';
+import axios from 'axios';
 
 export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [formError, setFormError] = useState('');
-  const [error, setError] = useState('');
-  const [error2, setError2] = useState('');
   const setAuth = useAuthStore(state => state.setAuth);
-
-  useFocusEffect(
-    useCallback(() => {
-      setError('');
-      setError2('');
-      setFormError('');
-    }, []),
-  );
-
-  const handleLogin = async () => {
-    if (!email || !password) {
-      if (!email) setError('email');
-      if (!password) setError2('password');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await api.post('login', {
-        email,
-        password,
-        remember: rememberMe ? 1 : 0,
-      });
-
-      if (res.status === 200 && res.data.token) {
-        const { token, user } = res.data;
-
-        if (user.rolename === 'affiliate') {
-          Toast.show({
-            type: 'error',
-            text1: 'Affiliate User Found!',
-            text2: 'Affiliate users are not allowed',
-            position: 'top',
-          });
-          return;
-        }
-
-        setAuth({
-          token,
-          user,
-        });
-
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'HomeScreen' }],
-        });
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: res.data?.message,
-        });
-      }
-    } catch (error) {
-      console.error('Login Error:', error);
-      let message =
-        error.response?.data?.message ||
-        'Something went wrong. Please try again.';
-      Toast.show({
-        type: 'error',
-        text1: 'Login Failed',
-        text2: message,
-        position: 'top',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEmailChange = text => {
-    setEmail(text);
-    if (formError) setFormError('');
-    if (error) setError('');
-  };
-
-  const handlePasswordChange = text => {
-    setPassword(text);
-    if (formError) setFormError('');
-    if (error2) setError2('');
-  };
-
   const [passwordVisible, setPasswordVisible] = useState(false);
+
+  const scheme = useColorScheme();
+  const iconColor = scheme === 'dark' ? '#fff' : '#000';
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
+  const { control, handleSubmit } = useForm({
+    resolver: yupResolver(signinSchema),
+    mode: 'onBlur',
+    defaultValues: {
+      email: '',
+      password: '',
+      remember: false,
+    },
+  });
+
+  const signinMutation = useMutation({
+    mutationFn: async data => {
+      try {
+        const endpoint = `${BASE_URL}login`;
+
+        const res = await axios.post(endpoint, data, {
+          headers: {
+            'X-App-Secret': API_KEY,
+          },
+        });
+        return res;
+      } catch (error) {
+        throw error;
+      }
+    },
+    onSuccess: res => {
+      handleApiSuccess(res.data.message, 'Sign In');
+
+      const { token, user } = res.data;
+
+      if (user.rolename === 'affiliate') {
+        handleApiError(null, 'Affiliate users are not allowed');
+        return;
+      }
+
+      setAuth({
+        token,
+        user,
+      });
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'HomeScreen' }],
+      });
+    },
+    onError: error => {
+      handleApiError(error, 'logging ', 'in');
+    },
+  });
+
+  // Handle Submit Function
+  const onSubmit = async data => {
+    const payload = {
+      email: data.email,
+      password: data.password,
+      remember: data.remember ? 1 : 0,
+    };
+
+    signinMutation.mutate(payload);
+  };
+
   return (
     <SafeAreaWrapper className="flex-1 justify-center px-6 bg-light-background dark:bg-dark-background">
       <Text className="text-3xl font-bold mb-12 text-center text-light-text dark:text-dark-text">
-        Sign In{' '}
+        Sign In
       </Text>
 
-      <InputField
-        icon="user"
-        placeholder="Email"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={handleEmailChange}
+      {/* Email */}
+      <Controller
+        control={control}
+        name="email"
+        render={({
+          field: { onChange, onBlur, value },
+          fieldState: { error },
+        }) => (
+          <View className="mb-4 mx-3">
+            <Text className="text-light-text dark:text-dark-text mb-1">
+              Email
+            </Text>
+            <TextInput
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              placeholder="Enter Your Email"
+              placeholderTextColor="#9ca3af"
+              className={`px-4 py-2 rounded-xl border text-light-subtext dark:text-dark-subtext ${
+                error ? 'border-red-500' : 'border-gray-700'
+              } bg-[#e6ebf0] dark:bg-[#233140]`}
+            />
+            {error && (
+              <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                {error.message}
+              </Text>
+            )}
+          </View>
+        )}
       />
-      {error === 'email' && (
-        <Text className="text-light-danger dark:text-dark-danger text-sm mb-3 text-center">
-          Email is required
-        </Text>
-      )}
-      {formError ? (
-        <Text className="text-light-danger dark:text-dark-danger text-sm mb-3 text-center">
-          {formError}
-        </Text>
-      ) : null}
-      <InputField
-        icon="lock"
-        placeholder="Password"
-        secureTextEntry={!passwordVisible}
-        value={password}
-        onChangeText={handlePasswordChange}
-        isPassword
-        togglePasswordVisibility={togglePasswordVisibility}
-      />
-      {error2 === 'password' && (
-        <Text className="text-light-danger dark:text-dark-danger text-sm  text-center">
-          Password is required
-        </Text>
-      )}
 
-      <View className="flex-row items-center justify-between mx-1">
-        <View className="flex-row">
+      {/* Password */}
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { onChange, value }, fieldState: { error } }) => (
+          <View className="mb-4 mx-3">
+            <Text className="text-light-text dark:text-dark-text mb-1">
+              Password
+            </Text>
+            <View className="relative">
+              <TextInput
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry={!passwordVisible}
+                placeholder="Enter Your Password"
+                placeholderTextColor="#9ca3af"
+                className={`px-4 py-2 pr-10 rounded-xl border text-light-subtext dark:text-dark-subtext ${
+                  error ? 'border-red-500' : 'border-gray-700'
+                } bg-[#e6ebf0] dark:bg-[#233140]`}
+              />
+              <TouchableOpacity
+                onPress={togglePasswordVisibility}
+                className="absolute right-3 top-3"
+              >
+                {passwordVisible ? (
+                  <Eye size={20} color="#6b7280" />
+                ) : (
+                  <EyeOff size={20} color="#6b7280" />
+                )}
+              </TouchableOpacity>
+            </View>
+            {error && (
+              <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                {error.message}
+              </Text>
+            )}
+          </View>
+        )}
+      />
+
+      {/* Remember Me */}
+      <Controller
+        control={control}
+        name="remember"
+        render={({ field: { value, onChange } }) => (
           <TouchableOpacity
-            className="flex-row mb-2 items-center justify-center"
-            onPress={() => setRememberMe(!rememberMe)}
+            className="flex-row mb-2 ml-4 items-center"
+            onPress={() => onChange(!value)}
             activeOpacity={0.7}
           >
-            <View
-              className={`h-5 w-5 mr-2 border-2 rounded ${rememberMe ? 'bg-black border-black' : 'border-gray-400'}`}
-            >
-              {rememberMe && <Check size={16} color="white" />}
-            </View>
-            <Text className="text-light-text dark:text-dark-text">
+            {value ? (
+              <CheckSquare size={20} color={iconColor} />
+            ) : (
+              <Square size={20} color={iconColor} />
+            )}
+            <Text className="ml-2 text-light-text dark:text-dark-text">
               Remember me
             </Text>
           </TouchableOpacity>
-        </View>
-        <TouchableOpacity
-          className="mb-2"
-          onPress={() => navigation.navigate('ForgotPassword')}
-        >
-          <Text className="text-center border-b-hairline text-gray-500">
-            Forgot Password
-          </Text>
-        </TouchableOpacity>
-      </View>
+        )}
+      />
 
       <TouchableOpacity
-        onPress={handleLogin}
-        className="bg-black py-3 rounded-xl mb-4"
-        disabled={loading}
+        className="mb-2 self-end"
+        onPress={() => navigation.navigate('ForgotPassword')}
       >
-        {loading ? (
+        <Text className="text-center border-b-hairline text-gray-500">
+          Forgot Password
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={handleSubmit(onSubmit)}
+        className="bg-black py-3 rounded-xl mb-4"
+        disabled={signinMutation.isPending}
+      >
+        {signinMutation.isPending ? (
           <ActivityIndicator color="#fff" />
         ) : (
           <Text className="text-center text-white font-semibold">Log In</Text>
@@ -185,8 +217,8 @@ export default function LoginScreen({ navigation }) {
         <Text className="text-center text-base text-gray-500">
           Don’t have an account?
         </Text>
-        <TouchableOpacity>
-          <Text className="font-semibold text-gray-5 border-b-hairline">
+        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+          <Text className="font-semibold text-gray-200 border-b-hairline">
             {' '}
             Sign Up
           </Text>

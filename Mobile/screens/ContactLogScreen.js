@@ -15,64 +15,43 @@ import {
 } from 'lucide-react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Header from '../components/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
-import { API_URL } from '@env';
-import { useAuthStore } from '../store/useAuthStore';
 
 export default function CallLogScreen({ navigation }) {
-  const [contacts, setContacts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [profilePic, setProfilePic] = useState('');
-  const profile_pic = useAuthStore(state => state.profilePic);
-
-  useEffect(() => {
-    const init = async () => {
-      if (profile_pic) {
-        const url = `${API_URL}/${profile_pic}`;
-        setProfilePic(url);
-      } else {
-        setProfilePic(null);
-      }
-    };
-    init();
-    const dummyContacts = [
-      {
-        id: 1,
-        first_name: 'John',
-        last_name: 'Doe',
-        phone: '+919876543210',
-        date: '27 Jul 1:22',
-        type: 'missed',
-      },
-      {
-        id: 2,
-        first_name: 'Jane',
-        last_name: 'Smith',
-        phone: '+918123456789',
-        date: '27 Jul 2:33',
-        type: 'received',
-      },
-      {
-        id: 3,
-        first_name: 'Mike',
-        last_name: 'Johnson',
-        phone: '+917654321098',
-        date: '26 Jul 3:13',
-        type: 'outgoing',
-      },
-      {
-        id: 4,
-        first_name: 'Emily',
-        last_name: 'Brown',
-        phone: '+916543210987',
-        date: '25 Jul 6:08',
-        type: 'rejected',
-      },
-    ];
-    setContacts(dummyContacts);
-    setLoading(false);
-  }, []);
+  const contacts = [
+    {
+      id: 1,
+      first_name: 'John',
+      last_name: 'Doe',
+      phone: '+919876543210',
+      date: '27 Jul 1:22',
+      type: 'missed',
+    },
+    {
+      id: 2,
+      first_name: 'Jane',
+      last_name: 'Smith',
+      phone: '+918123456789',
+      date: '27 Jul 2:33',
+      type: 'received',
+    },
+    {
+      id: 3,
+      first_name: 'Mike',
+      last_name: 'Johnson',
+      phone: '+917654321098',
+      date: '26 Jul 3:13',
+      type: 'outgoing',
+    },
+    {
+      id: 4,
+      first_name: 'Emily',
+      last_name: 'Brown',
+      phone: '+916543210987',
+      date: '25 Jul 6:08',
+      type: 'rejected',
+    },
+  ];
 
   const getCallIcon = type => {
     switch (type) {
@@ -104,8 +83,7 @@ export default function CallLogScreen({ navigation }) {
   return (
     <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background">
       <View className="px-4">
-        <Header title="Contact Log" profilePic={profilePic} />
-
+        <Header title="Contact Log" />
         <View className="flex-row flex-wrap justify-between mb-5">
           <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">
             <Text className="text-red-400 text-xl font-bold">
@@ -160,51 +138,46 @@ export default function CallLogScreen({ navigation }) {
             </View>
           </View>
         </View>
-
-        {loading ? (
-          <ActivityIndicator size="large" color="#0ea5e9" className="mt-10" />
-        ) : (
-          <FlatList
-            data={contacts}
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item, index) =>
-              item.id?.toString() || index.toString()
-            }
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('ContactDetails', { contact: item })
-                }
-                className="mb-3"
-              >
-                <View className="flex-row justify-between items-center bg-light-card dark:bg-dark-card border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl px-4 py-3 mb-3">
-                  <View className="flex-1">
-                    <Text className="text-light-text dark:text-dark-text font-semibold">
-                      {item.first_name} {item.last_name}
+        <FlatList
+          data={contacts}
+          showsVerticalScrollIndicator={false}
+          keyExtractor={(item, index) =>
+            item.id?.toString() || index.toString()
+          }
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('ContactDetails', { contact: item })
+              }
+              className="mb-3"
+            >
+              <View className="flex-row justify-between items-center bg-light-card dark:bg-dark-card border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl px-4 py-3 mb-3">
+                <View className="flex-1">
+                  <Text className="text-light-text dark:text-dark-text font-semibold">
+                    {item.first_name} {item.last_name}
+                  </Text>
+                  <View className="flex-row gap-2">
+                    <Text className="text-gray-400">{item.phone}</Text>
+                    <Text className="text-gray-400 text-xs mt-1">
+                      {item.date}
                     </Text>
-                    <View className="flex-row gap-2">
-                      <Text className="text-gray-400">{item.phone}</Text>
-                      <Text className="text-gray-400 text-xs mt-1">
-                        {item.date}
-                      </Text>
-                    </View>
-                  </View>
-                  <View className="flex-row items-center gap-4">
-                    {getCallIcon(item.type)}
-                    <TouchableOpacity onPress={() => openWhatsApp(item.phone)}>
-                      <FontAwesome name="whatsapp" size={22} color="#25D366" />
-                    </TouchableOpacity>
                   </View>
                 </View>
-              </TouchableOpacity>
-            )}
-            ListEmptyComponent={
-              <Text className="text-center text-gray-400 mt-10">
-                No call logs
-              </Text>
-            }
-          />
-        )}
+                <View className="flex-row items-center gap-4">
+                  {getCallIcon(item.type)}
+                  <TouchableOpacity onPress={() => openWhatsApp(item.phone)}>
+                    <FontAwesome name="whatsapp" size={22} color="#25D366" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={
+            <Text className="text-center text-gray-400 mt-10">
+              No call logs
+            </Text>
+          }
+        />
       </View>
     </SafeAreaWrapper>
   );

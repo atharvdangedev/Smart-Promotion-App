@@ -10,6 +10,7 @@ export const useAuthStore = create(
       rolename: null,
       profilePic: null,
       username: null,
+      user: null,
 
       setAuth: (data = {}) => {
         set({
@@ -18,6 +19,7 @@ export const useAuthStore = create(
           rolename: data?.user?.rolename || null,
           profilePic: data?.user?.profile_pic || null,
           username: data?.user?.first_name || null,
+          user: data?.user || null,
         });
       },
 

@@ -1,27 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { CheckCircle } from 'lucide-react-native';
 import Header from '../components/Header';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
-import { API_URL } from '@env';
-import { useAuthStore } from '../store/useAuthStore';
 
 export default function PlansPricingScreen() {
-  const [profilePic, setProfilePic] = useState('');
-  const profile_pic = useAuthStore(state => state.profilePic);
-
-  useEffect(() => {
-    const init = async () => {
-      if (profile_pic) {
-        const url = `${API_URL}/${profile_pic}`;
-        setProfilePic(url);
-      } else {
-        setProfilePic(null);
-      }
-    };
-    init();
-  }, []);
-
   const plans = [
     {
       name: 'Free',
@@ -94,8 +77,7 @@ export default function PlansPricingScreen() {
         showsVerticalScrollIndicator={false}
         className="flex-1 px-4 py-0"
       >
-        <Header title="Plans & Pricing " profilePic={profilePic} />
-        {/* <Text className="text-2xl font-bold text-[#333333] dark:text-[#E0E0E0] mb-4">Explore our plans</Text> */}
+        <Header title="Plans & Pricing" />
 
         {plans.map((plan, index) => {
           const style = getPlanStyles(plan.theme);
