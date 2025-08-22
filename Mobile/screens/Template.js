@@ -1,212 +1,96 @@
-import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
+  ActivityIndicator,
   ScrollView,
   TouchableOpacity,
-  Modal,
-  ActivityIndicator,
   useColorScheme,
+  Modal,
 } from 'react-native';
-import { Pencil, Plus, Trash2 } from 'lucide-react-native';
-import Toast from 'react-native-toast-message';
-import { useFocusEffect } from '@react-navigation/native';
-import Header from '../components/Header';
+import React, { useState } from 'react';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
-import { API_URL } from '@env';
+import Header from '../components/Header';
+import {
+  deleteTemplate,
+  fetchTemplate,
+  toggleStatus,
+} from '../apis/TemplateApi';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { handleApiError } from '../utils/handleApiError';
 import { useAuthStore } from '../store/useAuthStore';
-import { TemplateApis } from '../APIs/TemplateApi';
+import { Pencil, Plus, Trash2 } from 'lucide-react-native';
+import { callTypeColors } from '../utils/constants';
+import { renderFormattedText } from '../utils/renderFormattedText';
+import { handleApiSuccess } from '../utils/handleApiSuccess';
+import { useNavigation } from '@react-navigation/native';
 
-// const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
-
-export default function TemplateScreen({ navigation }) {
-  const [templates, setTemplates] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [profilePic, setProfilePic] = useState('');
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
-  const [showStatusModal, setShowStatusModal] = useState(false);
-  const [selectedTemplateForStatus, setSelectedTemplateForStatus] =
-    useState(null);
-  const [selectedTemp, setSelectedTemp] = useState({});
-
+const Template = () => {
   const user = useAuthStore(state => state.rolename);
-  const profile_pic = useAuthStore(state => state.profilePic);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [selectedTemp, setSelectedTemp] = useState({});
+  const navigation = useNavigation();
 
-  useFocusEffect(
-    useCallback(() => {
-      if (user) {
-        fetchTemplates(user);
-      }
-    }, [user]),
-  );
+  const {
+    data: templates = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ['templates', user],
+    queryFn: () => fetchTemplate(user),
+    onError: error => handleApiError(error, 'fetching templates'),
+    enabled: !!user,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: id => deleteTemplate(id),
+    onSuccess: data => {
+      handleApiSuccess(data.message, 'Delete');
+      setShowDeleteModal(false);
+      refetch();
+    },
+    onError: error => {
+      handleApiError(error, 'deleting template');
+      setShowDeleteModal(false);
+    },
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: id => toggleStatus(id),
+    onSuccess: data => {
+      handleApiSuccess(data.message, 'Status Updated');
+      setShowStatusModal(false);
+      refetch();
+    },
+    onError: error => {
+      handleApiError(error, 'updating status');
+      setShowStatusModal(false);
+    },
+  });
 
   const theme = useColorScheme();
   let editcolor = '';
   theme === 'light' ? (editcolor = '#333333') : (editcolor = '#E0E0E0');
 
-  const fetchTemplates = async user => {
-    try {
-      const response = await TemplateApis.fetchTemplate(user);
-
-      if (response.status === 200) {
-        setTemplates(response.data.templates);
-      }
-    } catch (error) {
-      console.error('Failed to load templates:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = template => {
-    setSelectedTemplateId(template.id);
-    setSelectedTemp(template);
-    setShowDeleteModal(true);
-  };
-
-  const deleteTemplate = async id => {
-    try {
-      if (user === 'agent') {
-        Toast.show({
-          type: 'info',
-          text1: 'User not autherized',
-        });
-        return;
-      }
-
-      const response = await TemplateApis.deleteTemplate(id);
-
-      if (response.status === 200) {
-        Toast.show({
-          type: 'success',
-          text1: 'Deleted',
-          text2: `${response.data.message}`,
-          position: 'top',
-        });
-        await fetchTemplates();
-      }
-    } catch (error) {
-      console.error(' Error deleting template:', error);
-      Toast.show({
-        type: 'Error',
-        text1: 'Error!',
-        text2: 'Something went wrong while deleting template',
-        position: 'top',
-      });
-    }
-  };
-
   const confirmToggleStatus = template => {
-    setSelectedTemplateForStatus(template);
     setSelectedTemp(template);
     setShowStatusModal(true);
   };
 
-  const toggleTemplateStatus = async template => {
-    try {
-      const response = await TemplateApis.toggleStatus(template.id);
-
-      if (response.data.status) {
-        Toast.show({
-          type: 'success',
-          text1: 'Status Updated',
-          text2: `${response.data.message}`,
-          position: 'top',
-        });
-        await fetchTemplates();
-      }
-    } catch (error) {
-      console.error(' Error updating template status:', error);
-      Toast.show({
-        type: 'Error',
-        text1: 'Error!',
-        text2: 'Something went wrong while updating status',
-        position: 'top',
-      });
-    }
+  const handleDelete = template => {
+    setSelectedTemp(template);
+    setShowDeleteModal(true);
   };
-
-  const callTypeColors = {
-    missed: 'bg-red-400',
-    incoming: 'bg-green-400',
-    outgoing: 'bg-blue-400',
-    rejected: 'bg-purple-400',
-    default: 'bg-sky-600',
-  };
-
-  const renderFormattedText = text => {
-    const elements = [];
-
-    const patterns = [
-      { regex: /\*([^\*]+)\*/, style: { fontWeight: 'bold' } },
-      { regex: /_([^_]+)_/, style: { fontStyle: 'italic' } },
-      { regex: /~([^~]+)~/, style: { textDecorationLine: 'line-through' } },
-      { regex: /```([\s\S]+?)```/, style: { fontFamily: 'monospace' } },
-    ];
-
-    let remaining = text;
-
-    while (remaining.length > 0) {
-      let found = false;
-
-      for (let { regex, style } of patterns) {
-        const match = remaining.match(regex);
-        if (match) {
-          const [fullMatch, innerText] = match;
-          const before = remaining.slice(0, match.index);
-          if (before)
-            elements.push(
-              <Text key={elements.length} style={{ color: 'white' }}>
-                {before}
-              </Text>,
-            );
-          elements.push(
-            <Text key={elements.length} style={[{ color: 'white' }, style]}>
-              {innerText}
-            </Text>,
-          );
-          remaining = remaining.slice(match.index + fullMatch.length);
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        elements.push(
-          <Text key={elements.length} style={{ color: 'white' }}>
-            {remaining}
-          </Text>,
-        );
-        break;
-      }
-    }
-
-    return elements;
-  };
-
-  useEffect(() => {
-    const init = async () => {
-      if (profile_pic) {
-        const url = `${API_URL}/${profile_pic}`;
-        setProfilePic(url);
-      } else {
-        setProfilePic(null);
-      }
-      // await fetchTemplates(ActiveUser);
-    };
-    init();
-  }, []);
 
   return (
     <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background px-4 py-6">
-      <Header title="Message Template" profilePic={profilePic} />
-      {loading ? (
+      <Header title="Message Template" />
+      {isLoading ? (
         <ActivityIndicator size="large" color="#0ea5e9" className="mt-10" />
       ) : templates.length === 0 ? (
         <View className="flex-1 justify-center items-center mt-20">
           <Text className="text-light-text dark:text-dark-text text-base">
-            No templates found.
+            No Templates Found.
           </Text>
         </View>
       ) : (
@@ -215,7 +99,7 @@ export default function TemplateScreen({ navigation }) {
           className="flex-1"
           keyboardShouldPersistTaps="handled"
         >
-          {templates.map((template, index) => (
+          {templates.map(template => (
             <View
               key={template.id}
               className="bg-[#e6ebf0] dark:bg-[#233140] rounded-xl p-4 mb-4 border border-[#E0E0E0] dark:border-[#4A5568]"
@@ -285,7 +169,6 @@ export default function TemplateScreen({ navigation }) {
         </ScrollView>
       )}
 
-      {/* FAB */}
       {user === 'agent' ? null : (
         <TouchableOpacity
           onPress={() => navigation.navigate('ShowTemplate')}
@@ -320,9 +203,9 @@ export default function TemplateScreen({ navigation }) {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  setShowDeleteModal(false);
-                  deleteTemplate(selectedTemplateId);
+                  deleteMutation.mutate(selectedTemp.id);
                 }}
+                disabled={deleteMutation.isLoading}
                 className="flex-1 py-3 mr-2 rounded-md bg-black"
               >
                 <Text className="text-white font-medium text-center">
@@ -333,6 +216,7 @@ export default function TemplateScreen({ navigation }) {
           </View>
         </View>
       </Modal>
+
       <Modal
         visible={showStatusModal}
         transparent
@@ -346,10 +230,8 @@ export default function TemplateScreen({ navigation }) {
             </Text>
             <Text className="text-base text-center text-light-text dark:text-dark-text mb-6">
               Are you sure you want to{' '}
-              {selectedTemplateForStatus?.status === '1'
-                ? 'deactive'
-                : 'active'}{' '}
-              template {selectedTemp.title}?
+              {selectedTemp?.status === '1' ? 'deactive' : 'active'} template{' '}
+              {selectedTemp.title}?
             </Text>
             <View className="flex-row justify-between">
               <TouchableOpacity
@@ -362,9 +244,9 @@ export default function TemplateScreen({ navigation }) {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  setShowStatusModal(false);
-                  toggleTemplateStatus(selectedTemplateForStatus);
+                  statusMutation.mutate(selectedTemp.id);
                 }}
+                disabled={statusMutation.isLoading}
                 className="flex-1 py-3 rounded-md bg-black"
               >
                 <Text className="text-white font-medium text-center">Yes</Text>
@@ -375,4 +257,6 @@ export default function TemplateScreen({ navigation }) {
       </Modal>
     </SafeAreaWrapper>
   );
-}
+};
+
+export default Template;

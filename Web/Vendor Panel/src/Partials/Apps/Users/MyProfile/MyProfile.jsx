@@ -9,7 +9,6 @@ import { handleApiError } from "../../utils/handleApiError";
 import { setPageTitle } from "../../utils/docTitle";
 import Select from "react-select";
 import { useDispatch, useSelector } from "react-redux";
-// import { setUser } from "../../../../Redux/slices/authSlice";
 import BecomeAnAffiliate from "../../BecomeAnAffiliate/BecomeAnAffiliate";
 import { APP_PERMISSIONS, ROLE_PERMISSIONS } from "../../utils/permissions";
 
@@ -69,7 +68,10 @@ const vendorSchema = yup.object().shape({
     .email("Invalid business email")
     .required("Business Email is required"),
 
-  business_contact: yup.string().required("Business Contact is required"),
+  business_contact: yup
+    .string()
+    .min(10, "Business Contact must be minimun 10 digits")
+    .required("Business Contact is required"),
 
   website_url: yup.string().notRequired().url("Invalid website URL"),
 
@@ -77,6 +79,10 @@ const vendorSchema = yup.object().shape({
     .string()
     .required("Business Address is required")
     .max(200, "Maximum 200 characters allowed."),
+});
+
+const agentSchema = yup.object().shape({
+  address: yup.string().notRequired(),
 });
 
 const affiliateSchema = yup.object().shape({
@@ -135,6 +141,7 @@ const MyProfile = () => {
   const schemaMap = {
     base: baseSchema,
     vendor: baseSchema.concat(vendorSchema),
+    agent: baseSchema.concat(agentSchema),
     affiliate: baseSchema.concat(affiliateSchema),
   };
 
@@ -244,11 +251,11 @@ const MyProfile = () => {
         );
         if (res.status === 200) {
           const user = res.data[userData?.rolename];
-
           setValue("firstname", user.first_name);
           setValue("lastname", user.last_name);
           setValue("email", user.email);
           setValue("contact_no", user.contact_no);
+          setValue("address", user.address || "");
           setValue("old_profile_pic", user.profile_pic);
           if (user.profile_pic) {
             setValue("profile_pic", user.profile_pic);
@@ -347,7 +354,7 @@ const MyProfile = () => {
     formData.append("last_name", data.lastname);
     formData.append("email", userData.email);
     formData.append("contact_no", data.contact_no);
-    formData.append("password", data.password);
+    formData.append("address", data.address);
     if (data.profile_pic && data.profile_pic[0] instanceof File)
       formData.append("profile_pic", data.profile_pic[0]);
 
@@ -569,9 +576,34 @@ const MyProfile = () => {
                   )}
                 </div>
               </div>
+              {userData?.rolename === "agent" && userData?.role === "6" && (
+                <div className="col-md-4">
+                  <div className="form-floating">
+                    <textarea
+                      type="text"
+                      className={`form-control ${
+                        errors.address ? "is-invalid" : ""
+                      }`}
+                      id="address"
+                      {...register("address")}
+                      placeholder="Address"
+                      tabIndex="8"
+                    />
+                    <label htmlFor="address">Address</label>
+                    {errors.address && (
+                      <div className="invalid-feedback">
+                        {errors.address.message}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Additional Information */}
-              <h4 className="mt-4">Additional Information</h4>
+              {(hasPermission(APP_PERMISSIONS.AGENTS_VIEW) ||
+                hasPermission(APP_PERMISSIONS.COMMISSIONS_VIEW)) && (
+                <h4 className="mt-4">Additional Information</h4>
+              )}
 
               {hasPermission(APP_PERMISSIONS.AGENTS_VIEW) && (
                 <>

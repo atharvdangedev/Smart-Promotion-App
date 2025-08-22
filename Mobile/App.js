@@ -9,7 +9,7 @@ import ChangePasswordScreen from './screens/ChangePasswordScreen';
 import TemplateDetailScreen from './screens/TemplateDetails';
 import ProfileScreen from './screens/ProfileScreen';
 import linking from './linking';
-import Toast from 'react-native-toast-message';
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import BootSplash from 'react-native-bootsplash';
 import ShowTemplate from './screens/ShowTemplate';
 import Header from './components/Header';
@@ -18,12 +18,15 @@ import CardResultScreen from './screens/CardResultScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SelectContacts from './screens/SelectContacts';
 import { useAuthStore } from './store/useAuthStore';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const token = useAuthStore(state => state.token);
   const [isRehydrated, setIsRehydrated] = useState(false);
+
+  const queryClient = new QueryClient();
 
   useEffect(() => {
     const unsub = useAuthStore.persist.onFinishHydration(() => {
@@ -38,49 +41,85 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer
-        linking={linking}
-        onReady={() => {
-          BootSplash.hide({ fade: true });
-        }}
-      >
-        <Stack.Navigator
-          initialRouteName={token ? 'HomeScreen' : 'Welcome'}
-          screenOptions={{ headerShown: false }}
+      <QueryClientProvider client={queryClient}>
+        <NavigationContainer
+          linking={linking}
+          onReady={() => {
+            BootSplash.hide({ fade: true });
+          }}
         >
-          {!token && (
-            <>
-              <Stack.Screen name="Welcome" component={WelcomeScreen} />
-              <Stack.Screen name="SignIn" component={SignInScreen} />
-              <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-            </>
-          )}
+          <Stack.Navigator
+            initialRouteName={token ? 'HomeScreen' : 'Welcome'}
+            screenOptions={{ headerShown: false }}
+          >
+            {!token && (
+              <>
+                <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                <Stack.Screen name="SignIn" component={SignInScreen} />
+                <Stack.Screen
+                  name="ForgotPassword"
+                  component={ForgotPassword}
+                />
+              </>
+            )}
 
-          {token && (
-            <>
-              <Stack.Screen name="HomeScreen" component={DrawerNavigator} />
-              <Stack.Screen
-                name="ChangePassword"
-                component={ChangePasswordScreen}
-              />
-              <Stack.Screen
-                name="TemplateDetails"
-                component={TemplateDetailScreen}
-              />
-              <Stack.Screen name="ShowTemplate" component={ShowTemplate} />
-              <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
-              <Stack.Screen name="Header" component={Header} />
-              <Stack.Screen name="ContactDetails" component={ContactDetails} />
-              <Stack.Screen
-                name="CardResultScreen"
-                component={CardResultScreen}
-              />
-              <Stack.Screen name="SelectContacts" component={SelectContacts} />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
-      <Toast />
+            {token && (
+              <>
+                <Stack.Screen name="HomeScreen" component={DrawerNavigator} />
+                <Stack.Screen
+                  name="ChangePassword"
+                  component={ChangePasswordScreen}
+                />
+                <Stack.Screen
+                  name="TemplateDetails"
+                  component={TemplateDetailScreen}
+                />
+                <Stack.Screen name="ShowTemplate" component={ShowTemplate} />
+                <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+                <Stack.Screen name="Header" component={Header} />
+                <Stack.Screen
+                  name="ContactDetails"
+                  component={ContactDetails}
+                />
+                <Stack.Screen
+                  name="CardResultScreen"
+                  component={CardResultScreen}
+                />
+                <Stack.Screen
+                  name="SelectContacts"
+                  component={SelectContacts}
+                />
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </QueryClientProvider>
+
+      <Toast
+        config={{
+          success: props => (
+            <BaseToast
+              {...props}
+              style={{ borderLeftColor: '#4CAF50' }}
+              text1Style={{ fontSize: 16, fontWeight: 'bold' }}
+              text2Style={{ fontSize: 14 }}
+            />
+          ),
+          error: props => (
+            <ErrorToast
+              {...props}
+              style={{ borderLeftColor: '#F44336' }}
+              text1Style={{ fontSize: 16, fontWeight: 'bold' }}
+              text2Style={{ fontSize: 14 }}
+            />
+          ),
+        }}
+        position="top"
+        topOffset={50}
+        visibilityTime={3000}
+        autoHide={true}
+        swipeable={true}
+      />
     </SafeAreaProvider>
   );
 }

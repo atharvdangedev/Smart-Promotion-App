@@ -176,6 +176,7 @@ const ChangePassword = () => {
                   )}
                 </div>
               </div>
+
               <div className="col-md-4">
                 <div
                   className={`form-floating ${

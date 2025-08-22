@@ -16,8 +16,7 @@ import Toast from 'react-native-toast-message';
 import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useAuthStore } from '../store/useAuthStore';
-
-const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
+import { callTypes } from '../utils/constants';
 
 const ShowTemplate = () => {
   const navigation = useNavigation();
@@ -85,12 +84,6 @@ const ShowTemplate = () => {
       title,
       description,
       template_type: callType,
-    };
-
-    const headers = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     };
 
     try {

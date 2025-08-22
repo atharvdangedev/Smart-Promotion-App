@@ -1,12 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  PermissionsAndroid,
-  Platform,
-  useColorScheme,
-} from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, useColorScheme } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import MLKitOcr from 'react-native-mlkit-ocr';
 import { Camera, Upload } from 'lucide-react-native';
@@ -14,52 +7,9 @@ import Toast from 'react-native-toast-message';
 import Header from '../components/Header';
 import { useNavigation } from '@react-navigation/native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
-import { API_URL } from '@env';
-import { useAuthStore } from '../store/useAuthStore';
 
 export default function CardScannerScreen() {
-  const [profilePic, setProfilePic] = useState('');
-  const profile_pic = useAuthStore(state => state.profilePic);
-
-  useEffect(() => {
-    const init = async () => {
-      if (profile_pic) {
-        const url = `${API_URL}/${profile_pic}`;
-        setProfilePic(url);
-        console.log('scan Url: ', url);
-      } else {
-        setProfilePic(null);
-      }
-    };
-    requestPermissions();
-    init();
-  }, []);
-
   const navigation = useNavigation();
-
-  const requestPermissions = async () => {
-    if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.WRITE_CONTACTS,
-        PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-      ]);
-
-      const allGranted = Object.values(granted).every(
-        status => status === PermissionsAndroid.RESULTS.GRANTED,
-      );
-
-      if (!allGranted) {
-        Toast.show({
-          type: 'error',
-          text1: 'Permission Required',
-          text2: 'Camera, storage and contact access needed!',
-          position: 'top',
-        });
-      }
-    }
-  };
 
   const extractPhoneNumbers = rawText => {
     const matches = rawText.match(/(?:\+?\d[\d\s-]{8,})/g);
@@ -164,7 +114,7 @@ export default function CardScannerScreen() {
 
   return (
     <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background p-4">
-      <Header title="Card Scanner" profilePic={profilePic} />
+      <Header title="Card Scanner" />
       <Text className="text-2xl font-bold text-light-text dark:text-dark-text text-center mt-8">
         Add Contacts Instantly
       </Text>

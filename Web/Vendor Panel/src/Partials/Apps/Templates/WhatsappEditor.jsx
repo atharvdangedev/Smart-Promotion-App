@@ -104,9 +104,12 @@ const styles = `
 
 .wa-preview-area {
   background-color: #f8f9fa;
-  white-space: pre-wrap; /* Preserves line breaks */
+  white-space: pre-wrap;
   word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
+
 .wa-preview-area .placeholder {
     color: #6c757d;
 }
