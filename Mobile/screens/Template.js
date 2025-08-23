@@ -10,11 +10,11 @@ import {
 import React, { useState } from 'react';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import Header from '../components/Header';
-import {
-  deleteTemplate,
-  fetchTemplate,
-  toggleStatus,
-} from '../apis/TemplateApi';
+// import {
+//   deleteTemplate,
+//   fetchTemplate,
+//   toggleStatus,
+// } from '../apis/TemplateApi';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { handleApiError } from '../utils/handleApiError';
 import { useAuthStore } from '../store/useAuthStore';
@@ -23,6 +23,11 @@ import { callTypeColors } from '../utils/constants';
 import { renderFormattedText } from '../utils/renderFormattedText';
 import { handleApiSuccess } from '../utils/handleApiSuccess';
 import { useNavigation } from '@react-navigation/native';
+import {
+  deleteTemplate,
+  fetchTemplate,
+  toggleStatus,
+} from '../APIs/TemplateApi';
 
 const Template = () => {
   const user = useAuthStore(state => state.rolename);
@@ -83,7 +88,7 @@ const Template = () => {
   };
 
   return (
-    <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background px-4 py-6">
+    <SafeAreaWrapper className="flex-1 bg-white dark:bg-dark-background">
       <Header title="Message Template" />
       {isLoading ? (
         <ActivityIndicator size="large" color="#0ea5e9" className="mt-10" />
@@ -96,13 +101,13 @@ const Template = () => {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          className="flex-1"
+          className="flex-1 px-4 py-6"
           keyboardShouldPersistTaps="handled"
         >
           {templates.map(template => (
             <View
               key={template.id}
-              className="bg-[#e6ebf0] dark:bg-[#233140] rounded-xl p-4 mb-4 border border-[#E0E0E0] dark:border-[#4A5568]"
+              className={`bg-light-listItem dark:bg-dark-listItem rounded-xl p-4 mb-4 border-l-2 ${template.status === '1' ? 'border-l-green-500' : 'border-l-red-500'} `}
             >
               <TouchableOpacity
                 onPress={() => {
@@ -111,12 +116,12 @@ const Template = () => {
                   });
                 }}
               >
-                <Text className="text-light-text dark:text-dark-text text-lg font-bold mb-2">
+                <Text className="text-[#206689] dark:text-white text-xl font-bold mb-2">
                   {template.title}
                 </Text>
 
-                <View className="bg-neutral-900 p-2 rounded">
-                  <Text numberOfLines={3} className="text-gray-300">
+                <View className="bg-white p-2">
+                  <Text numberOfLines={3} className="text-xl">
                     {renderFormattedText(template.description)}
                   </Text>
                 </View>
@@ -129,7 +134,7 @@ const Template = () => {
                         }}
                       >
                         <Text
-                          className={`text-xs px-2 py-1 rounded ${template.status === '1' ? 'bg-green-600' : 'bg-red-600'} text-white`}
+                          className={`text-xs px-2 py-1 rounded ${template.status === '1' ? 'bg-[#26AC4E]' : 'bg-[#E8B5C3]'} text-white`}
                         >
                           {template.status === '0' ? 'Inactive' : 'Active'}
                         </Text>

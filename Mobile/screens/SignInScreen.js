@@ -5,9 +5,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
-  useColorScheme,
 } from 'react-native';
-import { Eye, EyeOff, CheckSquare, Square } from 'lucide-react-native';
+import { Eye, EyeOff, CheckCircle, Circle } from 'lucide-react-native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useAuthStore } from '../store/useAuthStore';
 import { signinSchema } from '../utils/schemas';
@@ -22,9 +21,6 @@ import axios from 'axios';
 export default function LoginScreen({ navigation }) {
   const setAuth = useAuthStore(state => state.setAuth);
   const [passwordVisible, setPasswordVisible] = useState(false);
-
-  const scheme = useColorScheme();
-  const iconColor = scheme === 'dark' ? '#fff' : '#000';
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -93,9 +89,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <SafeAreaWrapper className="flex-1 justify-center px-6 bg-light-background dark:bg-dark-background">
-      <Text className="text-3xl font-bold mb-12 text-center text-light-text dark:text-dark-text">
-        Sign In
-      </Text>
+      <Text className="text-3xl font-bold mb-12 mx-3 text-white">Sign In</Text>
 
       {/* Email */}
       <Controller
@@ -106,9 +100,7 @@ export default function LoginScreen({ navigation }) {
           fieldState: { error },
         }) => (
           <View className="mb-4 mx-3">
-            <Text className="text-light-text dark:text-dark-text mb-1">
-              Email
-            </Text>
+            <Text className="text-white mb-1">Email</Text>
             <TextInput
               onBlur={onBlur}
               onChangeText={onChange}
@@ -117,9 +109,9 @@ export default function LoginScreen({ navigation }) {
               keyboardType="email-address"
               placeholder="Enter Your Email"
               placeholderTextColor="#9ca3af"
-              className={`px-4 py-2 rounded-xl border text-light-subtext dark:text-dark-subtext ${
+              className={`px-4 py-2 rounded-xl border text-[#000000] ${
                 error ? 'border-red-500' : 'border-gray-700'
-              } bg-[#e6ebf0] dark:bg-[#233140]`}
+              } bg-[#D8DADC]`}
             />
             {error && (
               <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
@@ -136,9 +128,7 @@ export default function LoginScreen({ navigation }) {
         name="password"
         render={({ field: { onChange, value }, fieldState: { error } }) => (
           <View className="mb-4 mx-3">
-            <Text className="text-light-text dark:text-dark-text mb-1">
-              Password
-            </Text>
+            <Text className="text-white mb-1">Password</Text>
             <View className="relative">
               <TextInput
                 onChangeText={onChange}
@@ -146,18 +136,18 @@ export default function LoginScreen({ navigation }) {
                 secureTextEntry={!passwordVisible}
                 placeholder="Enter Your Password"
                 placeholderTextColor="#9ca3af"
-                className={`px-4 py-2 pr-10 rounded-xl border text-light-subtext dark:text-dark-subtext ${
+                className={`px-4 py-2 pr-10 rounded-xl border text-[#000000] ${
                   error ? 'border-red-500' : 'border-gray-700'
-                } bg-[#e6ebf0] dark:bg-[#233140]`}
+                } bg-[#D8DADC]`}
               />
               <TouchableOpacity
                 onPress={togglePasswordVisibility}
                 className="absolute right-3 top-3"
               >
                 {passwordVisible ? (
-                  <Eye size={20} color="#6b7280" />
+                  <Eye size={20} color="#000000" />
                 ) : (
-                  <EyeOff size={20} color="#6b7280" />
+                  <EyeOff size={20} color="#000000" />
                 )}
               </TouchableOpacity>
             </View>
@@ -181,13 +171,11 @@ export default function LoginScreen({ navigation }) {
             activeOpacity={0.7}
           >
             {value ? (
-              <CheckSquare size={20} color={iconColor} />
+              <CheckCircle size={18} color="white" />
             ) : (
-              <Square size={20} color={iconColor} />
+              <Circle size={18} color="white" />
             )}
-            <Text className="ml-2 text-light-text dark:text-dark-text">
-              Remember me
-            </Text>
+            <Text className="ml-2 text-white">Remember me</Text>
           </TouchableOpacity>
         )}
       />
@@ -196,29 +184,31 @@ export default function LoginScreen({ navigation }) {
         className="mb-2 self-end"
         onPress={() => navigation.navigate('ForgotPassword')}
       >
-        <Text className="text-center border-b-hairline text-gray-500">
+        <Text className="text-center border-b-hairline text-white">
           Forgot Password
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={handleSubmit(onSubmit)}
-        className="bg-black py-3 rounded-xl mb-4"
+        className="bg-white dark:bg-dark-buttonBg1 py-3 rounded-xl mb-4"
         disabled={signinMutation.isPending}
       >
         {signinMutation.isPending ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text className="text-center text-white font-semibold">Log In</Text>
+          <Text className="text-center text-[#0083C4] dark:text-white font-semibold">
+            Log In
+          </Text>
         )}
       </TouchableOpacity>
 
       <View className="flex-row justify-center">
-        <Text className="text-center text-base text-gray-500">
+        <Text className="text-center text-base text-white">
           Don’t have an account?
         </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text className="font-semibold text-gray-200 border-b-hairline">
+          <Text className="font-semibold text-white border-b-hairline">
             {' '}
             Sign Up
           </Text>
