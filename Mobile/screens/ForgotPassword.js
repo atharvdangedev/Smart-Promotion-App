@@ -68,13 +68,15 @@ export default function ForgotPassword({ navigation }) {
 
   return (
     <SafeAreaWrapper className="flex-1 justify-center px-6 bg-[#FDFDFD] dark:bg-[#2C3E50]">
-      <Text className="text-3xl font-bold text-center mb-8 text-[#333333] dark:text-[#E0E0E0]">
+      <Text className="text-3xl font-bold mb-20 text-white">
         Forgot Password
       </Text>
 
+      <Text className="text-white mx-1 mb-1">Email</Text>
+
       <InputField
         icon="user"
-        placeholder="Email"
+        placeholder="Enter Your Email"
         value={email}
         autoCapitalize="none"
         keyboardType="email-address"
@@ -97,8 +99,8 @@ export default function ForgotPassword({ navigation }) {
       ) : null}
 
       <View className="flex-row items-center">
-        <Text className="text-sm font-medium text-light-text dark:text-dark-text">
-          <Text className="text-base font-semibold">Note : </Text>
+        <Text className="text-sm font-medium text-white">
+          <Text className="text-base text-white font-semibold">Note : </Text>
           Enter the email associated with your account and we'll send you a link
           to reset your password.
         </Text>
@@ -106,13 +108,13 @@ export default function ForgotPassword({ navigation }) {
 
       <TouchableOpacity
         onPress={handleSubmit}
-        className="bg-black py-3 rounded-xl mt-5 mb-3"
+        className="bg-white dark:bg-dark-buttonBg1 py-3 rounded-xl mt-5 mb-3"
         disabled={loading}
       >
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text className="text-center text-white font-semibold">
+          <Text className="text-center text-[#0088CC] dark:text-white font-semibold">
             Send Reset Link
           </Text>
         )}
@@ -120,9 +122,9 @@ export default function ForgotPassword({ navigation }) {
 
       <TouchableOpacity
         onPress={() => navigation.goBack()}
-        className="bg-white border border-light-border dark:border-dark-border py-3 rounded-xl"
+        className="border border-light-border dark:border-dark-border py-3 rounded-xl"
       >
-        <Text className="text-center text-black font-semibold">
+        <Text className="text-center text-white font-semibold">
           Back to Log In
         </Text>
       </TouchableOpacity>

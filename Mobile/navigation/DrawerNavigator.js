@@ -14,25 +14,27 @@ import {
   User,
 } from 'lucide-react-native';
 import CustomDrawerContent from '../screens/CustomDrawerContent';
+import useThemeColors from '../hooks/useThemeColor';
 
 const Drawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
+  const colors= useThemeColors();
   return (
     <Drawer.Navigator
       screenOptions={{
         headerShown: false,
         drawerStyle: {
-          backgroundColor: '#ffffff',
+          backgroundColor: 'white',
           width: 280,
           padding: 0,
         },
-        drawerActiveBackgroundColor: '#242f3d',
-        drawerActiveTintColor: '#3390ec',
-        drawerInactiveTintColor: '#fff',
+        // drawerActiveBackgroundColor: '#242f3d',
+        drawerActiveTintColor: '#7C7C7C',
+        // drawerInactiveTintColor: '#fff',
         drawerLabelStyle: {
           fontSize: 16,
-          marginLeft: 5,
+          marginLeft: -3,
           padding: 0,
         },
       }}
@@ -43,7 +45,7 @@ export default function DrawerNavigator() {
         component={DashboardScreen}
         options={{
           drawerLabel: 'Dashboard',
-          drawerIcon: () => <LayoutDashboard color="white" size={20} />,
+          drawerIcon: () => <LayoutDashboard color="#7C7C7C" size={20} />,
         }}
       />
       <Drawer.Screen
@@ -51,7 +53,7 @@ export default function DrawerNavigator() {
         component={CardScannerScreen}
         options={{
           drawerLabel: 'Card Scanner',
-          drawerIcon: () => <ScanText color="white" size={20} />,
+          drawerIcon: () => <ScanText color="#7C7C7C" size={20} />,
         }}
       />
       <Drawer.Screen
@@ -59,7 +61,7 @@ export default function DrawerNavigator() {
         component={TemplateScreen}
         options={{
           drawerLabel: 'Message Template',
-          drawerIcon: () => <MessageSquareMore color="white" size={20} />,
+          drawerIcon: () => <MessageSquareMore color="#7C7C7C" size={20} />,
         }}
       />
       <Drawer.Screen
@@ -67,7 +69,7 @@ export default function DrawerNavigator() {
         component={PlansPricingScreen}
         options={{
           drawerLabel: 'Browse Plans',
-          drawerIcon: () => <ShoppingCart color="white" size={20} />,
+          drawerIcon: () => <ShoppingCart color="#7C7C7C" size={20} />,
         }}
       />
       <Drawer.Screen
@@ -75,14 +77,9 @@ export default function DrawerNavigator() {
         component={ContactLogScreen}
         options={{
           drawerLabel: 'Contact Log',
-          drawerIcon: () => <Contact color="white" size={20} />,
+          drawerIcon: () => <Contact color="#7C7C7C" size={20} />,
         }}
       />
-      {/* <Drawer.Screen name="Contact Details" component={ContactDetails}
-                options={{
-                    drawerLabel: "Contact Details",
-                    drawerIcon: () => <Contact color="white" size={20} />
-                }} /> */}
     </Drawer.Navigator>
   );
 }

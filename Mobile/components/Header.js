@@ -24,21 +24,22 @@ export default function Header({ title = 'SmartPromotions', profilePic }) {
   }
 
   return (
-    <View className="flex-row justify-between items-center bg-[#e6ebf0] dark:bg-[#233140] border border-light-border dark:border-dark-border rounded-xl p-4 mb-6">
+    <View className="flex-row justify-between items-center bg-light-background dark:bg-dark-headerBg pt-8 p-4 mb-6">
       {/* Drawer button */}
       <TouchableOpacity
+        className="pl-2"
         onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
       >
-        <Menu size={26} color={sidebarcolor} />
+        <Menu size={26} color="white" />
       </TouchableOpacity>
 
       {/* App Title */}
-      <Text className="text-2xl font-extrabold text-sky-500">{title}</Text>
+      <Text className="text-2xl font-extrabold text-white">{title}</Text>
 
       {/* Profile icon */}
       {profile_pic ? (
         <TouchableOpacity
-          className="border border-gray-700 rounded-full p-1"
+          className="border border-gray-700 rounded-full mr-2"
           onPress={() => navigation.navigate('ProfileScreen')}
         >
           <Image

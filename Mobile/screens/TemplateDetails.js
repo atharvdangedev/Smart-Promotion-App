@@ -3,9 +3,9 @@ import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useAuthStore } from '../store/useAuthStore';
-import { templateDetails } from '../apis/TemplateApi';
 import { renderFormattedText } from '../utils/renderFormattedText';
 import { useQuery } from '@tanstack/react-query';
+import { templateDetails } from '../APIs/TemplateApi';
 
 export default function TemplateDetailScreen({ route }) {
   const { templateId } = route.params;

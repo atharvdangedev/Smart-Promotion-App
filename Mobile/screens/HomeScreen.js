@@ -116,7 +116,8 @@ export default function DashboardScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background py-0">
+    <SafeAreaWrapper className="flex-1 bg-white dark:bg-dark-background">
+      <Header title="Dashboard" profilePic={profilePhoto} />
       <ScrollView
         className="px-4 py-0"
         showsVerticalScrollIndicator={false}
@@ -130,7 +131,7 @@ export default function DashboardScreen({ navigation }) {
         }
       >
         <View className="mb-6">
-          <Header title="Dashboard" profilePic={profilePhoto} />
+          
 
           <Text className="text-lg text-light-text dark:text-dark-text mt-0">
             Welcome back, {username} 👋
