@@ -5,7 +5,7 @@ import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useAuthStore } from '../store/useAuthStore';
 import { renderFormattedText } from '../utils/renderFormattedText';
 import { useQuery } from '@tanstack/react-query';
-import { templateDetails } from '../APIs/TemplateApi';
+import { templateDetails } from '../apis/TemplateApi';
 
 export default function TemplateDetailScreen({ route }) {
   const { templateId } = route.params;

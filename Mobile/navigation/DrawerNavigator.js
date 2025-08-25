@@ -1,5 +1,5 @@
 import React from 'react';
-import { createDrawerNavigator, DrawerItem } from '@react-navigation/drawer';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import DashboardScreen from '../screens/HomeScreen';
 import TemplateScreen from '../screens/Template';
 import PlansPricingScreen from '../screens/PlansPricing';
@@ -11,15 +11,12 @@ import {
   MessageSquareMore,
   ScanText,
   ShoppingCart,
-  User,
 } from 'lucide-react-native';
 import CustomDrawerContent from '../screens/CustomDrawerContent';
-import useThemeColors from '../hooks/useThemeColor';
 
 const Drawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
-  const colors= useThemeColors();
   return (
     <Drawer.Navigator
       screenOptions={{
@@ -29,9 +26,7 @@ export default function DrawerNavigator() {
           width: 280,
           padding: 0,
         },
-        // drawerActiveBackgroundColor: '#242f3d',
         drawerActiveTintColor: '#7C7C7C',
-        // drawerInactiveTintColor: '#fff',
         drawerLabelStyle: {
           fontSize: 16,
           marginLeft: -3,

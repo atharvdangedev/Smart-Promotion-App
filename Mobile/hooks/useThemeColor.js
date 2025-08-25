@@ -32,6 +32,6 @@ const palette = {
 };
 
 export default function useThemeColors() {
-  const scheme = useColorScheme(); // "light" | "dark"
+  const scheme = useColorScheme();
   return palette[scheme] || palette.light;
 }

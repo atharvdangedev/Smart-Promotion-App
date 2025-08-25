@@ -1,5 +1,3 @@
-// components/SafeAreaWrapper.js
-
 import React from 'react';
 import { Platform, StatusBar, View, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
