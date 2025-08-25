@@ -15,6 +15,7 @@ import { forgotPassword } from '../apis/Auth';
 import { useMutation } from '@tanstack/react-query';
 import { handleApiSuccess } from '../utils/handleApiSuccess';
 import { handleApiError } from '../utils/handleApiError';
+import useThemeColors from '../hooks/useThemeColor';
 
 export default function ForgotPassword() {
   const navigation = useNavigation();
@@ -51,9 +52,11 @@ export default function ForgotPassword() {
     reset();
   };
 
+  const colors= useThemeColors();
+
   return (
-    <SafeAreaWrapper className="flex-1 justify-center px-6 bg-[#FDFDFD] dark:bg-[#2C3E50]">
-      <Text className="text-3xl font-bold mb-20 text-white">
+    <SafeAreaWrapper className="flex-1 justify-center px-6" style={{backgroundColor: colors.background}}>
+      <Text className="text-3xl font-bold mb-20" style={{color: colors.headingText}}>
         Forgot Password
       </Text>
 
@@ -66,7 +69,7 @@ export default function ForgotPassword() {
           fieldState: { error },
         }) => (
           <View className="mb-4 mx-3">
-            <Text className="text-white mb-1">Email</Text>
+            <Text className="mb-1" style={{color: colors.text}}>Email</Text>
             <TextInput
               onBlur={onBlur}
               onChangeText={onChange}
@@ -76,8 +79,8 @@ export default function ForgotPassword() {
               placeholder="Enter Your Email"
               placeholderTextColor="#9ca3af"
               className={`px-4 py-2 rounded-xl border text-[#000000] ${
-                error ? 'border-red-500' : 'border-gray-700'
-              } bg-[#D8DADC]`}
+                error ? 'border-red-500' : 'border-[#D8DADC]'
+              } bg-[#FFFFFF]`}
             />
             {error && (
               <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
@@ -89,8 +92,8 @@ export default function ForgotPassword() {
       />
 
       <View className="flex-row items-center m-4">
-        <Text className="text-sm font-medium text-white">
-          <Text className="text-base text-white font-semibold">Note : </Text>
+        <Text className="text-sm font-medium " style={{color: colors.text}}>
+          <Text className="text-base font-semibold" style={{color: colors.text}}>Note : </Text>
           Enter the email associated with your account and we'll send you a link
           to reset your password.
         </Text>
@@ -98,13 +101,14 @@ export default function ForgotPassword() {
 
       <TouchableOpacity
         onPress={handleSubmit(onSubmit)}
-        className="bg-white dark:bg-dark-buttonBg1 py-3 rounded-xl mt-5 mb-3"
+        className="py-4 rounded-xl mt-5 mb-3"
+        style={{backgroundColor: colors.btnBackground}}
         disabled={forgetPasswordMutation.isPending}
       >
         {forgetPasswordMutation.isPending ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text className="text-center text-[#0088CC] dark:text-white font-semibold">
+          <Text className="text-center text-white font-semibold">
             Send Reset Link
           </Text>
         )}
@@ -112,9 +116,9 @@ export default function ForgotPassword() {
 
       <TouchableOpacity
         onPress={navigateSignIn}
-        className="border border-light-border dark:border-dark-border py-3 rounded-xl"
+        className="border border-[#FF5604] py-4 rounded-xl"
       >
-        <Text className="text-center text-white font-semibold">
+        <Text className="text-center font-semibold" style={{color: colors.text}}>
           Back to Log In
         </Text>
       </TouchableOpacity>

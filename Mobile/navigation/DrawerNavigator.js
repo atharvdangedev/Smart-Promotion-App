@@ -26,10 +26,10 @@ export default function DrawerNavigator() {
           width: 280,
           padding: 0,
         },
-        drawerActiveTintColor: '#7C7C7C',
+        drawerActiveTintColor: 'white',
         drawerLabelStyle: {
           fontSize: 16,
-          marginLeft: -3,
+          marginLeft: 0,
           padding: 0,
         },
       }}
@@ -40,7 +40,11 @@ export default function DrawerNavigator() {
         component={DashboardScreen}
         options={{
           drawerLabel: 'Dashboard',
-          drawerIcon: () => <LayoutDashboard color="#7C7C7C" size={20} />,
+          drawerLabelStyle: {
+            color: 'black',
+            fontSize: 16,
+          },
+          drawerIcon: () => <LayoutDashboard color="black" size={20} />,
         }}
       />
       <Drawer.Screen
@@ -48,7 +52,11 @@ export default function DrawerNavigator() {
         component={CardScannerScreen}
         options={{
           drawerLabel: 'Card Scanner',
-          drawerIcon: () => <ScanText color="#7C7C7C" size={20} />,
+          drawerLabelStyle: {
+            color: 'black',
+            fontSize: 16,
+          },
+          drawerIcon: () => <ScanText color="black" size={20} />,
         }}
       />
       <Drawer.Screen
@@ -56,7 +64,11 @@ export default function DrawerNavigator() {
         component={TemplateScreen}
         options={{
           drawerLabel: 'Message Template',
-          drawerIcon: () => <MessageSquareMore color="#7C7C7C" size={20} />,
+          drawerLabelStyle: {
+            color: 'black',
+            fontSize: 16,
+          },
+          drawerIcon: () => <MessageSquareMore color="black" size={20} />,
         }}
       />
       <Drawer.Screen
@@ -64,7 +76,11 @@ export default function DrawerNavigator() {
         component={PlansPricingScreen}
         options={{
           drawerLabel: 'Browse Plans',
-          drawerIcon: () => <ShoppingCart color="#7C7C7C" size={20} />,
+          drawerLabelStyle: {
+            color: 'black',
+            fontSize: 16,
+          },
+          drawerIcon: () => <ShoppingCart color="black" size={20} />,
         }}
       />
       <Drawer.Screen
@@ -72,7 +88,11 @@ export default function DrawerNavigator() {
         component={ContactLogScreen}
         options={{
           drawerLabel: 'Contact Log',
-          drawerIcon: () => <Contact color="#7C7C7C" size={20} />,
+          drawerLabelStyle: {
+            color: 'black',
+            fontSize: 16,
+          },
+          drawerIcon: () => <Contact color="black" size={20} />,
         }}
       />
     </Drawer.Navigator>

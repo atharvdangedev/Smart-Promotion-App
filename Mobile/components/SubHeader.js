@@ -2,23 +2,18 @@ import { View, Text, TouchableOpacity, useColorScheme } from 'react-native';
 import React from 'react';
 import { ArrowLeft } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import useThemeColors from '../hooks/useThemeColor';
 
 export default function ({ title }) {
   const navigation = useNavigation();
-  const theme = useColorScheme();
-  let iconcolor = '';
-  if (theme === 'light') {
-    iconcolor = '#333333';
-  } else {
-    iconcolor = '#E0E0E0';
-  }
+  const colors = useThemeColors();
 
   return (
-    <View className="flex-row p-3 items-center border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl ">
+    <View className="flex-row p-4 py-5 items-center" style={{backgroundColor:colors.headerBg}}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <ArrowLeft size={25} color={iconcolor} />
+        <ArrowLeft size={25} color={colors.icon} />
       </TouchableOpacity>
-      <Text className="text-2xl font-bold text-sky-500 text-center mx-6">
+      <Text className="text-2xl font-bold text-white text-center mx-6">
         {title}
       </Text>
     </View>

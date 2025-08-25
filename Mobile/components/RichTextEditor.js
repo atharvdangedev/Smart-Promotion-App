@@ -9,6 +9,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import useThemeColors from '../hooks/useThemeColor';
 
 const parseMessage = message => {
   const patterns = [
@@ -61,6 +62,7 @@ export const RichTextInput = ({ value, onChange, showPreview = true }) => {
   const [selection, setSelection] = useState({ start: 0, end: 0 });
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
+  const colors = useThemeColors();
 
   useEffect(() => {
     const show = Keyboard.addListener('keyboardDidShow', e => {
@@ -98,11 +100,12 @@ export const RichTextInput = ({ value, onChange, showPreview = true }) => {
     <View className="pb-2" style={{ paddingBottom: 0 }}>
       <TextInput
         multiline
-        className="border border-gray-400 rounded-lg p-3 min-h-[100px] text-base mb-3 text-white bg-black"
+        className="border border-gray-400 text-black rounded-lg p-3 min-h-[100px] text-base mb-3"
+        style={{backgroundColor: colors.inputBg}}
         value={value}
         onChangeText={onChange}
         placeholder="Type with *bold*, _italic_, etc..."
-        placeholderTextColor="#CCC"
+        placeholderTextColor="gray"
         onSelectionChange={({ nativeEvent }) =>
           setSelection(nativeEvent.selection)
         }
@@ -114,11 +117,11 @@ export const RichTextInput = ({ value, onChange, showPreview = true }) => {
 
       {showPreview && (
         <>
-          <Text className="text-base text-[#333333] dark:text-[#E0E0E0] font-bold ml-3 my-2">
+          <Text className="text-base font-bold ml-3 my-2" style={{color: colors.text}}>
             Preview
           </Text>
           <ScrollView className="max-h-32 mx-3 pb-3 mb-20">
-            <Text className="text-sm leading-[22px] p-3 text-white bg-black">
+            <Text className="text-sm leading-[22px] p-3 text-black" style={{backgroundColor: colors.inputBg}}>
               {formatted.map((chunk, idx) => (
                 <Text key={idx} style={chunkStyle(chunk.style)}>
                   {chunk.text}
@@ -131,8 +134,8 @@ export const RichTextInput = ({ value, onChange, showPreview = true }) => {
 
       {isFocused && keyboardHeight > 0 && (
         <View
-          className="absolute left-0 right-0 h-12 bg-zinc-900 flex-row justify-around items-center border-t border-zinc-800 z-50"
-          style={{ bottom: 20 }}
+          className="absolute left-0 right-0 h-12 flex-row justify-around items-center border-t border-zinc-400 z-50"
+          style={{ bottom: 20, backgroundColor: colors.inputBg }}
         >
           {[
             { label: 'B', symbol: '*' },
@@ -143,7 +146,7 @@ export const RichTextInput = ({ value, onChange, showPreview = true }) => {
             <TouchableOpacity
               key={btn.symbol}
               onPress={() => wrapSelection(btn.symbol)}
-              className="bg-zinc-800 px-3 py-1.5 rounded-md"
+              className="bg-zinc-700 px-3 py-1.5 rounded-md"
             >
               <Text className="text-white font-bold text-lg">{btn.label}</Text>
             </TouchableOpacity>

@@ -9,6 +9,7 @@ import { API_PROFILE } from '@env';
 import { Menu, User } from 'lucide-react-native';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { useAuthStore } from '../store/useAuthStore';
+import useThemeColors from '../hooks/useThemeColor';
 
 export default function Header({ title = 'SmartPromotions' }) {
   const navigation = useNavigation();
@@ -22,9 +23,13 @@ export default function Header({ title = 'SmartPromotions' }) {
   } else {
     sidebarcolor = '#E0E0E0';
   }
+  const colors = useThemeColors();
 
   return (
-    <View className="flex-row justify-between items-center bg-light-background dark:bg-dark-headerBg pt-8 p-4 mb-6">
+    <View
+      className="flex-row justify-between items-center py-5 p-4 mb-6"
+      style={{ backgroundColor: colors.headerBg }}
+    >
       {/* Drawer button */}
       <TouchableOpacity
         className="pl-2"

@@ -23,12 +23,12 @@ export const renderFormattedText = text => {
         const before = remaining.slice(0, match.index);
         if (before)
           elements.push(
-            <Text key={elements.length} style={{ color: '010101' }}>
+            <Text key={elements.length} style={{ color: 'black' }}>
               {before}
             </Text>,
           );
         elements.push(
-          <Text key={elements.length} style={[{ color: '010101' }, style]}>
+          <Text key={elements.length} style={[{ color: 'black' }, style]}>
             {innerText}
           </Text>,
         );
@@ -40,7 +40,7 @@ export const renderFormattedText = text => {
 
     if (!found) {
       elements.push(
-        <Text key={elements.length} style={{ color: '010101' }}>
+        <Text key={elements.length} style={{ color: 'black' }}>
           {remaining}
         </Text>,
       );

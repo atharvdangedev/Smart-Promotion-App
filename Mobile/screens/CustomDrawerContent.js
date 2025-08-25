@@ -10,8 +10,6 @@ export default function CustomDrawerContent(props) {
     <DrawerContentScrollView
       {...props}
       contentContainerStyle={{
-        paddingTop: 0,
-        paddingHorizontal: 0,
         backgroundColor: 'white',
       }}
     >
