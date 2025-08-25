@@ -10,7 +10,7 @@ import { Menu, User } from 'lucide-react-native';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { useAuthStore } from '../store/useAuthStore';
 
-export default function Header({ title = 'SmartPromotions', profilePic }) {
+export default function Header({ title = 'SmartPromotions' }) {
   const navigation = useNavigation();
   const theme = useColorScheme();
 

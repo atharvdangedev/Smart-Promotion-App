@@ -7,7 +7,6 @@ import {
   Image,
   ScrollView,
   KeyboardAvoidingView,
-  ImageBackground,
   Modal,
 } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
@@ -21,10 +20,10 @@ import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import SubHeader from '../components/SubHeader';
 import { Camera } from 'lucide-react-native';
 import { handleApiError } from '../utils/handleApiError';
+import { handleApiSuccess } from '../utils/handleApiSuccess';
 import { agentSchema, baseSchema, vendorSchema } from '../utils/schemas';
 import { businessTypes } from '../utils/constants';
 import { useNavigation } from '@react-navigation/native';
-import { handleApiSuccess } from '../utils/handleApiSuccess';
 
 const ProfileScreen = () => {
   const schemaMap = {
@@ -216,16 +215,8 @@ const ProfileScreen = () => {
         >
           <SubHeader title={`Profile`} />
 
-          <View className="relative mt-4 mb-8">
-            <ImageBackground
-              source={require('../assets/header-bg.jpg')}
-              resizeMode="cover"
-              className="h-44 w-full rounded-b-3xl overflow-hidden"
-            >
-              <View className="flex-1 bg-black/30 rounded-b-3xl" />
-            </ImageBackground>
-
-            <View className="absolute top-28 left-1/2 -ml-12">
+          <View className="mt-4 mb-4">
+            <View className="left-1/2 -ml-12">
               <TouchableOpacity
                 onPress={handleProfilePic}
                 className="w-24 h-24 rounded-full bg-gray-700 border-4 border-black justify-center items-center overflow-hidden"

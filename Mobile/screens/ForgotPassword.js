@@ -1,71 +1,54 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
-import InputField from '../components/InputField';
-import { api } from '../utils/api';
+import React from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  TextInput,
+} from 'react-native';
+import { yupResolver } from '@hookform/resolvers/yup';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
-import Toast from 'react-native-toast-message';
 import { useNavigation } from '@react-navigation/native';
+import { forgotPasswordSchema } from '../utils/schemas';
+import { Controller, useForm } from 'react-hook-form';
+import { forgotPassword } from '../apis/Auth';
+import { useMutation } from '@tanstack/react-query';
+import { handleApiSuccess } from '../utils/handleApiSuccess';
+import { handleApiError } from '../utils/handleApiError';
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState('');
   const navigation = useNavigation();
-  const [formError, setFormError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const { control, handleSubmit, reset } = useForm({
+    resolver: yupResolver(forgotPasswordSchema),
+    mode: 'onBlur',
+    defaultValues: {
+      email: '',
+    },
+  });
 
-    if (!email) {
-      setFormError('Email is required');
-      return;
-    }
+  const forgetPasswordMutation = useMutation({
+    mutationFn: data => forgotPassword(data),
+    onSuccess: res => {
+      handleApiSuccess(res.data.message, 'Forgot Password');
+      setTimeout(() => navigation.navigate('SignIn'), 2000);
+    },
+    onError: error => {
+      handleApiError(error, 'in sending', 'password reset link');
+    },
+  });
 
-    if (!emailRegex.test(email)) {
-      setFormError('Please enter a valid email address');
-      return;
-    }
+  const onSubmit = async data => {
+    const payload = {
+      email: data.email,
+    };
 
-    setLoading(true);
-    setFormError('');
-    setSuccessMsg('');
-
-    try {
-      const res = await api.post('forgot-password', { email });
-
-      if (res.status === 200) {
-        setSuccessMsg(
-          res.data.message || 'Reset link sent! Please check your email.',
-        );
-        setTimeout(() => navigation.navigate('SignIn'), 2000);
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Error',
-          text2: res.data.message || 'Failed to send reset link',
-        });
-      }
-    } catch (error) {
-      console.error('Forgot Password Error:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: error.response?.data?.message || 'Something went wrong',
-      });
-    } finally {
-      setLoading(false);
-    }
+    forgetPasswordMutation.mutate(payload);
   };
 
-  const validateEmail = text => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!text) {
-      setFormError('Email is required');
-    } else if (!emailRegex.test(text)) {
-      setFormError('Please enter a valid email address');
-    } else {
-      setFormError('');
-    }
+  const navigateSignIn = () => {
+    navigation.goBack();
+    reset();
   };
 
   return (
@@ -74,33 +57,38 @@ export default function ForgotPassword() {
         Forgot Password
       </Text>
 
-      <Text className="text-white mx-1 mb-1">Email</Text>
-
-      <InputField
-        icon="user"
-        placeholder="Enter Your Email"
-        value={email}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        onChangeText={text => {
-          setEmail(text);
-          validateEmail(text);
-        }}
+      {/* Email */}
+      <Controller
+        control={control}
+        name="email"
+        render={({
+          field: { onChange, onBlur, value },
+          fieldState: { error },
+        }) => (
+          <View className="mb-4 mx-3">
+            <Text className="text-white mb-1">Email</Text>
+            <TextInput
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              placeholder="Enter Your Email"
+              placeholderTextColor="#9ca3af"
+              className={`px-4 py-2 rounded-xl border text-[#000000] ${
+                error ? 'border-red-500' : 'border-gray-700'
+              } bg-[#D8DADC]`}
+            />
+            {error && (
+              <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                {error.message}
+              </Text>
+            )}
+          </View>
+        )}
       />
 
-      {formError ? (
-        <Text className="text-light-danger dark:text-dark-danger text-sm mt-2 mb-2 text-center">
-          {formError}
-        </Text>
-      ) : null}
-
-      {successMsg ? (
-        <Text className="text-green-600 text-sm mt-2 mb-2 text-center">
-          {successMsg} {'\n'}Redirecting to login...
-        </Text>
-      ) : null}
-
-      <View className="flex-row items-center">
+      <View className="flex-row items-center m-4">
         <Text className="text-sm font-medium text-white">
           <Text className="text-base text-white font-semibold">Note : </Text>
           Enter the email associated with your account and we'll send you a link
@@ -109,11 +97,11 @@ export default function ForgotPassword() {
       </View>
 
       <TouchableOpacity
-        onPress={handleSubmit}
+        onPress={handleSubmit(onSubmit)}
         className="bg-white dark:bg-dark-buttonBg1 py-3 rounded-xl mt-5 mb-3"
-        disabled={loading}
+        disabled={forgetPasswordMutation.isPending}
       >
-        {loading ? (
+        {forgetPasswordMutation.isPending ? (
           <ActivityIndicator color="#fff" />
         ) : (
           <Text className="text-center text-[#0088CC] dark:text-white font-semibold">
@@ -123,7 +111,7 @@ export default function ForgotPassword() {
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={() => navigation.goBack()}
+        onPress={navigateSignIn}
         className="border border-light-border dark:border-dark-border py-3 rounded-xl"
       >
         <Text className="text-center text-white font-semibold">

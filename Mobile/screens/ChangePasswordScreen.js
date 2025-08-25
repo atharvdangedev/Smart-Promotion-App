@@ -47,7 +47,7 @@ export default function ChangePasswordScreen() {
   const changePasswordMutation = useMutation({
     mutationFn: data => changePassword(data, token),
     onSuccess: res => {
-      handleApiSuccess(res.data.message, 'Sign In');
+      handleApiSuccess(res.data.message, 'Change Password');
       setTimeout(() => {
         handleApiSuccess('Logging out', 'Log Out');
         logout();

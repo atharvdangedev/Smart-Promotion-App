@@ -10,3 +10,12 @@ export const changePassword = async (data, token) => {
     throw error;
   }
 };
+
+export const forgotPassword = async data => {
+  try {
+    const response = await api.post(`forgot-password`, data);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
