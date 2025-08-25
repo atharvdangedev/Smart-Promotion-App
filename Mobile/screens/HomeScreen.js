@@ -9,11 +9,9 @@ import {
   Modal,
 } from 'react-native';
 import { LineChart, StackedBarChart } from 'react-native-chart-kit';
-import { useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
 import { useColorScheme } from 'react-native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
-import { API_URL } from '@env';
 import { useAuthStore } from '../store/useAuthStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -47,24 +45,8 @@ const dummyData = [
 export default function DashboardScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [dataIndex, setDataIndex] = useState(0);
-  const [profilePhoto, setProfilePhoto] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const username = useAuthStore(state => state.username);
-  const profilePic = useAuthStore(state => state.profilePic);
-
-  useFocusEffect(
-    useCallback(() => {
-      const init = async () => {
-        if (profilePic) {
-          const url = `${API_URL}/${profilePic}`;
-          setProfilePhoto(url);
-        } else {
-          setProfilePhoto(null);
-        }
-      };
-      init();
-    }, [username, profilePic]),
-  );
 
   useEffect(() => {
     const checkPopupStatus = async () => {
@@ -82,7 +64,6 @@ export default function DashboardScreen({ navigation }) {
   }, []);
 
   const handleChoice = async () => {
-    // console.log("User chose:", );
     setShowPopup(false);
     await AsyncStorage.setItem('hasSeenPopup', 'true');
   };
@@ -117,7 +98,7 @@ export default function DashboardScreen({ navigation }) {
 
   return (
     <SafeAreaWrapper className="flex-1 bg-white dark:bg-dark-background">
-      <Header title="Dashboard" profilePic={profilePhoto} />
+      <Header title="Dashboard" />
       <ScrollView
         className="px-4 py-0"
         showsVerticalScrollIndicator={false}
@@ -274,8 +255,6 @@ export default function DashboardScreen({ navigation }) {
             </View>
           </View>
         </Modal>
-
-        {/* <Text className='m-1 border-gray-400 border-b-hairline'></Text> */}
       </ScrollView>
     </SafeAreaWrapper>
   );

@@ -91,3 +91,10 @@ export const changePasswordSchema = yup.object().shape({
     .oneOf([yup.ref('newpassword'), null], 'Passwords must match')
     .required('Confirm password is required'),
 });
+
+export const forgotPasswordSchema = yup.object().shape({
+  email: yup
+    .string()
+    .required('Email is required')
+    .matches(emailRegex, 'Invalid email address'),
+});

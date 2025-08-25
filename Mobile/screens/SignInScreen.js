@@ -28,7 +28,7 @@ export default function LoginScreen() {
     setPasswordVisible(!passwordVisible);
   };
 
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, reset } = useForm({
     resolver: yupResolver(signinSchema),
     mode: 'onBlur',
     defaultValues: {
@@ -87,6 +87,11 @@ export default function LoginScreen() {
     };
 
     signinMutation.mutate(payload);
+  };
+
+  const navigateForgetPassword = () => {
+    navigation.navigate('ForgotPassword');
+    reset();
   };
 
   return (
@@ -184,7 +189,7 @@ export default function LoginScreen() {
 
       <TouchableOpacity
         className="mb-2 self-end"
-        onPress={() => navigation.navigate('ForgotPassword')}
+        onPress={navigateForgetPassword}
       >
         <Text className="text-center border-b-hairline text-white">
           Forgot Password
