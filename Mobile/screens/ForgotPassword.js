@@ -4,9 +4,11 @@ import InputField from '../components/InputField';
 import { api } from '../utils/api';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import Toast from 'react-native-toast-message';
+import { useNavigation } from '@react-navigation/native';
 
-export default function ForgotPassword({ navigation }) {
+export default function ForgotPassword() {
   const [email, setEmail] = useState('');
+  const navigation = useNavigation();
   const [formError, setFormError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);

@@ -17,8 +17,10 @@ import { useMutation } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { BASE_URL, API_KEY } from '@env';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen() {
+  const navigation = useNavigation();
   const setAuth = useAuthStore(state => state.setAuth);
   const [passwordVisible, setPasswordVisible] = useState(false);
 
@@ -207,7 +209,7 @@ export default function LoginScreen({ navigation }) {
         <Text className="text-center text-base text-white">
           Don’t have an account?
         </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+        <TouchableOpacity>
           <Text className="font-semibold text-white border-b-hairline">
             {' '}
             Sign Up
