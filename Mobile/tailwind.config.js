@@ -12,10 +12,13 @@ module.exports = {
     extend: {
       colors: {
         light: {
-          text: '#333333',
+          text: '#226B8F',
+          headingText: '#226B8F',
+          placeholderTxt: '#708499',
+          btnBackground: '#FF5604',
           subtext: '#888888',
-          background: '#5497B8',
-          headerBg: '#5497B8',
+          background: '#FFFFFF',
+          headerBg: '#226B8F',
           icon: '#333333',
           primaryAccent: '#A8E6CF',
           secondaryAccent: '#DCB2FF',
@@ -29,9 +32,10 @@ module.exports = {
         },
         dark: {
           text: '#E0E0E0',
+          headingText: '#FFFFFF',
           subtext: '#A0A0A0',
           background: '#17212B',
-          headerBg: '#232E3C',
+          headerBg: '#26374C',
           icon: '#F1F5F9',
           primaryAccent: '#7ED9B0',
           secondaryAccent: '#B88BFF',

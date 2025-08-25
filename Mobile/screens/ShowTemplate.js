@@ -17,6 +17,7 @@ import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useAuthStore } from '../store/useAuthStore';
 import { callTypes } from '../utils/constants';
+import useThemeColors from '../hooks/useThemeColor';
 
 const ShowTemplate = () => {
   const navigation = useNavigation();
@@ -31,6 +32,7 @@ const ShowTemplate = () => {
   const [callType, setCallType] = useState(callTypes[0]);
   const role = useAuthStore(state => state.rolename);
   const token = useAuthStore(state => state.token);
+  const colors = useThemeColors();
 
   useEffect(() => {
     if (isEdit && template) {
@@ -112,7 +114,10 @@ const ShowTemplate = () => {
   };
 
   return (
-    <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background py-4">
+    <SafeAreaWrapper
+      className="flex-1 py-4"
+      style={{ backgroundColor: colors.background }}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1 "
@@ -124,18 +129,22 @@ const ShowTemplate = () => {
           keyboardShouldPersistTaps="always"
           contentContainerStyle={{ paddingBottom: 100 }}
         >
-          <Text className="text-light-text dark:text-dark-text font-semibold text-xl py-2 mt-4">
+          <Text
+            className=" font-semibold text-xl py-2 mt-4"
+            style={{ color: colors.text }}
+          >
             Title
           </Text>
           <TextInput
             placeholder="Template Title"
-            placeholderTextColor="#ccc"
+            placeholderTextColor='gray'
             value={title}
             onChangeText={text => {
               setTitle(text);
               if (errorTitle) setErrorTitle('');
             }}
-            className="border border-gray-400 rounded-lg p-3 text-base mb-3 text-white bg-black"
+            className="border border-gray-400 text-black rounded-lg p-3 text-base mb-3"
+            style={{backgroundColor: colors.inputBg}}
           />
           {errorTitle !== '' && (
             <Text className="text-light-danger dark:text-dark-danger mt-1 ml-1">
@@ -143,7 +152,10 @@ const ShowTemplate = () => {
             </Text>
           )}
 
-          <Text className="text-light-text dark:text-dark-text font-semibold text-xl py-2">
+          <Text
+            className=" font-semibold text-xl py-2"
+            style={{ color: colors.text }}
+          >
             Description
           </Text>
           <RichTextInput
@@ -160,17 +172,20 @@ const ShowTemplate = () => {
             </Text>
           )}
 
-          <Text className="text-light-text dark:text-dark-text mb-1 text-lg font-semibold ">
+          <Text
+            className=" mb-1 text-lg font-semibold "
+            style={{ color: colors.text }}
+          >
             Call Type
           </Text>
           {callTypes.map(type => (
             <Pressable
               key={type}
               onPress={() => setCallType(type)}
-              className={`px-3 py-2 mb-1 rounded-xl ${callType === type ? 'bg-sky-600' : 'bg-neutral-800'}`}
+              className={`px-3 py-2 mb-1 rounded-xl ${callType === type ? 'bg-sky-600' : 'bg-[#E6F0F5]'}`}
             >
               <Text
-                className={callType === type ? 'text-white' : 'text-gray-400'}
+                className={callType === type ? 'text-white' : 'text-gray-800'}
               >
                 {type}
               </Text>
@@ -180,13 +195,14 @@ const ShowTemplate = () => {
           <View className="flex-row justify-between my-4 px-4">
             <TouchableOpacity
               onPress={() => navigation.goBack()}
-              className="bg-gray-700 px-6 py-3 rounded"
+              className="border border-[#FF5604] px-10 py-3 rounded"
             >
-              <Text className="text-white">Cancel</Text>
+              <Text style={{color: colors.text}}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={saveTemplate}
-              className="bg-green-600 px-6 py-3 rounded"
+              className=" px-10 py-3 rounded"
+              style={{backgroundColor: colors.btnBackground}}
             >
               <Text className="text-white font-semibold">Save</Text>
             </TouchableOpacity>

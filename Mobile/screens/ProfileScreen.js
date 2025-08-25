@@ -207,13 +207,13 @@ const ProfileScreen = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
       >
+        <SubHeader title={`Profile`} />
         <ScrollView
           className="px-5"
           contentContainerStyle={{ paddingBottom: 20 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <SubHeader title={`Profile`} />
 
           <View className="mt-4 mb-4">
             <View className="left-1/2 -ml-12">

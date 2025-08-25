@@ -31,7 +31,7 @@ const SafeAreaWrapper = ({
   return (
     <SafeAreaView
       style={[{ flex: 1, paddingTop }, style]}
-      className={`bg-light-background dark:bg-dark-background ${className}`}
+      className={`${className}`}
     >
       {children}
     </SafeAreaView>

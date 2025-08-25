@@ -6,10 +6,12 @@ import { useAuthStore } from '../store/useAuthStore';
 import { renderFormattedText } from '../utils/renderFormattedText';
 import { useQuery } from '@tanstack/react-query';
 import { templateDetails } from '../apis/TemplateApi';
+import useThemeColors from '../hooks/useThemeColor';
 
 export default function TemplateDetailScreen({ route }) {
   const { templateId } = route.params;
   const ActiveUser = useAuthStore(state => state.rolename);
+  const colors = useThemeColors();
 
   const { data: template = {}, isLoading } = useQuery({
     queryKey: ['templateDetails', templateId],
@@ -35,11 +37,17 @@ export default function TemplateDetailScreen({ route }) {
   }
 
   return (
-    <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background px-4 py-4">
-      <SubHeader title="Template Details" />
-      <ScrollView showsVerticalScrollIndicator={false} className="px-4 my-4">
+    <SafeAreaWrapper
+    className="flex-1 px-0 py-4"
+    style={{ backgroundColor: colors.background }}
+    >
+    <SubHeader title="Template Details" />
+      <ScrollView showsVerticalScrollIndicator={false} className="px-8 my-4">
         <View className="mb-6">
-          <Text className="text-2xl text-light-text dark:text-dark-text font-bold">
+          <Text
+            className="text-2xl font-bold "
+            style={{ color: colors.headingText }}
+          >
             {template.title}
           </Text>
           <Text className="text-sm text-gray-500 mt-1">
@@ -49,11 +57,14 @@ export default function TemplateDetailScreen({ route }) {
         </View>
 
         <View>
-          <Text className="text-lg text-light-text dark:text-dark-text font-semibold mb-2">
+          <Text className="text-lg font-semibold mb-2" style={{color: colors.text}}>
             Description
           </Text>
-          <View className="bg-neutral-800 rounded-lg p-4">
-            <Text className="text-white text-base leading-relaxed">
+          <View
+            className="rounded-lg p-4"
+            style={{ backgroundColor: colors.inputBg }}
+          >
+            <Text className="text-base leading-relaxed">
               {renderFormattedText(template.description)}
             </Text>
           </View>

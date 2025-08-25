@@ -2,10 +2,14 @@ import { useColorScheme } from 'react-native';
 
 const palette = {
   light: {
-    text: '#333333',
+    text: '#226B8F',
+    headingText: '#226B8F',
     subtext: '#888888',
-    background: '#FDFDFD',
-    icon: '#333333',
+    background: '#FFFFFF',
+    btnBackground: '#FF5604',
+    inputBg: '#E6F0F5',
+    headerBg: '#226B8F',
+    icon: '#FFFFFF',
     primaryAccent: '#A8E6CF',
     secondaryAccent: '#DCB2FF',
     tertiaryAccent: '#A0D9FF',
@@ -17,9 +21,13 @@ const palette = {
   },
   dark: {
     text: '#E0E0E0',
+    headingText: '#FFFFFF',
     subtext: '#A0A0A0',
-    background: '#17212b',
-    icon: '#F1F5F9',
+    background: '#17212B',
+    btnBackground: '#FF5604',
+    inputBg: '#E6F0F5',
+    headerBg: '#232E3C',
+    icon: '#FFFFFF',
     primaryAccent: '#7ED9B0',
     secondaryAccent: '#B88BFF',
     tertiaryAccent: '#7AC0E8',
