@@ -11,11 +11,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react-native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useAuthStore } from '../store/useAuthStore';
-// import { evaluatePasswordStrength } from '../utils/evaluatePasswordStrength';
-// import { useMutation } from '@tanstack/react-query';
-// import { changePassword } from '../apis/Auth';
-// import { handleApiSuccess } from '../utils/handleApiSuccess';
-// import { changePasswordSchema } from '../utils/schemas';
+import { evaluatePasswordStrength } from '../utils/evaluatePasswordStrength';
+import { useMutation } from '@tanstack/react-query';
+import { changePassword } from '../apis/Auth';
+import { handleApiSuccess } from '../utils/handleApiSuccess';
+import { changePasswordSchema } from '../utils/schemas';
 
 export default function ChangePasswordScreen() {
   const logout = useAuthStore(state => state.logout);

@@ -1,17 +1,10 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  useColorScheme,
-} from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-// import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 export default function WelcomeScreen({ navigation }) {
   return (
@@ -33,7 +26,7 @@ export default function WelcomeScreen({ navigation }) {
           className=""
           style={{
             width: wp('80%'),
-            height: wp('40%'),
+            height: hp('40%'),
             resizeMode: 'contain',
           }}
         />

@@ -24,6 +24,7 @@ import { handleApiError } from '../utils/handleApiError';
 import { agentSchema, baseSchema, vendorSchema } from '../utils/schemas';
 import { businessTypes } from '../utils/constants';
 import { useNavigation } from '@react-navigation/native';
+import { handleApiSuccess } from '../utils/handleApiSuccess';
 
 const ProfileScreen = () => {
   const schemaMap = {

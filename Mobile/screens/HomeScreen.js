@@ -131,8 +131,6 @@ export default function DashboardScreen({ navigation }) {
         }
       >
         <View className="mb-6">
-          
-
           <Text className="text-lg text-light-text dark:text-dark-text mt-0">
             Welcome back, {username} 👋
           </Text>

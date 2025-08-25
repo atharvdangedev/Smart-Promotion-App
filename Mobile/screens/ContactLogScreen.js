@@ -1,12 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Linking,
-  ActivityIndicator,
-} from 'react-native';
+import React from 'react';
+import { View, Text, FlatList, TouchableOpacity, Linking } from 'react-native';
 import {
   PhoneMissed,
   PhoneIncoming,

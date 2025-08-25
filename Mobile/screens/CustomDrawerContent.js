@@ -14,7 +14,6 @@ export default function CustomDrawerContent(props) {
         paddingHorizontal: 0,
         backgroundColor: 'white',
       }}
-      // style={{ backgroundColor: 'white' }}
     >
       <View className="flex-1 bg-[#226B8F] dark:bg-[#26374C] mb-2">
         <Text className="px-10 py-20 font-bold text-2xl text-white">
@@ -22,9 +21,7 @@ export default function CustomDrawerContent(props) {
           SmartPromotions
         </Text>
       </View>
-      {/* <View className="bg-gray-400"> */}
       <DrawerItemList {...props} />
-      {/* </View> */}
     </DrawerContentScrollView>
   );
 }

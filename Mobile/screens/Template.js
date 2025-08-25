@@ -10,11 +10,11 @@ import {
 import React, { useState } from 'react';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import Header from '../components/Header';
-// import {
-//   deleteTemplate,
-//   fetchTemplate,
-//   toggleStatus,
-// } from '../apis/TemplateApi';
+import {
+  deleteTemplate,
+  fetchTemplate,
+  toggleStatus,
+} from '../apis/TemplateApi';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { handleApiError } from '../utils/handleApiError';
 import { useAuthStore } from '../store/useAuthStore';
@@ -23,11 +23,6 @@ import { callTypeColors } from '../utils/constants';
 import { renderFormattedText } from '../utils/renderFormattedText';
 import { handleApiSuccess } from '../utils/handleApiSuccess';
 import { useNavigation } from '@react-navigation/native';
-import {
-  deleteTemplate,
-  fetchTemplate,
-  toggleStatus,
-} from '../APIs/TemplateApi';
 
 const Template = () => {
   const user = useAuthStore(state => state.rolename);

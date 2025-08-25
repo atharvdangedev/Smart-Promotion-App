@@ -8,10 +8,7 @@ export const useUserRole = () => {
   useEffect(() => {
     const getRole = async () => {
       try {
-        // const storedRole = await AsyncStorage.getItem('user_type');
-        // const storedRole = rolename;
         setRole(rolename);
-        console.log(rolename);
       } catch (err) {
         console.log('Error fetching user role', err);
         setRole(null);
