@@ -113,37 +113,39 @@ export default function CardScannerScreen() {
   }
 
   return (
-    <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background p-4">
+    <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background ">
       <Header title="Card Scanner" />
-      <Text className="text-2xl font-bold text-light-text dark:text-dark-text text-center mt-8">
-        Add Contacts Instantly
-      </Text>
-      <Text className="text-lg font-medium text-light-subtext dark:text-dark-subtext text-center my-2">
-        Scan a bussiness card or upload an image to automatically extract the
-        contact details.
-      </Text>
+      <View className="flex-1 p-4">
+        <Text className="text-2xl font-bold text-light-text dark:text-dark-text text-center mt-8">
+          Add Contacts Instantly
+        </Text>
+        <Text className="text-lg font-medium text-light-subtext dark:text-dark-subtext text-center my-2">
+          Scan a bussiness card or upload an image to automatically extract the
+          contact details.
+        </Text>
 
-      <View className="flex-1 justify-end items-end">
-        <TouchableOpacity
-          onPress={handleScan}
-          className="bg-[#A8E6CF] dark:bg-[#7ED9B0] rounded-2xl px-4 py-3 flex-row items-center justify-center mb-4 w-full"
-        >
-          <Camera color="black" size={20} className="mr-2" />
-          <Text className="text-[#333333] text-base font-medium">
-            {' '}
-            Scan with Camera
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={handlePickFromGallery}
-          className="border border-light-border dark:border-dark-border rounded-2xl px-4 py-3 flex-row items-center justify-center w-full"
-        >
-          <Upload color={iconcolor} size={20} className="mr-2" />
-          <Text className="text-light-text dark:text-dark-text text-base font-medium">
-            {' '}
-            Upload from Gallery
-          </Text>
-        </TouchableOpacity>
+        <View className="flex-1 justify-end items-end">
+          <TouchableOpacity
+            onPress={handleScan}
+            className="bg-[#A8E6CF] dark:bg-[#7ED9B0] rounded-2xl px-4 py-3 flex-row items-center justify-center mb-4 w-full"
+          >
+            <Camera color="black" size={20} className="mr-2" />
+            <Text className="text-[#333333] text-base font-medium">
+              {' '}
+              Scan with Camera
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handlePickFromGallery}
+            className="border border-light-border dark:border-dark-border rounded-2xl px-4 py-3 flex-row items-center justify-center w-full"
+          >
+            <Upload color={iconcolor} size={20} className="mr-2" />
+            <Text className="text-light-text dark:text-dark-text text-base font-medium">
+              {' '}
+              Upload from Gallery
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaWrapper>
   );
