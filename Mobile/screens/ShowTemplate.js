@@ -18,6 +18,7 @@ import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useAuthStore } from '../store/useAuthStore';
 import { callTypes } from '../utils/constants';
 import useThemeColors from '../hooks/useThemeColor';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ShowTemplate = () => {
   const navigation = useNavigation();
@@ -25,12 +26,15 @@ const ShowTemplate = () => {
   const template = route.params?.template;
   const isEdit = route.params?.isEdit;
 
+  const queryClient = useQueryClient();
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [errorTitle, setErrorTitle] = useState('');
   const [errorDesc, setErrorDesc] = useState('');
   const [callType, setCallType] = useState(callTypes[0]);
   const role = useAuthStore(state => state.rolename);
+
   const token = useAuthStore(state => state.token);
   const colors = useThemeColors();
 
@@ -90,9 +94,9 @@ const ShowTemplate = () => {
 
     try {
       if (isEdit && template?.id) {
-        await api.post(`vendor/templates/${template.id}`, payload, headers);
+        await api.post(`vendor/templates/${template.id}`, payload);
       } else {
-        await api.post(`vendor/templates`, payload, headers);
+        await api.post(`vendor/templates`, payload);
       }
 
       Toast.show({
@@ -110,6 +114,8 @@ const ShowTemplate = () => {
         text1: 'Failed to save template',
         text2: err.response?.data?.message || 'Something went wrong',
       });
+    } finally {
+      queryClient.invalidateQueries(['templates']);
     }
   };
 
@@ -137,14 +143,14 @@ const ShowTemplate = () => {
           </Text>
           <TextInput
             placeholder="Template Title"
-            placeholderTextColor='gray'
+            placeholderTextColor="gray"
             value={title}
             onChangeText={text => {
               setTitle(text);
               if (errorTitle) setErrorTitle('');
             }}
             className="border border-gray-400 text-black rounded-lg p-3 text-base mb-3"
-            style={{backgroundColor: colors.inputBg}}
+            style={{ backgroundColor: colors.inputBg }}
           />
           {errorTitle !== '' && (
             <Text className="text-light-danger dark:text-dark-danger mt-1 ml-1">
@@ -197,12 +203,12 @@ const ShowTemplate = () => {
               onPress={() => navigation.goBack()}
               className="border border-[#FF5604] px-10 py-3 rounded"
             >
-              <Text style={{color: colors.text}}>Cancel</Text>
+              <Text style={{ color: colors.text }}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={saveTemplate}
               className=" px-10 py-3 rounded"
-              style={{backgroundColor: colors.btnBackground}}
+              style={{ backgroundColor: colors.btnBackground }}
             >
               <Text className="text-white font-semibold">Save</Text>
             </TouchableOpacity>

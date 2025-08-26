@@ -19,6 +19,7 @@ import { useSelector } from "react-redux";
 import usePermissions from "../../../hooks/usePermissions.js";
 import { APP_PERMISSIONS } from "../utils/permissions.js";
 import Can from "../Can/Can.jsx";
+import { setPageTitle } from "../utils/docTitle.js";
 
 const Templates = () => {
   const { can, canAny } = usePermissions();
@@ -27,6 +28,8 @@ const Templates = () => {
 
   // Access token
   const { token, user } = useSelector((state) => state.auth);
+
+  setPageTitle("Templates | Vendor Panel");
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;

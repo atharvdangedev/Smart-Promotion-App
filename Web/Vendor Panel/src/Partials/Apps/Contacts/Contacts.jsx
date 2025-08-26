@@ -16,12 +16,15 @@ import usePermissions from "../../../hooks/usePermissions";
 import { APP_PERMISSIONS } from "../utils/permissions";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { setPageTitle } from "../utils/docTitle";
 
 const Contacts = () => {
   // Navigate function
   const navigate = useNavigate();
 
   const { can } = usePermissions();
+
+  setPageTitle("Contacts | Vendor Panel");
 
   // Access token
   const { token, user } = useSelector((state) => state.auth);

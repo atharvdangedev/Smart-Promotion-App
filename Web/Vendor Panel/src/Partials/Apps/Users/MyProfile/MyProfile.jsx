@@ -134,7 +134,7 @@ const affiliateSchema = yup.object().shape({
 });
 
 const MyProfile = () => {
-  setPageTitle("My Profile");
+  setPageTitle("My Profile | Vendor Panel");
 
   const dispatch = useDispatch();
 

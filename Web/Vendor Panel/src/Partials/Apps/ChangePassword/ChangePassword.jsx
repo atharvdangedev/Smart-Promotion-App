@@ -22,7 +22,7 @@ const ChangePassword = () => {
   const APP_URL = import.meta.env.VITE_API_URL;
   const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
-  setPageTitle("Change Password");
+  setPageTitle("Change Password | Vendor Panel");
 
   // State initialization
   const [showPassword, setShowPassword] = useState({

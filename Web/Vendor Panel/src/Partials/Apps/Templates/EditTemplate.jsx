@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { handleApiError } from "../utils/handleApiError";
 import Select from "react-select";
 import WhatsappEditor from "./WhatsappEditor";
+import { setPageTitle } from "../utils/docTitle";
 
 // Schema initialization
 const schema = yup.object().shape({
@@ -54,6 +55,8 @@ const EditTemplate = () => {
       setTemplateName(location.state.templateName);
     }
   }, [location.state]);
+
+  setPageTitle("Edit Template " + templateName + " | Vendor Panel");
 
   // useForm hook initialization
   const {

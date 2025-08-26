@@ -13,7 +13,7 @@ const UserActivation = () => {
   const [message, setMessage] = useState("");
   const [countdown, setCountdown] = useState(5);
 
-  setPageTitle("User Activation");
+  setPageTitle("User Activation | Vendor Panel");
 
   // Extract token from URL
   useEffect(() => {

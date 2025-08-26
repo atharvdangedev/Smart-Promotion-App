@@ -18,12 +18,15 @@ import { useSelector } from "react-redux";
 import usePermissions from "../../../hooks/usePermissions.js";
 import { APP_PERMISSIONS } from "../utils/permissions.js";
 import Can from "../Can/Can.jsx";
+import { setPageTitle } from "../utils/docTitle.js";
 
 const CouponCodeManagement = () => {
   // Navigation function
   const navigate = useNavigate();
 
   const { can, canAny } = usePermissions();
+
+  setPageTitle("Coupon Codes | Vendor Panel");
 
   // Access token
   const { token, user } = useSelector((state) => state.auth);

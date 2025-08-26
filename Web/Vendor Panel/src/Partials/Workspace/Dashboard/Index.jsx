@@ -14,7 +14,7 @@ const Index = memo(() => {
 
   const { user: userData = {}, token } = useSelector((state) => state.auth);
 
-  setPageTitle("Dashboard");
+  setPageTitle("Dashboard | Vendor Panel");
 
   const [monthlyAnalytics, setMonthlyAnalytics] = useState([]);
   const [orders, setOrders] = useState([]);

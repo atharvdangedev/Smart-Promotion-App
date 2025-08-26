@@ -13,6 +13,7 @@ import DatePicker from "react-datepicker";
 import "./datepicker.css";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSelector } from "react-redux";
+import { setPageTitle } from "../utils/docTitle";
 
 // Schema initialization
 const schema = yup.object().shape({
@@ -40,6 +41,8 @@ const AddCouponCode = () => {
 
   // State initialisation
   const { user: userData = {}, token } = useSelector((state) => state.auth);
+
+  setPageTitle("Add Coupon Code | Vendor Panel");
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
