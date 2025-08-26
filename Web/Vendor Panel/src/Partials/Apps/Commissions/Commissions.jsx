@@ -14,12 +14,15 @@ import { handleApiError } from "../utils/handleApiError";
 import { useSelector } from "react-redux";
 import usePermissions from "../../../hooks/usePermissions";
 import { APP_PERMISSIONS } from "../utils/permissions";
+import { setPageTitle } from "../utils/docTitle";
 
 const Commissions = () => {
   const { can } = usePermissions();
 
   // Access token
   const { token, user } = useSelector((state) => state.auth);
+
+  setPageTitle("Commissions | Vendor Panel");
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;

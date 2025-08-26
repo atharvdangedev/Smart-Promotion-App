@@ -7,6 +7,7 @@ import * as yup from "yup";
 import toast, { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../../../Redux/slices/authSlice";
+import { setPageTitle } from "../../../Apps/utils/docTitle";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -23,6 +24,8 @@ const schema = yup.object().shape({
 const Signin = () => {
   // Navigation
   const navigate = useNavigate();
+
+  setPageTitle("Sign In | Vendor Panel");
 
   // Redux Hooks
   const dispatch = useDispatch();

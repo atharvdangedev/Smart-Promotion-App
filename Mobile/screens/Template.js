@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   useColorScheme,
   Modal,
+  RefreshControl,
 } from 'react-native';
 import React, { useState } from 'react';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
@@ -35,10 +36,10 @@ const Template = () => {
     data: templates = [],
     isLoading,
     refetch,
+    isRefetching,
   } = useQuery({
-    queryKey: ['templates', user],
+    queryKey: ['templates'],
     queryFn: () => fetchTemplate(user),
-    onError: error => handleApiError(error, 'fetching templates'),
     enabled: !!user,
   });
 
@@ -98,6 +99,9 @@ const Template = () => {
           showsVerticalScrollIndicator={false}
           className="flex-1 px-4 py-6"
           keyboardShouldPersistTaps="handled"
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+          }
         >
           {templates.map(template => (
             <View

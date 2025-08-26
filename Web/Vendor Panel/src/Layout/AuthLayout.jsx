@@ -16,7 +16,7 @@ const TwoStep = lazyLoad(() =>
 );
 import NoPageFound from "../Partials/Pages/Authentication/NoPageFound/NoPageFound";
 import loginImg from "../assets/images/login-img.png";
-import logoImg from "../assets/images/mcards.webp";
+import logoImg from "../assets/images/swp.webp";
 
 const AuthLayout = () => {
   const location = useLocation();

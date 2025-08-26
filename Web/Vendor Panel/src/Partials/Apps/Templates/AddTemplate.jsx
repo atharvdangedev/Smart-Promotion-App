@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { handleApiError } from "../utils/handleApiError";
 import Select from "react-select";
 import WhatsappEditor from "./WhatsappEditor";
+import { setPageTitle } from "../utils/docTitle";
 
 // Schema initialization
 const schema = yup.object().shape({
@@ -33,6 +34,8 @@ const AddTemplate = () => {
 
   // Access token
   const token = localStorage.getItem("jwtToken");
+
+  setPageTitle("Add Template | Vendor Panel");
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;

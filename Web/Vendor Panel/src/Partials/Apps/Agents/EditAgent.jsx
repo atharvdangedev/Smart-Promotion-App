@@ -7,6 +7,7 @@ import axios from "axios";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { handleApiError } from "../utils/handleApiError";
 import { useSelector } from "react-redux";
+import { setPageTitle } from "../utils/docTitle";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -54,6 +55,8 @@ const EditAgent = () => {
   const profilePicRef = useRef();
   const [firstName, setFirstName] = useState("");
   const [profilePicPreview, setProfilePicPreview] = useState(null);
+
+  setPageTitle("Edit Agent: " + firstName + " | Vendor Panel");
 
   // Use form initialization
   const {

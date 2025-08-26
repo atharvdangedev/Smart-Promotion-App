@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoImg from "../../assets/images/mcards.webp";
+import logoImg from "../../assets/images/swp.webp";
 import { memo } from "react";
 
 const CommonBrand = memo(() => {

@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "./datepicker.css";
 import "react-datepicker/dist/react-datepicker.css";
+import { setPageTitle } from "../utils/docTitle";
 
 // Schema initialization
 const schema = yup.object().shape({
@@ -48,6 +49,8 @@ const EditCouponCode = () => {
 
   const [plans, setPlans] = useState([]);
   const [couponName, setCouponName] = useState("");
+
+  setPageTitle("Edit Coupon Code " + couponName + " | Vendor Panel");
 
   const discountOptions = [
     { value: "percent", label: "Percentage" },

@@ -5,6 +5,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { setPageTitle } from "../../../Apps/utils/docTitle";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -19,6 +20,8 @@ const PasswordReset = () => {
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;
   const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
+
+  setPageTitle("Forgot Password | Vendor Panel");
 
   // State Variables
   const [message, setMessage] = useState("");
@@ -64,7 +67,7 @@ const PasswordReset = () => {
         <ul className="row g-3 list-unstyled li_animate">
           <li className="col-12">
             <h1 className="h2 title-font">Welcome to Smart Promotion App</h1>
-            <p>Your Dashboard</p>
+            <p>Forgot Password</p>
           </li>
 
           <li className="col-12">

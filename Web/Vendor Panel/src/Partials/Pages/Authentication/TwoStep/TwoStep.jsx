@@ -9,6 +9,7 @@ import axios from "axios";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { evaluatePasswordStrength } from "../../../Apps/utils/evaluatePasswordStrength";
 import { handleApiError } from "../../../Apps/utils/handleApiError";
+import { setPageTitle } from "../../../Apps/utils/docTitle";
 
 // Validation Schema
 const schema = yup.object().shape({
@@ -23,6 +24,8 @@ const TwoStep = () => {
   // Navigation
   const navigate = useNavigate();
   const location = useLocation();
+
+  setPageTitle("Reset Password | Vendor Panel");
 
   // API URL
   const APP_URL = import.meta.env.VITE_API_URL;

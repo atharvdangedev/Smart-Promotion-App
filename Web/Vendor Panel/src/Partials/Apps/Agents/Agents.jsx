@@ -19,10 +19,13 @@ import { useSelector } from "react-redux";
 import usePermissions from "../../../hooks/usePermissions.js";
 import { APP_PERMISSIONS } from "../utils/permissions.js";
 import Can from "../Can/Can.jsx";
+import { setPageTitle } from "../utils/docTitle.js";
 
 const Agents = () => {
   // Navigate function
   const navigate = useNavigate();
+
+  setPageTitle("Agents | Vendor Panel");
 
   const { can, canAny } = usePermissions();
 

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
-import logoImg from "../../assets/images/mcards.webp";
+import logoImg from "../../assets/images/swp.webp";
 import MenuItem from "./MenuItem";
 import { memo } from "react";
 import { APP_PERMISSIONS } from "../../Partials/Apps/utils/permissions";

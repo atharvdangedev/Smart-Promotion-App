@@ -9,6 +9,7 @@ import ImagePreview from "../utils/ImagePreview";
 import { evaluatePasswordStrength } from "../utils/evaluatePasswordStrength";
 import { handleApiError } from "../utils/handleApiError";
 import { useSelector } from "react-redux";
+import { setPageTitle } from "../utils/docTitle";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -49,6 +50,8 @@ const AddAgent = () => {
 
   // Access token
   const { token, user } = useSelector((state) => state.auth);
+
+  setPageTitle("Add Agent | Vendor Panel");
 
   // API URLs
   const APP_URL = import.meta.env.VITE_API_URL;
