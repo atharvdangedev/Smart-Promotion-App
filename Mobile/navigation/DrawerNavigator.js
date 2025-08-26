@@ -11,8 +11,10 @@ import {
   MessageSquareMore,
   ScanText,
   ShoppingCart,
+  User,
 } from 'lucide-react-native';
 import CustomDrawerContent from '../screens/CustomDrawerContent';
+import AgentsScreen from '../screens/AgentsScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -93,6 +95,18 @@ export default function DrawerNavigator() {
             fontSize: 16,
           },
           drawerIcon: () => <Contact color="black" size={20} />,
+        }}
+      />
+      <Drawer.Screen
+        name="Agents"
+        component={AgentsScreen}
+        options={{
+          drawerLabel: 'Agents',
+          drawerLabelStyle: {
+            color: 'black',
+            fontSize: 16,
+          },
+          drawerIcon: () => <User color="black" size={20} />,
         }}
       />
     </Drawer.Navigator>

@@ -73,11 +73,11 @@ export default function PlansPricingScreen() {
 
   return (
     <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background">
+      <Header title="Plans & Pricing" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         className="flex-1 px-4 py-0"
       >
-        <Header title="Plans & Pricing" />
 
         {plans.map((plan, index) => {
           const style = getPlanStyles(plan.theme);
