@@ -84,10 +84,10 @@ export default function SelectContacts() {
 
   return (
     <SafeAreaWrapper className="bg-light-background dark:bg-dark-background">
-      <View className="flex-1 px-4">
         <SubHeader title="Contacts selection" />
+      <View className="flex-1 px-4">
         <View className="flex-1 rounded-xl p-2">
-          <View className="p-4 bg-light-card dark:bg-dark-card rounded-xl">
+          <View className="p-4 bg-light-card dark:bg-dark-card rounded-xl ">
             <Text className="text-light-text dark:text-dark-text text-lg text-center font-bold">
               Select Contacts To Add
             </Text>

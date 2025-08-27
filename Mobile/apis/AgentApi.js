@@ -11,8 +11,6 @@ export const fetchAgents = async () => {
   }
 };
 
-// https://swp.smarttesting.in/api/update-user-status/142
-
 export const toggleStatus = async id => {
   try {
     const response = await api.put(`update-user-status/${id}`, {});
