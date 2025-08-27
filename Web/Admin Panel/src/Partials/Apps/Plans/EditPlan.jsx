@@ -7,9 +7,10 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { handleApiError } from "../utils/handleApiError";
 import Select from "react-select";
 import { useEffect } from "react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import SunEditor from "suneditor-react";
+import "suneditor/dist/css/suneditor.min.css";
 import { useSelector } from "react-redux";
+import { isRichTextEmpty } from "../utils/isRichTextEmpty";
 
 // Schema initialization
 const schema = yup.object().shape({
@@ -20,9 +21,20 @@ const schema = yup.object().shape({
     .max(200, "Maximum 200 characters allowed."),
   description: yup
     .string()
-    .required("Plan Description is required")
-    .min(3, "Minimum 3 characters required.")
-    .max(200, "Maximum 200 characters allowed."),
+    .transform((value) => (isRichTextEmpty(value) ? "" : value))
+    .required("Plan description is required")
+    .max(500, "Maximum 500 characters allowed.")
+    .test(
+      "min-length",
+      "Plan Description must be at least 20 characters",
+      (value) => {
+        if (!value) return false;
+        const textContent =
+          new DOMParser().parseFromString(value, "text/html").body
+            .textContent || "";
+        return textContent.trim().length >= 20;
+      }
+    ),
   validity: yup
     .string()
     .required("Plan Validity is required")
@@ -56,17 +68,6 @@ const EditPlan = () => {
     { value: "plan", label: "Plan" },
     { value: "addon", label: "Add-On" },
   ];
-
-  // Quill modules configuration
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      ["link"],
-      ["clean"],
-    ],
-  };
 
   // useForm hook initialization
   const {
@@ -309,17 +310,27 @@ const EditPlan = () => {
                 <Controller
                   name="description"
                   control={control}
-                  defaultValue=""
+                  rules={{ required: "Plan description is required" }}
                   render={({ field }) => (
                     <>
-                      <ReactQuill
-                        theme="snow"
-                        placeholder="Enter plan description..."
-                        modules={modules}
-                        value={field.value}
-                        onChange={(value) => field.onChange(value)}
-                        tabIndex="2"
-                        className={errors.description ? "is-invalid" : ""}
+                      <SunEditor
+                        setOptions={{
+                          height: "300px",
+                          buttonList: [
+                            ["undo", "redo"],
+                            ["font", "fontSize", "formatBlock"],
+                            ["bold", "underline", "italic", "strike"],
+                            ["fontColor", "hiliteColor", "textStyle"],
+                            ["align", "horizontalRule", "list"],
+                            ["link"],
+                            ["fullScreen", "showBlocks", "codeView", "preview"],
+                          ],
+                        }}
+                        setContents={field.value}
+                        onChange={(content) => {
+                          field.onChange(content);
+                        }}
+                        placeholder="Please type here..."
                       />
                       {errors.description && (
                         <div className="invalid-feedback">

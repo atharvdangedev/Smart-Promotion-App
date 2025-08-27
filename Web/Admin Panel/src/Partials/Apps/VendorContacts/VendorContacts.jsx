@@ -64,15 +64,15 @@ const VendorContacts = () => {
       },
       {
         Header: "CONTACT NO",
-        accessor: "contact_no",
+        accessor: "contact_number",
       },
       {
         Header: "CONTACT EMAIL",
-        accessor: "contact_email",
+        accessor: "email",
       },
       {
         Header: "CONTACT BIRTHDATE",
-        accessor: "contact_birthdate",
+        accessor: "birthdate",
       },
     ],
     []

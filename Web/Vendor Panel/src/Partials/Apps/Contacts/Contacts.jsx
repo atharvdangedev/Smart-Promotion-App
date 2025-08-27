@@ -17,12 +17,13 @@ import { APP_PERMISSIONS } from "../utils/permissions";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { setPageTitle } from "../utils/docTitle";
+import Can from "../Can/Can";
 
 const Contacts = () => {
   // Navigate function
   const navigate = useNavigate();
 
-  const { can } = usePermissions();
+  const { can, canAny } = usePermissions();
 
   setPageTitle("Contacts | Vendor Panel");
 
@@ -42,6 +43,11 @@ const Contacts = () => {
 
   const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
 
+  const canSeeActionsColumn = canAny([
+    APP_PERMISSIONS.CONTACTS_EDIT,
+    APP_PERMISSIONS.CONTACTS_DELETE,
+  ]);
+
   // Handle edit page navigation
   const handleEdit = useCallback(
     async (firstname, id) => {
@@ -58,8 +64,8 @@ const Contacts = () => {
   );
 
   // Table configuration
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "SR NO",
         accessor: "serialNumber",
@@ -73,19 +79,50 @@ const Contacts = () => {
       },
       {
         Header: "CONTACT NO",
-        accessor: "contact_no",
+        accessor: "contact_number",
       },
       {
         Header: "CONTACT EMAIL",
-        accessor: "contact_email",
+        accessor: "email",
       },
       {
         Header: "CONTACT BIRTHDATE",
-        accessor: "contact_birthdate",
+        accessor: "birthdate",
       },
-    ],
-    []
-  );
+    ];
+    if (canSeeActionsColumn)
+      baseColumns.push({
+        Header: "ACTIONS",
+        accessor: "activated",
+        Cell: ({ row }) => (
+          <div>
+            <Can do={APP_PERMISSIONS.CONTACTS_EDIT}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleEdit(row.original.contact_name, row.original.id)
+                }
+                className="btn text-info px-2 me-1"
+              >
+                <i className="bi bi-pencil"></i>
+              </button>
+            </Can>
+            <Can do={APP_PERMISSIONS.CONTACTS_DELETE}>
+              <button
+                type="button"
+                // onClick={() =>
+                //   handleDelete(row.original.contact_name, row.original.id)
+                // }
+                className="btn text-danger px-2"
+              >
+                <i className="fa fa-trash"></i>
+              </button>
+            </Can>
+          </div>
+        ),
+      });
+    return baseColumns;
+  }, [canSeeActionsColumn, handleEdit]);
 
   // Use the useTable hook to build the table
   const {
@@ -125,7 +162,7 @@ const Contacts = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${APP_URL}/${user.rolename}/contact/vendor/${user.id}`,
+          `${APP_URL}/${user.rolename}/contact/vendor`,
           {
             params: { page: pageIndex + 1, limit: pageSize },
             headers: {
@@ -149,15 +186,7 @@ const Contacts = () => {
     };
 
     fetchData();
-  }, [
-    APP_URL,
-    pageIndex,
-    pageSize,
-    token,
-    useServerPagination,
-    user.id,
-    user.rolename,
-  ]);
+  }, [APP_URL, pageIndex, pageSize, token, useServerPagination, user.rolename]);
 
   // Handle search function
   const handleGlobalFilterChange = (e) => {
