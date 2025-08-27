@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { setPageTitle } from "../utils/docTitle";
 import Can from "../Can/Can";
+import ImportContactsModal from "./ImportContactsModal";
 
 const Contacts = () => {
   // Navigate function
@@ -35,8 +36,10 @@ const Contacts = () => {
 
   // State initialization
   const [totalRecords, setTotalRecords] = useState(0);
+  const [showModal, setShowModal] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
+  const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const useServerPagination = true;
@@ -186,7 +189,15 @@ const Contacts = () => {
     };
 
     fetchData();
-  }, [APP_URL, pageIndex, pageSize, token, useServerPagination, user.rolename]);
+  }, [
+    APP_URL,
+    pageIndex,
+    pageSize,
+    token,
+    useServerPagination,
+    user.rolename,
+    refetch,
+  ]);
 
   // Handle search function
   const handleGlobalFilterChange = (e) => {
@@ -200,6 +211,11 @@ const Contacts = () => {
     setTablePageSize(newPageSize);
   };
 
+  const handleImportContacts = () => {
+    setShowModal(false);
+    setRefetch((prev) => !prev);
+  };
+
   return (
     <div className="px-4 py-3 page-body">
       <div className="col-lg-12 col-md-12">
@@ -209,6 +225,14 @@ const Contacts = () => {
               <h4 className="title-font">
                 <strong>Contacts</strong>
               </h4>
+              <Can do={APP_PERMISSIONS.CONTACTS_IMPORT}>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setShowModal(true)}
+                >
+                  Import Contacts
+                </button>
+              </Can>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -251,6 +275,11 @@ const Contacts = () => {
                 </div>
               </div>
             </div>
+
+            <ImportContactsModal
+              show={showModal}
+              onClose={handleImportContacts}
+            />
 
             <table
               {...getTableProps()}
