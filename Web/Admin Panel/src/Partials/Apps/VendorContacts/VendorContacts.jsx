@@ -263,7 +263,7 @@ const VendorContacts = () => {
                 ) : data.length === 0 ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
-                      No VendorContacts available.
+                      No Vendor Contacts available.
                     </td>
                   </tr>
                 ) : page.length === 0 ? (

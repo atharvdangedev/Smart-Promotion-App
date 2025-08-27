@@ -20,9 +20,18 @@ const ImportContactsModal = ({ show, onClose }) => {
     if (selectedFile && selectedFile.type === "text/csv") {
       setFile(selectedFile);
     } else if (selectedFile) {
-      alert("Only CSV files are allowed!");
+      toast.error("Only CSV files are allowed!");
       e.target.value = "";
     }
+  };
+
+  const handleClose = () => {
+    setFile(null);
+    const input = document.getElementById("csvFile");
+    if (input) {
+      input.value = "";
+    }
+    onClose();
   };
 
   const handleSubmit = async () => {
@@ -49,7 +58,7 @@ const ImportContactsModal = ({ show, onClose }) => {
 
       if (response.status === 200) {
         toast.success(response.data.message);
-        onClose();
+        handleClose();
       }
     } catch (error) {
       handleApiError(error, "importing", "contacts");
@@ -73,7 +82,7 @@ const ImportContactsModal = ({ show, onClose }) => {
             <button
               type="button"
               className="btn-close"
-              onClick={onClose}
+              onClick={handleClose}
             ></button>
           </div>
 
@@ -103,7 +112,7 @@ const ImportContactsModal = ({ show, onClose }) => {
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={loading}
             >
               Cancel

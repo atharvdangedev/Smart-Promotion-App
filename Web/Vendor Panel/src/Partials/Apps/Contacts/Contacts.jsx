@@ -70,13 +70,6 @@ const Contacts = () => {
   const columns = useMemo(() => {
     const baseColumns = [
       {
-        Header: "SR NO",
-        accessor: "serialNumber",
-        Cell: ({ row }) => {
-          return <div>{row.index + 1}</div>;
-        },
-      },
-      {
         Header: "CONTACT NAME",
         accessor: "contact_name",
       },
@@ -148,11 +141,13 @@ const Contacts = () => {
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize },
+      initialState: { pageSize },
       manualPagination: useServerPagination,
-      pageCount: useServerPagination
-        ? Math.ceil(totalRecords / pageSize)
-        : undefined,
+      autoResetPage: false,
+      pageCount:
+        useServerPagination && totalRecords !== null
+          ? Math.ceil(totalRecords / pageSize)
+          : -1,
     },
     useGlobalFilter,
     useSortBy,
@@ -163,6 +158,7 @@ const Contacts = () => {
     if (!useServerPagination) return;
 
     const fetchData = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(
           `${APP_URL}/${user.rolename}/contact/vendor`,
@@ -353,7 +349,7 @@ const Contacts = () => {
             </table>
           </div>
 
-          {data.length > 0 && (
+          {totalRecords > 0 && (
             <ResponsivePagination
               pageIndex={pageIndex}
               pageOptions={pageOptions}

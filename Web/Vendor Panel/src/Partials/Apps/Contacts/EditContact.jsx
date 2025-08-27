@@ -72,7 +72,7 @@ const EditContact = () => {
     const fetchContact = async () => {
       try {
         const res = await axios.get(
-          `${APP_URL}/${user.rolename}/contacts/vendor/${contactId}`,
+          `${APP_URL}/${user.rolename}/contacts/${contactId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -107,7 +107,7 @@ const EditContact = () => {
 
     try {
       const res = await axios.post(
-        `${APP_URL}/${user.rolename}/contacts/vendor/${contactId}`,
+        `${APP_URL}/${user.rolename}/contacts/${contactId}`,
         formData,
         {
           headers: {
