@@ -8,6 +8,7 @@ import CardScannerScreen from '../screens/CardScannerScreen';
 import {
   Contact,
   LayoutDashboard,
+  List,
   MessageSquareMore,
   ScanText,
   ShoppingCart,
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react-native';
 import CustomDrawerContent from '../screens/CustomDrawerContent';
 import AgentsScreen from '../screens/AgentsScreen';
+import ContactList from '../screens/ContactList';
 
 const Drawer = createDrawerNavigator();
 
@@ -107,6 +109,18 @@ export default function DrawerNavigator() {
             fontSize: 16,
           },
           drawerIcon: () => <User color="black" size={20} />,
+        }}
+      />
+      <Drawer.Screen
+        name="Contact List"
+        component={ContactList}
+        options={{
+          drawerLabel: 'Contact List',
+          drawerLabelStyle: {
+            color: 'black',
+            fontSize: 16,
+          },
+          drawerIcon: () => <List color="black" size={20} />,
         }}
       />
     </Drawer.Navigator>
