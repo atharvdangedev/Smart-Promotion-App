@@ -654,7 +654,7 @@ const ProfileScreen = () => {
             className="bg-white border border-black rounded-xl py-3 mb-4"
           >
             <Text className="text-black text-center font-semibold">
-              Export Contacts
+              Import Contacts
             </Text>
           </TouchableOpacity>
 

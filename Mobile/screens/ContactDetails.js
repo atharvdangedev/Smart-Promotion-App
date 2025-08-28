@@ -50,9 +50,11 @@ export default function ContactDetails() {
   };
 
   return (
-    <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background px-4 pt-4">
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background ">
         <SubHeader title="Contact Details" />
+      <ScrollView 
+        className='px-4 pt-4'
+        showsVerticalScrollIndicator={false}>
 
         <View className="items-center mt-4 ">
           <View className="w-24 h-24 rounded-full bg-gray-700 mb-3 border-4 border-sky-500 overflow-hidden">

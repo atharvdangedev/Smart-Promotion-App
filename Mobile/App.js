@@ -19,6 +19,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import SelectContacts from './screens/SelectContacts';
 import { useAuthStore } from './store/useAuthStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import AgentsScreen from './screens/AgentsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -88,6 +89,10 @@ export default function App() {
                 <Stack.Screen
                   name="SelectContacts"
                   component={SelectContacts}
+                />
+                <Stack.Screen
+                  name="AgentsScreen"
+                  component={AgentsScreen}
                 />
               </>
             )}
