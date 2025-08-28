@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import Header from '../components/Header';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useQuery } from '@tanstack/react-query';
@@ -94,6 +94,9 @@ export default function PlansPricingScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         className="flex-1 px-4 py-0"
+        refreshControl={
+                    <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+                  }
       >
         {plans.map((plan, index) => {
           const style = getPlanStyles(plan.title);
