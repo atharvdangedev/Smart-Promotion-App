@@ -15,10 +15,11 @@ import { useSelector } from "react-redux";
 import usePermissions from "../../../hooks/usePermissions";
 import { APP_PERMISSIONS } from "../utils/permissions";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { setPageTitle } from "../utils/docTitle";
 import Can from "../Can/Can";
 import ImportContactsModal from "./ImportContactsModal";
+import DeleteModal from "../DeleteModal/DeleteModal";
 
 const Contacts = () => {
   // Navigate function
@@ -38,6 +39,9 @@ const Contacts = () => {
   const [totalRecords, setTotalRecords] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [pageSize, setPageSize] = useState(10);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [data, setData] = useState([]);
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -65,6 +69,47 @@ const Contacts = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [navigate]
   );
+
+  // Handle delete callback
+  const handleDelete = useCallback((contact_name, id) => {
+    if (!can(APP_PERMISSIONS.CONTACTS_DELETE)) {
+      toast.error("You do not have permission to delete contacts.");
+      return;
+    }
+    setContactToDelete({ contact_name, id });
+    setIsDeleteModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Handle delete functionality
+  const handleConfirmDelete = async () => {
+    if (contactToDelete) {
+      setIsDeleting(true);
+      try {
+        const response = await axios.delete(
+          `${APP_URL}/${user.rolename}/contacts/${contactToDelete.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json;",
+            },
+          }
+        );
+        if (response.status === 200) {
+          toast.success(response.data.message);
+          setData((prevData) =>
+            prevData.filter((contact) => contact.id !== contactToDelete.id)
+          );
+        }
+      } catch (error) {
+        handleApiError(error, "deleting", "contact");
+      } finally {
+        setIsDeleting(false);
+        setIsDeleteModalOpen(false);
+        setContactToDelete(null);
+      }
+    }
+  };
 
   // Table configuration
   const columns = useMemo(() => {
@@ -106,9 +151,9 @@ const Contacts = () => {
             <Can do={APP_PERMISSIONS.CONTACTS_DELETE}>
               <button
                 type="button"
-                // onClick={() =>
-                //   handleDelete(row.original.contact_name, row.original.id)
-                // }
+                onClick={() =>
+                  handleDelete(row.original.contact_name, row.original.id)
+                }
                 className="btn text-danger px-2"
               >
                 <i className="fa fa-trash"></i>
@@ -118,7 +163,7 @@ const Contacts = () => {
         ),
       });
     return baseColumns;
-  }, [canSeeActionsColumn, handleEdit]);
+  }, [canSeeActionsColumn, handleDelete, handleEdit]);
 
   // Use the useTable hook to build the table
   const {
@@ -214,6 +259,7 @@ const Contacts = () => {
 
   return (
     <div className="px-4 py-3 page-body">
+      <Toaster />
       <div className="col-lg-12 col-md-12">
         <div className="card mb-3 p-3">
           <div className="table-responsive">
@@ -276,6 +322,16 @@ const Contacts = () => {
               show={showModal}
               onClose={handleImportContacts}
             />
+
+            {contactToDelete && (
+              <DeleteModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                message={`Are you sure you want to delete contact ${contactToDelete.contact_name}?`}
+                isLoading={isDeleting}
+              />
+            )}
 
             <table
               {...getTableProps()}

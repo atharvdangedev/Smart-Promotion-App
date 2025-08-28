@@ -77,7 +77,7 @@ const Agents = () => {
     fetchData();
   }, [APP_URL, token, user.rolename, user?.id]);
 
-  //fetch vendor data
+  //fetch agent data
   useEffect(() => {
     const fetchUser = async () => {
       try {

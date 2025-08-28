@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -43,8 +43,11 @@ const EditContact = () => {
 
   // API URLs
   const APP_URL = import.meta.env.VITE_API_URL;
+  const Img_url = import.meta.env.VITE_IMG_URL;
 
+  const profilePicRef = useRef();
   const [firstName, setFirstName] = useState("");
+  const [profilePicPreview, setProfilePicPreview] = useState(null);
 
   useEffect(() => {
     if (location.state) {
@@ -54,6 +57,13 @@ const EditContact = () => {
   }, [location.state]);
 
   setPageTitle("Edit Contact: " + firstName + " | Vendor Panel");
+
+  const handleProfilePic = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePicPreview(URL.createObjectURL(file));
+    }
+  };
 
   // Use form initialization
   const {
@@ -86,13 +96,21 @@ const EditContact = () => {
           setValue("contact_number", res.data.contact.contact_number);
           setValue("label", res.data.contact.label);
           setValue("note", res.data.contact.note);
+
+          // Set profile image if available
+          if (res.data.contact.image) {
+            setValue("image", res.data.contact.image);
+            setProfilePicPreview(
+              `${Img_url}/contacts/${res.data.contact.image}`
+            );
+          }
         }
       } catch (error) {
         handleApiError(error, "fetching", "contact details");
       }
     };
     fetchContact();
-  }, [token, APP_URL, setValue, user.rolename, contactId]);
+  }, [token, APP_URL, setValue, user.rolename, contactId, Img_url]);
 
   // Handle submit
   const onSubmit = async (data) => {
@@ -104,6 +122,10 @@ const EditContact = () => {
     formData.append("contact_number", data.contact_number);
     formData.append("label", data.label);
     formData.append("note", data.note);
+    if (data.image && data.image[0] instanceof File)
+      formData.append("image", data.image[0]);
+    // if (data.old_image)
+    //   formData.append("old_image", data.old_image);
 
     try {
       const res = await axios.post(
@@ -250,6 +272,38 @@ const EditContact = () => {
                   {errors.note && (
                     <div className="invalid-feedback">
                       {errors.note.message}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {profilePicPreview && (
+                <div className="col-md-1">
+                  <img
+                    src={profilePicPreview}
+                    alt="Contact Picture"
+                    className="img-thumbnail"
+                    style={{ maxWidth: "100%", height: "60px" }}
+                  />
+                </div>
+              )}
+              <div className={`${profilePicPreview ? "col-md-3" : "col-md-4"}`}>
+                <div className="form-floating">
+                  <input
+                    type="file"
+                    ref={profilePicRef}
+                    className={`form-control ${
+                      errors.image ? "is-invalid" : ""
+                    }`}
+                    id="image"
+                    {...register("image")}
+                    accept="image/*"
+                    onChange={handleProfilePic}
+                    tabIndex="5"
+                  />
+                  <label htmlFor="image">Contact Picture (Optional)</label>
+                  {errors.image && (
+                    <div className="invalid-feedback">
+                      {errors.image.message}
                     </div>
                   )}
                 </div>
