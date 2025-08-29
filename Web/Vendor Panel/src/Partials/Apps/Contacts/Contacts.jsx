@@ -5,6 +5,7 @@ import {
   usePagination,
   useSortBy,
   useTable,
+  useRowSelect,
 } from "react-table";
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
@@ -42,6 +43,7 @@ const Contacts = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [contactToDelete, setContactToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
   const [data, setData] = useState([]);
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -165,7 +167,6 @@ const Contacts = () => {
     return baseColumns;
   }, [canSeeActionsColumn, handleDelete, handleEdit]);
 
-  // Use the useTable hook to build the table
   const {
     getTableProps,
     getTableBodyProps,
@@ -180,6 +181,7 @@ const Contacts = () => {
     nextPage,
     previousPage,
     setGlobalFilter,
+    selectedFlatRows,
     setPageSize: setTablePageSize,
     state: { pageIndex, globalFilter },
   } = useTable(
@@ -196,7 +198,22 @@ const Contacts = () => {
     },
     useGlobalFilter,
     useSortBy,
-    usePagination
+    usePagination,
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        {
+          id: "selection",
+          Header: ({ getToggleAllRowsSelectedProps }) => (
+            <input type="checkbox" {...getToggleAllRowsSelectedProps()} />
+          ),
+          Cell: ({ row }) => (
+            <input type="checkbox" {...row.getToggleRowSelectedProps()} />
+          ),
+        },
+        ...columns,
+      ]);
+    }
   );
 
   useEffect(() => {
@@ -240,6 +257,41 @@ const Contacts = () => {
     refetch,
   ]);
 
+  const handleBulkDelete = async () => {
+    const ids = selectedFlatRows.map((row) => row.original.id);
+
+    if (ids.length === 0) {
+      toast.error("Please select at least one contact to delete.");
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+
+      const response = await axios.delete(
+        `${APP_URL}/${user.rolename}/contacts/delete-multiple-contacts`,
+        {
+          data: { ids },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success(
+          response.data.message || "Contacts deleted successfully."
+        );
+        setData((prev) => prev.filter((c) => !ids.includes(c.id)));
+      }
+    } catch (error) {
+      handleApiError(error, "deleting", "contacts");
+    } finally {
+      setIsBulkDeleteOpen(false);
+      setIsDeleting(false);
+    }
+  };
+
   // Handle search function
   const handleGlobalFilterChange = (e) => {
     setGlobalFilter(e.target.value || undefined);
@@ -267,14 +319,29 @@ const Contacts = () => {
               <h4 className="title-font">
                 <strong>Contacts</strong>
               </h4>
-              <Can do={APP_PERMISSIONS.CONTACTS_IMPORT}>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => setShowModal(true)}
-                >
-                  Import Contacts
-                </button>
-              </Can>
+              <div>
+                <Can do={APP_PERMISSIONS.CONTACTS_IMPORT}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => setShowModal(true)}
+                  >
+                    Import Contacts
+                  </button>
+                </Can>
+                <Can do={APP_PERMISSIONS.CONTACTS_DELETE}>
+                  {selectedFlatRows.length > 0 && (
+                    <button
+                      className="btn btn-danger mx-2"
+                      onClick={() => setIsBulkDeleteOpen(true)}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting
+                        ? "Deleting..."
+                        : `Delete Selected (${selectedFlatRows.length})`}
+                    </button>
+                  )}
+                </Can>
+              </div>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -284,9 +351,9 @@ const Contacts = () => {
                   fileName="Contacts"
                   fields={[
                     "contact_name",
-                    "contact_no",
-                    "contact_email",
-                    "contact_birthdate",
+                    "contact_number",
+                    "email",
+                    "birthdate",
                   ]}
                 />
               )}
@@ -332,6 +399,14 @@ const Contacts = () => {
                 isLoading={isDeleting}
               />
             )}
+
+            <DeleteModal
+              isOpen={isBulkDeleteOpen}
+              onClose={() => setIsBulkDeleteOpen(false)}
+              onConfirm={handleBulkDelete}
+              isLoading={isDeleting}
+              message={`Are you sure you want to delete ${selectedFlatRows.length} contacts? This action cannot be undone.`}
+            />
 
             <table
               {...getTableProps()}
