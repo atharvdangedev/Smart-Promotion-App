@@ -10,14 +10,31 @@ import {
 import Contacts from 'react-native-contacts';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import SubHeader from '../components/SubHeader';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { importContacts } from '../apis/ContactsApi';
+import { useAuthStore } from '../store/useAuthStore';
+import { handleApiError } from '../utils/handleApiError';
+import { handleApiSuccess } from '../utils/handleApiSuccess';
 
 export default function SelectContacts() {
   const [contacts, setContacts] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState([]);
+  const user = useAuthStore(state => state.rolename);
 
   useEffect(() => {
     getContacts();
   }, []);
+
+  const submitContacts = useMutation({
+    mutationFn: ({selectedContacts, user}) =>
+      importContacts(selectedContacts, user),
+    onSuccess: data => {
+      handleApiSuccess(data.message, 'Contacts Updated');
+    },
+    onError: error => {
+      handleApiError(error.message, 'updating Contacts');
+    },
+  });
 
   const getContacts = async () => {
     if (Platform.OS === 'android') {
@@ -84,7 +101,7 @@ export default function SelectContacts() {
 
   return (
     <SafeAreaWrapper className="bg-light-background dark:bg-dark-background">
-        <SubHeader title="Contacts selection" />
+      <SubHeader title="Contacts selection" />
       <View className="flex-1 px-4">
         <View className="flex-1 rounded-xl p-2">
           <View className="p-4 bg-light-card dark:bg-dark-card rounded-xl ">
@@ -100,7 +117,8 @@ export default function SelectContacts() {
           />
 
           <TouchableOpacity
-            onPress={() => console.log('Selected:', selectedContacts)}
+            onPress={() => submitContacts.mutate({selectedContacts, user})}
+            // onPress={() => console.log(selectedContacts)}
             className="m-4 bg-sky-600 p-4 rounded-xl"
           >
             <Text className="text-center text-white font-bold">
