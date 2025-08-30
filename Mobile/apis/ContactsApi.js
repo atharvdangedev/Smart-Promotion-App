@@ -11,11 +11,24 @@ export const fetchContacts = async user => {
   }
 };
 
+export const fetchContactDetails = async (id, activeUser) =>{
+  try {
+    const endpoint =
+      activeUser === 'agent'
+        ? `agent/contacts/${id}`
+        : `vendor/contacts/${id}`;
+    const response = await api.get(endpoint);
+    return response.data.contact;
+  } catch (error) {
+    console.log('Error fetching contact details', (error));
+    throw error;
+  }
+}
+
 export const importContacts = async (selectedContacts, user) => {
-  const payload = {
-    selectedContacts,
-  };
-  console.log(payload);
+  // const payload = {
+  //   selectedContacts,
+  // };
 
   try {
     const endpoint =
@@ -29,3 +42,4 @@ export const importContacts = async (selectedContacts, user) => {
     throw error;
   }
 };
+

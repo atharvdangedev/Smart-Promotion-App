@@ -18,12 +18,18 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { APP_PERMISSIONS, ROLE_PERMISSIONS } from '../utils/permissions';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import SubHeader from '../components/SubHeader';
-import { Camera } from 'lucide-react-native';
+import {
+  ArrowBigDown,
+  ArrowDown,
+  Camera,
+  ChevronDown,
+} from 'lucide-react-native';
 import { handleApiError } from '../utils/handleApiError';
 import { handleApiSuccess } from '../utils/handleApiSuccess';
 import { agentSchema, baseSchema, vendorSchema } from '../utils/schemas';
 import { businessTypes } from '../utils/constants';
 import { useNavigation } from '@react-navigation/native';
+import useThemeColors from '../hooks/useThemeColor';
 
 const ProfileScreen = () => {
   const schemaMap = {
@@ -45,6 +51,7 @@ const ProfileScreen = () => {
   const [businessTypeModal, setBusinessTypeModal] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [updated, setUpdated] = useState(false);
+  const colors = useThemeColors();
 
   const selectedSchema = useMemo(() => {
     const role = rolename?.toLowerCase();
@@ -94,6 +101,7 @@ const ProfileScreen = () => {
           setValue('email', user.email);
           setValue('contact_no', user.contact_no);
           setValue('address', user.address);
+          setValue('vendor_name', user.vendor_name);
           setValue('old_profile_pic', user.profile_pic);
           if (user.profile_pic) {
             setProfilePic(user?.profile_pic);
@@ -214,7 +222,6 @@ const ProfileScreen = () => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-
           <View className="mt-4 mb-4">
             <View className="left-1/2 -ml-12">
               <TouchableOpacity
@@ -227,7 +234,10 @@ const ProfileScreen = () => {
                     className="w-full h-full rounded-full"
                   />
                 ) : (
-                  <Text className="text-gray-400 text-sm mb-2">Upload</Text>
+                  <Image
+                    source={require('../assets/avatar-placeholder.jpg')}
+                    className="w-full h-full rounded-full"
+                  />
                 )}
                 <View className="absolute bottom-2 right-3 bg-white p-1 rounded-full border border-black">
                   <Camera size={16} color="black" />
@@ -236,144 +246,26 @@ const ProfileScreen = () => {
             </View>
           </View>
 
-          <Controller
-            control={control}
-            name="firstname"
-            render={({
-              field: { onChange, onBlur, value },
-              fieldState: { error },
-            }) => (
-              <View className="mb-4 mx-3">
-                <Text className="text-light-text dark:text-dark-text mb-1">
-                  First Name
-                </Text>
-                <TextInput
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder="Enter first name"
-                  placeholderTextColor="#9ca3af"
-                  className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
-                />
-                {error && (
-                  <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
-                    {error.message}
-                  </Text>
-                )}
-              </View>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="lastname"
-            render={({
-              field: { onChange, onBlur, value },
-              fieldState: { error },
-            }) => (
-              <View className="mb-4 mx-3">
-                <Text className="text-light-text dark:text-dark-text mb-1">
-                  Last Name
-                </Text>
-                <TextInput
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder="Enter last name"
-                  placeholderTextColor="#9ca3af"
-                  className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
-                />
-                {error && (
-                  <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
-                    {error.message}
-                  </Text>
-                )}
-              </View>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="email"
-            render={({
-              field: { onChange, onBlur, value },
-              fieldState: { error },
-            }) => (
-              <View className="mb-4 mx-3">
-                <Text className="text-light-text dark:text-dark-text mb-1">
-                  Email
-                </Text>
-                <TextInput
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder="Enter email"
-                  placeholderTextColor="#9ca3af"
-                  editable={false}
-                  selectTextOnFocus={false}
-                  className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
-                />
-                {error && (
-                  <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
-                    {error.message}
-                  </Text>
-                )}
-              </View>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="contact_no"
-            render={({
-              field: { onChange, onBlur, value },
-              fieldState: { error },
-            }) => (
-              <View className="mb-4 mx-3">
-                <Text className="text-light-text dark:text-dark-text mb-1">
-                  Contact No
-                </Text>
-                <TextInput
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder="Enter contact no"
-                  placeholderTextColor="#9ca3af"
-                  keyboardType="numeric"
-                  maxLength={10}
-                  className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
-                />
-                {error && (
-                  <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
-                    {error.message}
-                  </Text>
-                )}
-              </View>
-            )}
-          />
-
-          {rolename === 'agent' && (
+          <View
+            className="p-2 pt-4 border border-[#CBCBCB] rounded-xl mb-4"
+            style={{ backgroundColor: colors.inputBg }}
+          >
             <Controller
               control={control}
-              name="address"
+              name="firstname"
               render={({
                 field: { onChange, onBlur, value },
                 fieldState: { error },
               }) => (
-                <View className="mb-4 mx-3">
-                  <Text className="text-light-text dark:text-dark-text mb-1">
-                    Address
-                  </Text>
+                <View className="mb-4 mx-3 border-b-hairline border-b-[#080808] ">
+                  <Text className="mb-1 font-bold text-black">First Name</Text>
                   <TextInput
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
-                    placeholder="Enter address"
+                    placeholder="Enter first name"
                     placeholderTextColor="#9ca3af"
-                    multiline={true}
-                    numberOfLines={4}
-                    textAlignVertical="top"
-                    className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
+                    className={`px-0 py-0 rounded-xl text-lg text-black`}
                   />
                   {error && (
                     <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
@@ -383,184 +275,114 @@ const ProfileScreen = () => {
                 </View>
               )}
             />
-          )}
 
-          {hasPermission(APP_PERMISSIONS.AGENTS_VIEW) && (
-            <>
+            <Controller
+              control={control}
+              name="lastname"
+              render={({
+                field: { onChange, onBlur, value },
+                fieldState: { error },
+              }) => (
+                <View className="mb-4 mx-3 border-b-hairline border-b-[#080808] ">
+                  <Text className="text-black font-bold mb-1">Last Name</Text>
+                  <TextInput
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    placeholder="Enter last name"
+                    placeholderTextColor="#9ca3af"
+                    className={`px-0 py-0 rounded-xl text-lg text-black  `}
+                  />
+                  {error && (
+                    <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                      {error.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="email"
+              render={({
+                field: { onChange, onBlur, value },
+                fieldState: { error },
+              }) => (
+                <View className="mb-4 mx-3 border-b-hairline border-b-[#080808] ">
+                  <Text className="text-black font-bold mb-1">Email</Text>
+                  <TextInput
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    placeholder="Enter email"
+                    placeholderTextColor="#9ca3af"
+                    editable={false}
+                    selectTextOnFocus={false}
+                    className={`px-0 py-0 rounded-xl text-lg text-black  `}
+                  />
+                  {error && (
+                    <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                      {error.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="contact_no"
+              render={({
+                field: { onChange, onBlur, value },
+                fieldState: { error },
+              }) => (
+                <View className="mb-4 mx-3 border-b-hairline border-b-[#080808]">
+                  <Text className="text-black font-bold mb-1">Contact No</Text>
+                  <TextInput
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    placeholder="Enter contact no"
+                    placeholderTextColor="#9ca3af"
+                    keyboardType="numeric"
+                    maxLength={10}
+                    className={`px-0 py-0 rounded-xl text-lg text-black`}
+                  />
+                  {error && (
+                    <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                      {error.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+          </View>
+
+          {rolename === 'agent' && (
+            <View
+              className="p-2 pt-4 border border-[#CBCBCB] rounded-xl mb-4"
+              style={{ backgroundColor: colors.inputBg }}
+            >
               <Controller
                 control={control}
-                name="business_name"
+                name="address"
                 render={({
                   field: { onChange, onBlur, value },
                   fieldState: { error },
                 }) => (
-                  <View className="mb-4 mx-3">
-                    <Text className="text-light-text dark:text-dark-text mb-1">
-                      Business Name
-                    </Text>
+                  <View className="mb-4 mx-3 border-b-hairline border-b-[#080808] ">
+                    <Text className="text-black font-bold mb-1">Address</Text>
                     <TextInput
                       onBlur={onBlur}
                       onChangeText={onChange}
                       value={value}
-                      placeholder="Enter business name"
-                      placeholderTextColor="#9ca3af"
-                      className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
-                    />
-                    {error && (
-                      <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
-                        {error.message}
-                      </Text>
-                    )}
-                  </View>
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="business_type"
-                render={({
-                  field: { onChange, value },
-                  fieldState: { error },
-                }) => (
-                  <View className="mb-4 mx-3">
-                    <Text className="text-light-text dark:text-dark-text mb-1">
-                      Business Type
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => setBusinessTypeModal(true)}
-                      className={`px-4 py-2 rounded-xl border ${error ? 'border-red-500' : 'border-gray-700'} bg-light-background dark:bg-dark-background`}
-                    >
-                      <Text
-                        className={`text-light-subtext dark:text-dark-subtext ${!value ? 'text-gray-400' : ''}`}
-                      >
-                        {value
-                          ? businessTypes.find(b => b.value === value)?.label
-                          : 'Select business type'}
-                      </Text>
-                    </TouchableOpacity>
-
-                    <Modal
-                      transparent
-                      visible={businessTypeModal}
-                      animationType="fade"
-                      onRequestClose={() => setBusinessTypeModal(false)}
-                    >
-                      <View className="flex-1 justify-center items-center bg-black/50">
-                        <View className="bg-light-background dark:bg-dark-background w-80 rounded-xl p-4">
-                          {businessTypes.map(item => (
-                            <TouchableOpacity
-                              key={item.value}
-                              onPress={() => {
-                                onChange(item.value);
-                                setBusinessTypeModal(false);
-                              }}
-                              className="py-3 border-b border-gray-300"
-                            >
-                              <Text className="text-light-text dark:text-dark-text">
-                                {item.label}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                          <TouchableOpacity
-                            onPress={() => setBusinessTypeModal(false)}
-                            className="mt-3 py-3 bg-gray-200 rounded-xl"
-                          >
-                            <Text className="text-center text-black font-semibold">
-                              Cancel
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    </Modal>
-                    {error && (
-                      <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
-                        {error.message}
-                      </Text>
-                    )}
-                  </View>
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="business_email"
-                render={({
-                  field: { onChange, onBlur, value },
-                  fieldState: { error },
-                }) => (
-                  <View className="mb-4 mx-3">
-                    <Text className="text-light-text dark:text-dark-text mb-1">
-                      Business Email
-                    </Text>
-                    <TextInput
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      placeholder="Enter business email"
-                      placeholderTextColor="#9ca3af"
-                      keyboardType="email-address"
-                      className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
-                    />
-                    {error && (
-                      <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
-                        {error.message}
-                      </Text>
-                    )}
-                  </View>
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="business_contact"
-                render={({
-                  field: { onChange, onBlur, value },
-                  fieldState: { error },
-                }) => (
-                  <View className="mb-4 mx-3">
-                    <Text className="text-light-text dark:text-dark-text mb-1">
-                      Business Contact
-                    </Text>
-                    <TextInput
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      placeholder="Enter business contact"
-                      placeholderTextColor="#9ca3af"
-                      keyboardType="numeric"
-                      maxLength={10}
-                      className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
-                    />
-                    {error && (
-                      <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
-                        {error.message}
-                      </Text>
-                    )}
-                  </View>
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="business_address"
-                render={({
-                  field: { onChange, onBlur, value },
-                  fieldState: { error },
-                }) => (
-                  <View className="mb-4 mx-3">
-                    <Text className="text-light-text dark:text-dark-text mb-1">
-                      Business Address
-                    </Text>
-                    <TextInput
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      placeholder="Enter business address"
+                      placeholder="Enter address"
                       placeholderTextColor="#9ca3af"
                       multiline={true}
                       numberOfLines={4}
                       textAlignVertical="top"
-                      className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
+                      className={`px-0 py-0 rounded-xl text-lg text-black `}
                     />
                     {error && (
                       <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
@@ -570,25 +392,25 @@ const ProfileScreen = () => {
                   </View>
                 )}
               />
-
-              <Controller
+              {/* <Controller
                 control={control}
-                name="gst_number"
+                name="vendor_name"
                 render={({
                   field: { onChange, onBlur, value },
                   fieldState: { error },
                 }) => (
-                  <View className="mb-4 mx-3">
-                    <Text className="text-light-text dark:text-dark-text mb-1">
-                      GST Number
+                  <View className="mb-4 mx-3 border-b-hairline border-b-[#080808]">
+                    <Text className="text-black font-bold mb-1">
+                      Vendor Name
                     </Text>
                     <TextInput
                       onBlur={onBlur}
                       onChangeText={onChange}
                       value={value}
-                      placeholder="Enter GST number"
+                      placeholder="Enter vendor name"
                       placeholderTextColor="#9ca3af"
-                      className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
+                      textAlignVertical="top"
+                      className={`px-0 py-0 text-lg text-black `}
                     />
                     {error && (
                       <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
@@ -597,72 +419,303 @@ const ProfileScreen = () => {
                     )}
                   </View>
                 )}
-              />
+              /> */}
+            </View>
+          )}
 
-              <Controller
-                control={control}
-                name="website_url"
-                render={({
-                  field: { onChange, onBlur, value },
-                  fieldState: { error },
-                }) => (
-                  <View className="mb-4 mx-3">
-                    <Text className="text-light-text dark:text-dark-text mb-1">
-                      Website
-                    </Text>
-                    <TextInput
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      placeholder="Enter website URL"
-                      placeholderTextColor="#9ca3af"
-                      keyboardType="url"
-                      className={`px-4 py-2 rounded-xl border-light-border dark:border-dark-border text-light-subtext dark:text-dark-subtext border ${error ? 'border-red-500' : 'border-gray-700'} bg-[#e6ebf0] dark:bg-[#233140]`}
-                    />
-                    {error && (
-                      <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
-                        {error.message}
+          {hasPermission(APP_PERMISSIONS.AGENTS_VIEW) && (
+            <>
+              <View
+                className="p-2 pt-4 border border-[#CBCBCB] rounded-xl mb-4"
+                style={{ backgroundColor: colors.inputBg }}
+              >
+                <Controller
+                  control={control}
+                  name="business_name"
+                  render={({
+                    field: { onChange, onBlur, value },
+                    fieldState: { error },
+                  }) => (
+                    <View className="mb-4 mx-3 border-b-hairline border-b-[#080808]">
+                      <Text className="text-black font-bold mb-1">
+                        Business Name
                       </Text>
-                    )}
-                  </View>
-                )}
-              />
+                      <TextInput
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        placeholder="Enter business name"
+                        placeholderTextColor="#9ca3af"
+                        className={`px-0 py-0 rounded-xl text-lg text-black`}
+                      />
+                      {error && (
+                        <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                          {error.message}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                />
+
+                <Controller
+                  control={control}
+                  name="business_type"
+                  render={({
+                    field: { onChange, value },
+                    fieldState: { error },
+                  }) => (
+                    <View className="mb-4 mx-3 border-b-hairline border-b-[#080808]">
+                      <Text className="text-black font-bold mb-1">
+                        Business Type
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => setBusinessTypeModal(true)}
+                        className={`flex-row justify-between px-0 py-2 rounded-xl text-lg text-black `}
+                      >
+                        <Text className="text-black font-lg pr-2">
+                          {value
+                            ? businessTypes.find(b => b.value === value)?.label
+                            : 'Select business type'}
+                        </Text>
+                        <ChevronDown size={20} color="black" />
+                      </TouchableOpacity>
+
+                      <Modal
+                        transparent
+                        visible={businessTypeModal}
+                        animationType="fade"
+                        onRequestClose={() => setBusinessTypeModal(false)}
+                      >
+                        <View className="flex-1 justify-center items-center bg-black/50">
+                          <View className="bg-light-background dark:bg-dark-background w-80 rounded-xl p-4">
+                            {businessTypes.map(item => (
+                              <TouchableOpacity
+                                key={item.value}
+                                onPress={() => {
+                                  onChange(item.value);
+                                  setBusinessTypeModal(false);
+                                }}
+                                className="py-3 border-b border-gray-300"
+                              >
+                                <Text className="text-light-text dark:text-dark-text">
+                                  {item.label}
+                                </Text>
+                              </TouchableOpacity>
+                            ))}
+                            <TouchableOpacity
+                              onPress={() => setBusinessTypeModal(false)}
+                              className="mt-3 py-3 bg-gray-200 rounded-xl"
+                            >
+                              <Text className="text-center text-black font-semibold">
+                                Cancel
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      </Modal>
+                      {error && (
+                        <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                          {error.message}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                />
+
+                <Controller
+                  control={control}
+                  name="business_email"
+                  render={({
+                    field: { onChange, onBlur, value },
+                    fieldState: { error },
+                  }) => (
+                    <View className="mb-4 mx-3 border-b-hairline border-b-[#080808]">
+                      <Text className="text-black font-bold mb-1">
+                        Business Email
+                      </Text>
+                      <TextInput
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        placeholder="Enter business email"
+                        placeholderTextColor="#9ca3af"
+                        keyboardType="email-address"
+                        className={`px-0 py-0 rounded-xl text-lg text-black `}
+                      />
+                      {error && (
+                        <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                          {error.message}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                />
+
+                <Controller
+                  control={control}
+                  name="business_contact"
+                  render={({
+                    field: { onChange, onBlur, value },
+                    fieldState: { error },
+                  }) => (
+                    <View className="mb-4 mx-3 border-b-hairline border-b-[#080808]">
+                      <Text className="text-black font-bold mb-1">
+                        Business Contact
+                      </Text>
+                      <TextInput
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        placeholder="Enter business contact"
+                        placeholderTextColor="#9ca3af"
+                        keyboardType="numeric"
+                        maxLength={10}
+                        className={`px-0 py-0 rounded-xl text-lg text-black `}
+                      />
+                      {error && (
+                        <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                          {error.message}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                />
+              </View>
+
+              <View
+                className="p-2 pt-4 border border-[#CBCBCB] rounded-xl mb-4"
+                style={{ backgroundColor: colors.inputBg }}
+              >
+                <Controller
+                  control={control}
+                  name="business_address"
+                  render={({
+                    field: { onChange, onBlur, value },
+                    fieldState: { error },
+                  }) => (
+                    <View className="mb-4 mx-3 border-b-hairline border-b-[#080808]">
+                      <Text className="text-black font-bold mb-1">
+                        Business Address
+                      </Text>
+                      <TextInput
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        placeholder="Enter business address"
+                        placeholderTextColor="#9ca3af"
+                        multiline={true}
+                        numberOfLines={4}
+                        textAlignVertical="top"
+                        className={`px-0 py-0 rounded-xl text-lg text-black `}
+                      />
+                      {error && (
+                        <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                          {error.message}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                />
+
+                <Controller
+                  control={control}
+                  name="gst_number"
+                  render={({
+                    field: { onChange, onBlur, value },
+                    fieldState: { error },
+                  }) => (
+                    <View className="mb-4 mx-3 border-b-hairline border-b-[#080808]">
+                      <Text className="text-black font-bold mb-1">
+                        GST Number
+                      </Text>
+                      <TextInput
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        placeholder="Enter GST number"
+                        placeholderTextColor="#9ca3af"
+                        className={`px-0 py-0 rounded-xl text-lg text-black `}
+                      />
+                      {error && (
+                        <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                          {error.message}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                />
+
+                <Controller
+                  control={control}
+                  name="website_url"
+                  render={({
+                    field: { onChange, onBlur, value },
+                    fieldState: { error },
+                  }) => (
+                    <View className="mb-4 mx-3 border-b-hairline border-b-[#080808]">
+                      <Text className="text-black font-bold mb-1">Website</Text>
+                      <TextInput
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        placeholder="Enter website URL"
+                        placeholderTextColor="#9ca3af"
+                        keyboardType="url"
+                        className={`px-0 py-0 rounded-xl text-lg text-black `}
+                      />
+                      {error && (
+                        <Text className="text-light-danger dark:text-dark-danger text-xs mt-1">
+                          {error.message}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                />
+              </View>
             </>
           )}
 
-          {/* Action buttons */}
-          <TouchableOpacity
-            onPress={handleSubmit(onSubmit)}
-            className="mt-6 bg-white border border-black rounded-xl py-3 mb-4"
-          >
-            <Text className="text-black text-center font-semibold">
-              Save Profile
-            </Text>
-          </TouchableOpacity>
+          <View className="flex-row justify-between mb-4">
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ChangePassword')}
+              className="flex-1 bg-white border rounded-xl py-3 mx-1"
+              style={{ borderColor: colors.orange }}
+            >
+              <Text
+                className=" text-center font-semibold"
+                style={{ color: colors.orange }}
+              >
+                Change Password
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ChangePassword')}
-            className="bg-white border border-black rounded-xl py-3 mb-4"
-          >
-            <Text className="text-black text-center font-semibold">
-              Change Password
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleSubmit(onSubmit)}
+              className="flex-1 rounded-xl py-3 mx-1"
+              style={{backgroundColor: colors.orange}}
+            >
+              <Text className="text-white text-center font-semibold">
+                Save Profile
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             onPress={() => navigation.navigate('SelectContacts')}
-            className="bg-white border border-black rounded-xl py-3 mb-4"
+            className="bg-gray-200 rounded-xl py-3 mb-4 "
           >
             <Text className="text-black text-center font-semibold">
-              Import Contacts
+              Export Contact
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => setLogoutModalVisible(true)}
-            className="bg-black border border-light-border dark:border-dark-border rounded-xl py-3 mb-4"
+            className="bg-[#fa1505] rounded-xl py-3 mb-4"
           >
-            <Text className="text-white text-center font-semibold">Logout</Text>
+            <Text className="text-white text-center font-semibold">
+              Log out
+            </Text>
           </TouchableOpacity>
 
           <Modal
