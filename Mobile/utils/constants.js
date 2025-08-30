@@ -1,10 +1,12 @@
+
 export const callTypeColors = {
-  missed: 'bg-red-400',
-  incoming: 'bg-green-400',
-  outgoing: 'bg-blue-400',
-  rejected: 'bg-purple-400',
-  default: 'bg-sky-600',
+  missed: "#f87171",   
+  incoming: "#4ade80", 
+  outgoing: "#60a5fa", 
+  rejected: "#a78bfa", 
+  default: "#0284c7",  
 };
+
 
 export const businessTypes = [
   { value: 'private-limited', label: 'Private Limited' },
