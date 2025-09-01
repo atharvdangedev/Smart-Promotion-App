@@ -21,6 +21,9 @@ import { useAuthStore } from './store/useAuthStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AgentsScreen from './screens/AgentsScreen';
 import ContactList from './screens/ContactList';
+import All_Logs from './screens/Contact_Logs';
+import Settings from './screens/Settings';
+import Contact_Logs from './screens/Contact_Logs';
 
 const Stack = createNativeStackNavigator();
 
@@ -98,6 +101,14 @@ export default function App() {
                 <Stack.Screen
                   name="ContactsList"
                   component={ContactList}
+                />
+                <Stack.Screen
+                  name="Contact_Logs"
+                  component={Contact_Logs}
+                />
+                <Stack.Screen
+                  name="Settings"
+                  component={Settings}
                 />
               </>
             )}

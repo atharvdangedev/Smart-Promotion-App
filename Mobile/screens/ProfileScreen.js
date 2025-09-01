@@ -692,7 +692,7 @@ const ProfileScreen = () => {
             <TouchableOpacity
               onPress={handleSubmit(onSubmit)}
               className="flex-1 rounded-xl py-3 mx-1"
-              style={{backgroundColor: colors.orange}}
+              style={{ backgroundColor: colors.orange }}
             >
               <Text className="text-white text-center font-semibold">
                 Save Profile
@@ -705,7 +705,7 @@ const ProfileScreen = () => {
             className="bg-gray-200 rounded-xl py-3 mb-4 "
           >
             <Text className="text-black text-center font-semibold">
-              Export Contact
+              Import Contact
             </Text>
           </TouchableOpacity>
 
