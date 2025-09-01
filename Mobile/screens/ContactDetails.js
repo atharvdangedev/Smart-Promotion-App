@@ -10,25 +10,19 @@ import {
 } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {
-  Pencil,
-  PhoneIncoming,
-  PhoneMissed,
-  PhoneOff,
-  PhoneOutgoing,
-  User,
-  UserPen,
-} from 'lucide-react-native';
+import { User, UserPen } from 'lucide-react-native';
 import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
-import { API_PROFILE } from '@env';
+import { API_CONTACT } from '@env';
 import useThemeColors from '../hooks/useThemeColor';
 import { fetchContactDetails } from '../apis/ContactsApi';
 import { handleApiError } from '../utils/handleApiError';
 import { useAuthStore } from '../store/useAuthStore';
 import { useQuery } from '@tanstack/react-query';
+import { fetchLog } from '../apis/Call_LogApi';
+import { getCallIcon } from '../utils/constants';
 
-export default function ContactDetails() {
+export default function ContactDetails({ navigation }) {
   const route = useRoute();
   const contact_id = route.params?.contact_id;
   const colors = useThemeColors();
@@ -37,13 +31,18 @@ export default function ContactDetails() {
   const { data: contact = {}, isLoading } = useQuery({
     queryKey: ['contact', contact_id],
     queryFn: () => fetchContactDetails(contact_id, ActiveUser),
-    onError: error => handleApiError(error, 'fetching template details'),
-    enabled: !!contact_id,
+    onError: error => handleApiError(error, 'fetching contact details'),
+  });
+
+  const { data: call_logs = [] } = useQuery({
+    queryKey: ['call-log', contact_id],
+    queryFn: () => fetchLog(contact_id, ActiveUser),
+    onError: error => handleApiError(error, 'fetching call log'),
   });
 
   useEffect(() => {
-    console.log(contact);
-  }, [contact]);
+    console.log('Log is: ', call_logs);
+  }, [call_logs]);
 
   const openWhatsApp = phone => {
     const number = phone.replace(/\D/g, '');
@@ -57,20 +56,6 @@ export default function ContactDetails() {
     );
   };
 
-  const getCallIcon = type => {
-    switch (type) {
-      case 'missed':
-        return <PhoneMissed size={20} color="#f87171" />;
-      case 'received':
-        return <PhoneIncoming size={20} color="#34d399" />;
-      case 'outgoing':
-        return <PhoneOutgoing size={20} color="#60a5fa" />;
-      case 'rejected':
-        return <PhoneOff size={20} color="#a855f7" />;
-      default:
-        return null;
-    }
-  };
   const firstLetter =
     contact.contact_name && contact.contact_name.charAt(0).toUpperCase();
 
@@ -99,7 +84,7 @@ export default function ContactDetails() {
             <View className="border border-gray-700 rounded-full ">
               {contact.image ? (
                 <Image
-                  source={{ uri: `${API_PROFILE}/${contact.image}` }}
+                  source={{ uri: `${API_CONTACT}/${contact.image}` }}
                   className="w-full h-full rounded-full"
                   resizeMode="cover"
                 />
@@ -186,24 +171,57 @@ export default function ContactDetails() {
             <Text className="text-light-text dark:text-dark-text font-medium mb-2">
               Logs{' '}
             </Text>
-            <View className="flex-row justify-between items-center bg-[#FFFFFF] dark:bg-[#3A506B] border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl px-4 py-3 mb-3">
-              <View className="flex-1">
-                <Text className="text-light-text dark:text-dark-text font-semibold">
-                  {contact.contact_name ? contact.contact_name : 'Unkown'}
-                </Text>
-                <View className="flex-row gap-2">
-                  <Text className="text-light-subtext dark:text-dark-subtext">
-                    {contact.contact_number}
-                  </Text>
-                  <Text className="text-light-text dark:text-dark-text text-xs mt-1">
-                    {contact.created_at}
-                  </Text>
+            {call_logs.slice(0, 4).map(call_log => (
+              <View
+                key={call_log.id}
+                className="flex-row justify-between items-center bg-[#FFFFFF] dark:bg-[#3A506B] border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl px-4 py-3 mb-3"
+              >
+                <View className="flex-1">
+                  <View className="flex-row gap-8 mb-0">
+                    <Text
+                      style={{ color: colors.text }}
+                      className="text-lg pl-1 font-semibold"
+                    >
+                      {contact.contact_name ? contact.contact_name : 'Unkown'}
+                    </Text>
+                    <Text style={{ color: colors.text }}>
+                      Type: {call_log.type}{' '}
+                    </Text>
+                  </View>
+                  <View className="flex-row gap-4">
+                    <Text className="text-light-subtext dark:text-dark-subtext">
+                      {call_log.number}
+                    </Text>
+                    <Text className="text-light-text dark:text-dark-text text-xs mt-1">
+                      {call_log.created_at}
+                    </Text>
+                  </View>
+                </View>
+                <View className="flex-row items-center gap-4">
+                  {getCallIcon(call_log.type)}
                 </View>
               </View>
-              <View className="flex-row items-center gap-4">
-                {/* {getCallIcon(contact.type)} */}
+            ))}
+            {call_logs.length === 0 && (
+              <View className="flex-row justify-between items-center bg-[#FFFFFF] dark:bg-[#3A506B] border border-[#E0E0E0] dark:border-[#4A5568] rounded-xl px-4 py-3 mb-3">
+                <Text>No Logs Found</Text>
               </View>
-            </View>
+            )}
+            {call_logs.length > 4 && (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('Contact_Logs', {
+                    contact_id: contact.id,
+                    contact_name: contact.contact_name,
+                  })
+                }
+                className="my-2 items-center bg-sky-100 dark:bg-sky-700 px-4 py-2 rounded-md"
+              >
+                <Text className="text-sky-800 dark:text-white font-semibold text-sm">
+                  View All Logs
+                </Text>
+              </TouchableOpacity>
+            )}
             <Text className="text-light-text dark:text-dark-text font-medium mb-2">
               Message Sent{' '}
             </Text>

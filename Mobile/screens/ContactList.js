@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import React from 'react';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
@@ -13,9 +14,10 @@ import Header from '../components/Header';
 import { useQuery } from '@tanstack/react-query';
 import { fetchContacts } from '../apis/ContactsApi';
 import { useAuthStore } from '../store/useAuthStore';
-import { API_PROFILE } from '@env';
+import { API_CONTACT } from '@env';
+import { User } from 'lucide-react-native';
 
-export default function ContactList() {
+export default function ContactList({navigation}) {
   const colors = useThemeColors();
   const user = useAuthStore(state => state.rolename);
 
@@ -31,30 +33,44 @@ export default function ContactList() {
   });
 
   const renderItem = ({ item }) => {
-    const firstLetter = item.contact_name ? item.contact_name.charAt(0).toUpperCase() : '?';
+    const firstLetter = item.contact_name
+      ? item.contact_name.charAt(0).toUpperCase()
+      : null;
+    const profileUrl = `${API_CONTACT.replace(/\/$/, '')}/${item.image}`;
+    console.log('Profile URL:', profileUrl);
+
     return (
       <TouchableOpacity
-        
+        onPress={() =>
+                navigation.navigate('ContactDetails', { contact_id: item.id })
+              }
         className={`flex-row justify-start gap-6 items-center p-3 rounded-xl mb-2 border-b border-gray-300 ${'bg-sky-100'}`}
       >
         <View className="border border-gray-700 rounded-full ">
           {item.image ? (
             <Image
-              source={{ uri: `${API_PROFILE}/${item.image}` }}
+              source={{ uri: `${API_CONTACT}/${item.image}` }}
               className="w-14 h-14 rounded-full"
               resizeMode="cover"
+              onError={e => console.log('img error', e.nativeEvent.error)}
             />
           ) : (
             <View
-          className="w-14 h-14 rounded-full justify-center items-center"
-          style={{ backgroundColor: '#0ea5e9' }} 
-        >
-          <Text className="text-white text-xl font-bold">{firstLetter}</Text>
-        </View>
+              className="w-14 h-14 rounded-full justify-center items-center"
+              style={{ backgroundColor: '#0ea5e9' }}
+            >
+              {firstLetter ? (
+                <Text className="text-white text-xl font-bold">
+                  {firstLetter}
+                </Text>
+              ) : (
+                <User size={24} color="white" />
+              )}
+            </View>
           )}
         </View>
         <View className="px-2 ">
-          <Text className="text-black text-lg">{item.contact_name}</Text>
+          <Text className="text-black text-lg">{item.contact_name ? item.contact_name : 'Unkown'}</Text>
           <Text className="text-gray-500 text-base">{item.contact_number}</Text>
         </View>
       </TouchableOpacity>
@@ -88,6 +104,13 @@ export default function ContactList() {
               data={contacts}
               keyExtractor={item => item.id}
               renderItem={renderItem}
+              refreshControl={
+                <RefreshControl
+                  refreshing={isRefetching}
+                  onRefresh={refetch}
+                  colors={[colors.headerBg]}
+                />
+              }
             />
           </View>
         )}
