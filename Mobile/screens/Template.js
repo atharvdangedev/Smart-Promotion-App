@@ -115,11 +115,17 @@ const Template = () => {
                   });
                 }}
               >
-                <Text className="text-[#206689] dark:text-white text-xl font-bold mb-2">
-                  {template.title}
-                </Text>
-
-                <View className="bg-white p-2">
+                <View className="flex-row justify-between">
+                  <Text className="text-[#206689] dark:text-white text-xl font-bold mb-2">
+                    {template.title}
+                  </Text>
+                  {template.is_primary === '1' ? (
+                    <Text className="text-[#206689] text-base mr-2 mb-2 bg-white p-1 px-3 rounded-full">
+                      Primary
+                    </Text>
+                  ) : null}
+                </View>
+                <View className="bg-white p-2 rounded-xl">
                   <Text numberOfLines={3} className="text-xl">
                     {renderFormattedText(template.description)}
                   </Text>
@@ -133,18 +139,20 @@ const Template = () => {
                         }}
                       >
                         <Text
-                          className={`text-xs px-2 py-1 rounded ${template.status === '1' ? 'bg-[#26AC4E]' : 'bg-[#E8B5C3]'} text-white`}
+                          className={`text-xs px-2 py-1 rounded ${template.status === '1' ? 'bg-[#26AC4E]' : 'bg-[#FF0000]'} text-white`}
                         >
                           {template.status === '0' ? 'Inactive' : 'Active'}
                         </Text>
                       </TouchableOpacity>
 
                       <Text
-                        className={`text-xs px-2 py-1 text-white rounded ${
-                          callTypeColors[
-                            template.template_type.toLowerCase()
-                          ] || callTypeColors.default
-                        }`}
+                        className="text-xs px-2 py-1 text-white rounded"
+                        style={{
+                          backgroundColor:
+                            callTypeColors[
+                              template.template_type?.toLowerCase()
+                            ] || callTypeColors.default,
+                        }}
                       >
                         {template.template_type.toUpperCase()}
                       </Text>
