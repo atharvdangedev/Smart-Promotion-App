@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Modal,
+  RefreshControl,
 } from 'react-native';
 import React, { useState } from 'react';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
@@ -16,6 +17,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { fetchAgents, toggleStatus } from '../apis/AgentApi';
 import { API_PROFILE } from '@env';
 import { handleApiSuccess } from '../utils/handleApiSuccess';
+import { handleApiError } from '../utils/handleApiError';
 
 export default function AgentsScreen() {
   const user = useAuthStore(state => state.rolename);
@@ -27,6 +29,7 @@ export default function AgentsScreen() {
     data: agents = [],
     isLoading,
     refetch,
+    isRefetching,
   } = useQuery({
     queryKey: ['agents', user],
     queryFn: fetchAgents,
@@ -37,8 +40,7 @@ export default function AgentsScreen() {
   const statusMutation = useMutation({
     mutationFn: id => toggleStatus(id),
     onSuccess: data => {
-      console.log(data.message);
-      handleApiSuccess(data.message, 'Status Updated');
+      handleApiSuccess(data.message, 'Status Update');
       setShowStatusModal(false);
       refetch();
     },
@@ -73,13 +75,10 @@ export default function AgentsScreen() {
             showsVerticalScrollIndicator={false}
             className="flex-1 px-2"
             keyboardShouldPersistTaps="handled"
+            refreshControl={
+              <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+            }
           >
-            <Text
-              className="text-2xl font-bold mb-2"
-              style={{ color: colors.headingText }}
-            >
-              Agents List
-            </Text>
             {agents.map(agent => (
               <View
                 key={agent.id}
@@ -109,7 +108,7 @@ export default function AgentsScreen() {
                     {agent.contact_no}
                   </Text>
                 </View>
-                <View >
+                <View>
                   <TouchableOpacity onPress={() => confirmToggleStatus(agent)}>
                     <Text
                       className={`text-center text-white rounded-xl px-3 py-2 ${agent.status === '1' ? 'bg-[#26AC4E]' : 'bg-[#DC3545]'}`}

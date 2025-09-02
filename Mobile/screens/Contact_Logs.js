@@ -8,11 +8,18 @@ import { useRoute } from '@react-navigation/native';
 import SubHeader from '../components/SubHeader';
 import useThemeColors from '../hooks/useThemeColor';
 import { User } from 'lucide-react-native';
+import { handleApiError } from '../utils/handleApiError';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function Contact_Logs() {
   const route = useRoute();
+
   const { contact_id, contact_name } = route.params;
+
   const colors = useThemeColors();
+
+  const ActiveUser = useAuthStore(state => state.rolename);
+
   const { data: call_logs = [] } = useQuery({
     queryKey: ['call-log', contact_id],
     queryFn: () => fetchLog(contact_id, ActiveUser),
@@ -26,12 +33,13 @@ export default function Contact_Logs() {
     >
       <SubHeader title="Contact Logs" />
       <View className="flex-row justify-center items-center m-3">
-        <User size={20} color={colors.icon}/>
+        <User size={20} color={colors.icon} />
         <Text
           className="text-2xl font-bold text-center"
           style={{ color: colors.text }}
         >
-          {' '}{contact_name} (Logs)
+          {' '}
+          {contact_name} (Logs)
         </Text>
       </View>
       <View className="m-3">

@@ -395,7 +395,9 @@ const Contacts = () => {
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
-                message={`Are you sure you want to delete contact ${contactToDelete.contact_name}?`}
+                message={`Are you sure you want to delete contact ${
+                  contactToDelete.contact_name || "Unknown Contact"
+                }?`}
                 isLoading={isDeleting}
               />
             )}

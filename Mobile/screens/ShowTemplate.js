@@ -54,7 +54,7 @@ const ShowTemplate = () => {
         setCallType(matchedType);
       }
     }
-  }, [isEdit, template]);
+  }, [isEdit, navigation, role, template]);
 
   const validate = () => {
     let valid = true;

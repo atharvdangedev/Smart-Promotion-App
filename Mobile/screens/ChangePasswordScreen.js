@@ -16,6 +16,7 @@ import { useMutation } from '@tanstack/react-query';
 import { changePassword } from '../apis/Auth';
 import { handleApiSuccess } from '../utils/handleApiSuccess';
 import { changePasswordSchema } from '../utils/schemas';
+import { handleApiError } from '../utils/handleApiError';
 
 export default function ChangePasswordScreen() {
   const logout = useAuthStore(state => state.logout);
@@ -157,9 +158,9 @@ export default function ChangePasswordScreen() {
             {passwordValue && passwordErrors.length > 0 && (
               <View className="mt-2">
                 <View className="bg-red-100 rounded-lg p-2">
-                  {passwordErrors.map((error, index) => (
+                  {passwordErrors.map((passError, index) => (
                     <Text key={index} className="text-red-600 text-sm mb-1">
-                      • {error}
+                      • {passError}
                     </Text>
                   ))}
                 </View>

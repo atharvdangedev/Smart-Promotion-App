@@ -12,7 +12,6 @@ import {
   LucideSettings,
   MessageSquareMore,
   ScanText,
-  Settings2,
   ShoppingCart,
   User,
 } from 'lucide-react-native';
@@ -95,7 +94,7 @@ export default function DrawerNavigator() {
         name="Contact Log"
         component={ContactLogScreen}
         options={{
-          drawerLabel: 'Contact Log',
+          drawerLabel: 'Log Stats',
           drawerLabelStyle: {
             color: 'black',
             fontSize: 16,

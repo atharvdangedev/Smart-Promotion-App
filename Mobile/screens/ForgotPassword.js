@@ -52,11 +52,17 @@ export default function ForgotPassword() {
     reset();
   };
 
-  const colors= useThemeColors();
+  const colors = useThemeColors();
 
   return (
-    <SafeAreaWrapper className="flex-1 justify-center px-6" style={{backgroundColor: colors.background}}>
-      <Text className="text-3xl font-bold mb-20" style={{color: colors.headingText}}>
+    <SafeAreaWrapper
+      className="flex-1 justify-center px-6"
+      style={{ backgroundColor: colors.background }}
+    >
+      <Text
+        className="text-3xl font-bold mb-20"
+        style={{ color: colors.headingText }}
+      >
         Forgot Password
       </Text>
 
@@ -69,7 +75,9 @@ export default function ForgotPassword() {
           fieldState: { error },
         }) => (
           <View className="mb-4 mx-3">
-            <Text className="mb-1" style={{color: colors.text}}>Email</Text>
+            <Text className="mb-1" style={{ color: colors.text }}>
+              Email
+            </Text>
             <TextInput
               onBlur={onBlur}
               onChangeText={onChange}
@@ -92,8 +100,13 @@ export default function ForgotPassword() {
       />
 
       <View className="flex-row items-center m-4">
-        <Text className="text-sm font-medium " style={{color: colors.text}}>
-          <Text className="text-base font-semibold" style={{color: colors.text}}>Note : </Text>
+        <Text className="text-sm font-medium " style={{ color: colors.text }}>
+          <Text
+            className="text-base font-semibold"
+            style={{ color: colors.text }}
+          >
+            Note :{' '}
+          </Text>
           Enter the email associated with your account and we'll send you a link
           to reset your password.
         </Text>
@@ -102,7 +115,7 @@ export default function ForgotPassword() {
       <TouchableOpacity
         onPress={handleSubmit(onSubmit)}
         className="py-4 rounded-xl mt-5 mb-3"
-        style={{backgroundColor: colors.btnBackground}}
+        style={{ backgroundColor: colors.btnBackground }}
         disabled={forgetPasswordMutation.isPending}
       >
         {forgetPasswordMutation.isPending ? (
@@ -118,7 +131,10 @@ export default function ForgotPassword() {
         onPress={navigateSignIn}
         className="border border-[#FF5604] py-4 rounded-xl"
       >
-        <Text className="text-center font-semibold" style={{color: colors.text}}>
+        <Text
+          className="text-center font-semibold"
+          style={{ color: colors.text }}
+        >
           Back to Log In
         </Text>
       </TouchableOpacity>

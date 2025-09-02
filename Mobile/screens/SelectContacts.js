@@ -10,29 +10,33 @@ import {
 import Contacts from 'react-native-contacts';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import SubHeader from '../components/SubHeader';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { importContacts } from '../apis/ContactsApi';
 import { useAuthStore } from '../store/useAuthStore';
 import { handleApiError } from '../utils/handleApiError';
 import { handleApiSuccess } from '../utils/handleApiSuccess';
+import { useNavigation } from '@react-navigation/native';
 
 export default function SelectContacts() {
   const [contacts, setContacts] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState([]);
   const user = useAuthStore(state => state.rolename);
+  const navigation = useNavigation();
 
   useEffect(() => {
     getContacts();
   }, []);
 
   const submitContacts = useMutation({
-    mutationFn: ({selectedContacts, user}) =>
-      importContacts(selectedContacts, user),
+    mutationFn: () => importContacts(selectedContacts, user),
     onSuccess: data => {
-      handleApiSuccess(data.message, 'Contacts Updated');
+      handleApiSuccess(data.message, 'Contacts Import');
+      setTimeout(() => {
+        navigation.navigate('ContactsList');
+      }, 2000);
     },
     onError: error => {
-      handleApiError(error.message, 'updating Contacts');
+      handleApiError(error.message, 'Importing Contacts');
     },
   });
 
@@ -117,8 +121,7 @@ export default function SelectContacts() {
           />
 
           <TouchableOpacity
-            onPress={() => submitContacts.mutate({selectedContacts, user})}
-            // onPress={() => console.log(selectedContacts)}
+            onPress={() => submitContacts.mutate({ selectedContacts, user })}
             className="m-4 bg-sky-600 p-4 rounded-xl"
           >
             <Text className="text-center text-white font-bold">

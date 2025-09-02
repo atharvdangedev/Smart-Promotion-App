@@ -8,6 +8,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Modal,
+  Platform,
 } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -18,12 +19,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { APP_PERMISSIONS, ROLE_PERMISSIONS } from '../utils/permissions';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import SubHeader from '../components/SubHeader';
-import {
-  ArrowBigDown,
-  ArrowDown,
-  Camera,
-  ChevronDown,
-} from 'lucide-react-native';
+import { Camera, ChevronDown } from 'lucide-react-native';
 import { handleApiError } from '../utils/handleApiError';
 import { handleApiSuccess } from '../utils/handleApiSuccess';
 import { agentSchema, baseSchema, vendorSchema } from '../utils/schemas';
@@ -56,6 +52,7 @@ const ProfileScreen = () => {
   const selectedSchema = useMemo(() => {
     const role = rolename?.toLowerCase();
     return schemaMap[role] ?? baseSchema;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rolename]);
 
   const { control, handleSubmit, setValue } = useForm({
@@ -126,7 +123,15 @@ const ProfileScreen = () => {
     if (userData?.id) {
       fetchUser();
     }
-  }, [token, updated, setValue, rolename, userData, setProfilePic]);
+  }, [
+    token,
+    updated,
+    setValue,
+    rolename,
+    userData,
+    setProfilePic,
+    setUsername,
+  ]);
 
   const handleProfilePic = async () => {
     const options = {
@@ -152,7 +157,7 @@ const ProfileScreen = () => {
         setValue('profile_pic', selectedImage);
       }
     } catch (e) {
-      handleApiError(error, 'error', `picking an image`);
+      handleApiError(e, 'error', `picking an image`);
     }
   };
 

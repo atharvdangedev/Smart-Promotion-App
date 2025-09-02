@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, StatusBar, View, ScrollView } from 'react-native';
+import { Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SafeAreaWrapper = ({

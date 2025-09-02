@@ -1,20 +1,3 @@
-// import sanitizeHtml from "sanitize-html";
-
-// export const sanitizeString = (dirtyHtml) => {
-//   return sanitizeHtml(dirtyHtml, {
-//     allowedTags: [
-//       "p", "br", "b", "i", "em", "strong", "u", "a",
-//       "ul", "ol", "li", "span", "blockquote", "img",
-//       "h1", "h2", "h3", "h4", "h5", "h6"
-//     ],
-//     allowedAttributes: {
-//       a: ["href", "target", "rel"],
-//       img: ["src", "alt"],
-//     },
-//     allowedSchemes: ["http", "https"],
-//   });
-// };
-
 import React from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import RenderHTML from 'react-native-render-html';
@@ -64,7 +47,7 @@ export default function SanitizedHtml({ htmlString }) {
           i: { fontStyle: 'italic', color: 'black' },
           u: { textDecorationLine: 'underline' },
         }}
-        baseStyle={{ color: 'black'}}
+        baseStyle={{ color: 'black' }}
       />
     </View>
   );

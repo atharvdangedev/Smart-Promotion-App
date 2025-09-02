@@ -101,7 +101,7 @@ export const RichTextInput = ({ value, onChange, showPreview = true }) => {
       <TextInput
         multiline
         className="border border-gray-400 text-black rounded-lg p-3 min-h-[100px] text-base mb-3"
-        style={{backgroundColor: colors.inputBg}}
+        style={{ backgroundColor: colors.inputBg }}
         value={value}
         onChangeText={onChange}
         placeholder="Type with *bold*, _italic_, etc..."
@@ -117,11 +117,17 @@ export const RichTextInput = ({ value, onChange, showPreview = true }) => {
 
       {showPreview && (
         <>
-          <Text className="text-base font-bold ml-3 my-2" style={{color: colors.text}}>
+          <Text
+            className="text-base font-bold ml-3 my-2"
+            style={{ color: colors.text }}
+          >
             Preview
           </Text>
           <ScrollView className="max-h-32 mx-3 pb-3 mb-20">
-            <Text className="text-sm leading-[22px] p-3 text-black" style={{backgroundColor: colors.inputBg}}>
+            <Text
+              className="text-sm leading-[22px] p-3 text-black"
+              style={{ backgroundColor: colors.inputBg }}
+            >
               {formatted.map((chunk, idx) => (
                 <Text key={idx} style={chunkStyle(chunk.style)}>
                   {chunk.text}

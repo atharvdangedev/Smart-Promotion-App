@@ -85,7 +85,7 @@ const Template = () => {
 
   return (
     <SafeAreaWrapper className="flex-1 bg-white dark:bg-dark-background">
-      <Header title="Message Template" />
+      <Header title="Message Templates" />
       {isLoading ? (
         <ActivityIndicator size="large" color="#0ea5e9" className="mt-10" />
       ) : templates.length === 0 ? (
@@ -97,7 +97,7 @@ const Template = () => {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          className="flex-1 px-4 py-6"
+          className="flex-1 mx-4 mb-4"
           keyboardShouldPersistTaps="handled"
           refreshControl={
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} />

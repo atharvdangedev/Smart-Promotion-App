@@ -10,7 +10,6 @@ import { Eye, EyeOff, CheckCircle, Circle } from 'lucide-react-native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useAuthStore } from '../store/useAuthStore';
 import { signinSchema } from '../utils/schemas';
-import { handleApiSuccess } from '../utils/handleApiSuccess';
 import { handleApiError } from '../utils/handleApiError';
 import { Controller, useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
@@ -55,8 +54,6 @@ export default function LoginScreen() {
       }
     },
     onSuccess: res => {
-      handleApiSuccess(res.data.message, 'Sign In');
-
       const { token, user } = res.data;
 
       if (user.rolename === 'affiliate') {
