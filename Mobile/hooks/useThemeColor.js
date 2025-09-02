@@ -18,7 +18,7 @@ const palette = {
     danger: '#FF6B6B',
     border: '#E0E0E0',
     card: '#FFFFFF',
-    orange:'#FF5604'
+    orange: '#FF5604',
   },
   dark: {
     text: '#E0E0E0',
@@ -37,7 +37,7 @@ const palette = {
     danger: '#FF8A80',
     border: '#4A5568',
     card: '#3A506B',
-    orange:'#FF5604'
+    orange: '#FF5604',
   },
 };
 

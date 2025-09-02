@@ -12,12 +12,20 @@ export const fetchProfile = async (role, userId) => {
 
 export const updateProfile = async (role, userId, formData) => {
   try {
-    const response = await api.post(`${role}/${userId}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await api.post(`${role}/${userId}`, formData);
     return response.data;
   } catch (error) {
     console.error('Error updating profile:', error);
+    throw error;
+  }
+};
+
+export const saveRecentMessage = async (role, payload) => {
+  try {
+    const response = await api.post(`${role}/contacts/save-messages`, payload);
+    return response.data;
+  } catch (error) {
+    console.error('Error saving recent message:', error);
     throw error;
   }
 };

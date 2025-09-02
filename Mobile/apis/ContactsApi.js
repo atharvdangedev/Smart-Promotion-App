@@ -1,6 +1,6 @@
 import { api } from '../utils/api';
 
-export const fetchContacts = async user => {
+export const fetchContacts = async () => {
   try {
     const endpoint = 'vendor/contact/vendor';
     const response = await api.get(endpoint);
@@ -11,25 +11,19 @@ export const fetchContacts = async user => {
   }
 };
 
-export const fetchContactDetails = async (id, activeUser) =>{
+export const fetchContactDetails = async (id, activeUser) => {
   try {
     const endpoint =
-      activeUser === 'agent'
-        ? `agent/contacts/${id}`
-        : `vendor/contacts/${id}`;
+      activeUser === 'agent' ? `agent/contacts/${id}` : `vendor/contacts/${id}`;
     const response = await api.get(endpoint);
     return response.data.contact;
   } catch (error) {
-    console.log('Error fetching contact details', (error));
+    console.log('Error fetching contact details', error);
     throw error;
   }
-}
+};
 
 export const importContacts = async (selectedContacts, user) => {
-  // const payload = {
-  //   selectedContacts,
-  // };
-
   try {
     const endpoint =
       user === 'agent'
@@ -43,3 +37,13 @@ export const importContacts = async (selectedContacts, user) => {
   }
 };
 
+export const vendorCallLog = async payload => {
+  try {
+    const endpoint = 'vendor/call-logs';
+    const response = await api.post(endpoint, payload);
+    return response.data;
+  } catch (error) {
+    console.log('Error updating call logs', error);
+    throw error;
+  }
+};

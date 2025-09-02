@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -39,10 +39,6 @@ export default function ContactDetails({ navigation }) {
     queryFn: () => fetchLog(contact_id, ActiveUser),
     onError: error => handleApiError(error, 'fetching call log'),
   });
-
-  useEffect(() => {
-    console.log('Log is: ', call_logs);
-  }, [call_logs]);
 
   const openWhatsApp = phone => {
     const number = phone.replace(/\D/g, '');

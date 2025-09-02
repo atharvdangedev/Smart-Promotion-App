@@ -14,7 +14,6 @@ export const fetchAgents = async () => {
 export const toggleStatus = async id => {
   try {
     const response = await api.put(`update-user-status/${id}`, {});
-    // console.log(response);
     return response.data;
   } catch (error) {
     console.error(`Error toggling status for template with id ${id}:`, error);

@@ -64,15 +64,15 @@ const VendorContacts = () => {
       },
       {
         Header: "CONTACT NO",
-        accessor: "contact_no",
+        accessor: "contact_number",
       },
       {
         Header: "CONTACT EMAIL",
-        accessor: "contact_email",
+        accessor: "email",
       },
       {
         Header: "CONTACT BIRTHDATE",
-        accessor: "contact_birthdate",
+        accessor: "birthdate",
       },
     ],
     []
@@ -263,7 +263,7 @@ const VendorContacts = () => {
                 ) : data.length === 0 ? (
                   <tr>
                     <td colSpan={columns.length} className="text-center py-4">
-                      No VendorContacts available.
+                      No Vendor Contacts available.
                     </td>
                   </tr>
                 ) : page.length === 0 ? (

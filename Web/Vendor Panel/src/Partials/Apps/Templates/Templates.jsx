@@ -20,6 +20,7 @@ import usePermissions from "../../../hooks/usePermissions.js";
 import { APP_PERMISSIONS } from "../utils/permissions.js";
 import Can from "../Can/Can.jsx";
 import { setPageTitle } from "../utils/docTitle.js";
+import PrimaryModal from "../PrimaryModal/PrimaryModal.jsx";
 
 const Templates = () => {
   const { can, canAny } = usePermissions();
@@ -40,6 +41,9 @@ const Templates = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isPrimaryModalOpen, setIsPrimaryModalOpen] = useState(false);
+  const [templateToUpdatePrimary, setTemplateToUpdatePrimary] = useState(null);
+  const [isUpdatingPrimary, setIsUpdatingPrimary] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -165,17 +169,60 @@ const Templates = () => {
           )
         );
         toast.success(response.data.message);
-        setIsModalOpen(false);
-        setRecordToUpdate(null);
       }
     } catch (error) {
       handleApiError(error, "updating", "template status");
+    } finally {
+      setIsModalOpen(false);
+      setRecordToUpdate(null);
+    }
+  };
+
+  const handlePrimaryClick = useCallback((template) => {
+    setTemplateToUpdatePrimary(template);
+    setIsPrimaryModalOpen(true);
+  }, []);
+
+  const handleConfirmPrimary = async () => {
+    if (!templateToUpdatePrimary) return;
+
+    setIsUpdatingPrimary(true);
+    try {
+      const newPrimaryStatus =
+        templateToUpdatePrimary.is_primary === "1" ? "0" : "1";
+      const response = await axios.put(
+        `${APP_URL}/${user.rolename}/update-primary/${templateToUpdatePrimary.id}`,
+        { is_primary: newPrimaryStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 200) {
+        setData((prevData) =>
+          prevData.map((template) =>
+            template.id === templateToUpdatePrimary.id
+              ? { ...template, is_primary: newPrimaryStatus }
+              : template
+          )
+        );
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      handleApiError(error, "updating", "template status");
+    } finally {
+      setIsUpdatingPrimary(false);
+      setIsPrimaryModalOpen(false);
+      setTemplateToUpdatePrimary(null);
     }
   };
 
   const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
   const canSeeActionsColumn = canAny([
     APP_PERMISSIONS.TEMPLATES_EDIT,
+    APP_PERMISSIONS.TEMPLATES_CHANGE_STATUS,
     APP_PERMISSIONS.TEMPLATES_DELETE,
   ]);
 
@@ -197,60 +244,95 @@ const Templates = () => {
         Header: "TEMPLATE TYPE",
         accessor: "template_type",
       },
-      {
-        Header: "STATUS",
-        accessor: "status",
-        Cell: ({ value, row }) => (
-          <button
-            onClick={() => handleStatusClick(row.original)}
-            className={`btn btn-sm ${
-              value === "1" ? "btn-success" : "btn-danger"
-            }`}
-            style={{
-              backgroundColor: value === "1" ? "#28a745" : "#dc3545",
-              borderColor: value === "1" ? "#28a745" : "#dc3545",
-              color: "#fff",
-              width: "90px",
-              height: "35px",
-            }}
-          >
-            {value === "1" ? "Active" : "Inactive"}
-          </button>
-        ),
-      },
     ];
 
     if (canSeeActionsColumn)
-      baseColumns.push({
-        Header: "Actions",
-        accessor: "action",
-        Cell: ({ row }) => (
-          <div>
-            <Can do={APP_PERMISSIONS.TEMPLATES_EDIT}>
+      baseColumns.push(
+        {
+          Header: "STATUS",
+          accessor: "status",
+          Cell: ({ value, row }) => (
+            <Can do={APP_PERMISSIONS.TEMPLATES_CHANGE_STATUS}>
               <button
-                type="button"
-                onClick={() => handleEdit(row.original.title, row.original.id)}
-                className="btn text-info px-2 me-1"
+                onClick={() => handleStatusClick(row.original)}
+                className={`btn btn-sm ${
+                  value === "1" ? "btn-success" : "btn-danger"
+                }`}
+                style={{
+                  backgroundColor: value === "1" ? "#28a745" : "#dc3545",
+                  borderColor: value === "1" ? "#28a745" : "#dc3545",
+                  color: "#fff",
+                  width: "90px",
+                  height: "35px",
+                }}
               >
-                <i className="bi bi-pencil"></i>
+                {value === "1" ? "Active" : "Inactive"}
               </button>
             </Can>
-            <Can do={APP_PERMISSIONS.TEMPLATES_DELETE}>
+          ),
+        },
+        {
+          Header: "Primary",
+          accessor: "is_primary",
+          Cell: ({ value, row }) => (
+            <Can do={APP_PERMISSIONS.TEMPLATES_CHANGE_STATUS}>
               <button
-                type="button"
-                onClick={() =>
-                  handleDelete(row.original.title, row.original.id)
-                }
-                className="btn text-danger px-2"
+                onClick={() => handlePrimaryClick(row.original)}
+                className={`btn btn-sm ${
+                  value === "1" ? "btn-warning" : "btn-secondary"
+                }`}
+                style={{
+                  backgroundColor: value === "1" ? "#4287f5" : "#f58442",
+                  borderColor: value === "1" ? "#4287f5" : "#f58442",
+                  color: "#fff",
+                  width: "90px",
+                  height: "35px",
+                }}
               >
-                <i className="fa fa-trash"></i>
+                {value === "1" ? "Primary" : "Regular"}
               </button>
             </Can>
-          </div>
-        ),
-      });
+          ),
+        },
+        {
+          Header: "Actions",
+          accessor: "action",
+          Cell: ({ row }) => (
+            <div>
+              <Can do={APP_PERMISSIONS.TEMPLATES_EDIT}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleEdit(row.original.title, row.original.id)
+                  }
+                  className="btn text-info px-2 me-1"
+                >
+                  <i className="bi bi-pencil"></i>
+                </button>
+              </Can>
+              <Can do={APP_PERMISSIONS.TEMPLATES_DELETE}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleDelete(row.original.title, row.original.id)
+                  }
+                  className="btn text-danger px-2"
+                >
+                  <i className="fa fa-trash"></i>
+                </button>
+              </Can>
+            </div>
+          ),
+        }
+      );
     return baseColumns;
-  }, [canSeeActionsColumn, handleDelete, handleEdit, handleStatusClick]);
+  }, [
+    canSeeActionsColumn,
+    handleDelete,
+    handleEdit,
+    handlePrimaryClick,
+    handleStatusClick,
+  ]);
 
   // Use the useTable hook to build the table
   const {
@@ -353,6 +435,22 @@ const Templates = () => {
                 recordToUpdate?.status === "1" ? "deactivate" : "activate"
               } template ${recordToUpdate?.title}?`}
             />
+
+            {templateToUpdatePrimary && (
+              <PrimaryModal
+                isOpen={isPrimaryModalOpen}
+                onClose={() => setIsPrimaryModalOpen(false)}
+                onConfirm={handleConfirmPrimary}
+                message={`Are you sure you want to mark this ${
+                  templateToUpdatePrimary.title
+                } template as ${
+                  templateToUpdatePrimary.is_primary === "1"
+                    ? "regular"
+                    : "primary"
+                }?`}
+                isLoading={isUpdatingPrimary}
+              />
+            )}
 
             {templateToDelete && (
               <DeleteModal

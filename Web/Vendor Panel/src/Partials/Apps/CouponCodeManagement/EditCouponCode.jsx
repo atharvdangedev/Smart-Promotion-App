@@ -50,6 +50,12 @@ const EditCouponCode = () => {
   const [plans, setPlans] = useState([]);
   const [couponName, setCouponName] = useState("");
 
+  useEffect(() => {
+    if (location.state) {
+      setCouponName(location.state.couponName);
+    }
+  }, [location.state]);
+
   setPageTitle("Edit Coupon Code " + couponName + " | Vendor Panel");
 
   const discountOptions = [
@@ -67,12 +73,6 @@ const EditCouponCode = () => {
       ["clean"],
     ],
   };
-
-  useEffect(() => {
-    if (location.state) {
-      setCouponName(location.state.couponName);
-    }
-  }, [location.state]);
 
   const {
     register,
@@ -365,7 +365,7 @@ const EditCouponCode = () => {
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Date</label>
+                <label className="form-label">Valid From Date</label>
                 <Controller
                   control={control}
                   name="valid_from"
@@ -388,7 +388,7 @@ const EditCouponCode = () => {
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Date</label>
+                <label className="form-label">Valid Till Date</label>
                 <Controller
                   control={control}
                   name="valid_till"

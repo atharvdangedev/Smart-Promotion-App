@@ -56,6 +56,13 @@ const EditAgent = () => {
   const [firstName, setFirstName] = useState("");
   const [profilePicPreview, setProfilePicPreview] = useState(null);
 
+  useEffect(() => {
+    if (location.state) {
+      const { firstname } = location.state;
+      setFirstName(firstname);
+    }
+  }, [location.state]);
+
   setPageTitle("Edit Agent: " + firstName + " | Vendor Panel");
 
   // Use form initialization
@@ -76,13 +83,6 @@ const EditAgent = () => {
       setProfilePicPreview(URL.createObjectURL(file));
     }
   };
-
-  useEffect(() => {
-    if (location.state) {
-      const { firstname } = location.state;
-      setFirstName(firstname);
-    }
-  }, [location.state]);
 
   //fetch agent data
   useEffect(() => {

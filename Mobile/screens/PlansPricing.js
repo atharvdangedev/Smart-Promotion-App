@@ -1,56 +1,23 @@
-import React, { useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import React from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import Header from '../components/Header';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/useAuthStore';
 import { fetchPlans } from '../apis/PlansApi';
-import useThemeColors from '../hooks/useThemeColor';
-import SanitizedHtml, { sanitizeString } from '../utils/sanatizeHTML';
+import SanitizedHtml from '../utils/sanatizeHTML';
 
 export default function PlansPricingScreen() {
-  // const plans = [
-  //   {
-  //     name: 'Free',
-  //     price: '₹0',
-  //     features: ['Basic Templates', 'Limited Calls', 'Community Support'],
-  //     buttonText: 'Get Started',
-  //     theme: 'default',
-  //   },
-  //   {
-  //     name: 'Basic',
-  //     price: '₹149',
-  //     features: ['All Free Features', 'More Templates', 'Email Support'],
-  //     buttonText: 'Choose Basic',
-  //     theme: 'silver',
-  //   },
-  //   {
-  //     name: 'Premium',
-  //     price: '₹299',
-  //     features: [
-  //       'All Basic Features',
-  //       'Unlimited Templates',
-  //       'Dedicated Support',
-  //     ],
-  //     buttonText: 'Go Premium',
-  //     theme: 'gold',
-  //     isRecommended: true,
-  //   },
-
-  //   {
-  //     name: 'Add-on',
-  //     price: '₹99',
-  //     features: ['Voice Enhancer', 'Call Templates', 'Priority Queue'],
-  //     buttonText: 'Add This',
-  //     theme: 'addon',
-  //   },
-  // ];
   const user = useAuthStore(state => state.rolename);
-  const colors = useThemeColors();
 
   const {
     data: plans = [],
-    isLoading,
     refetch,
     isRefetching,
   } = useQuery({
@@ -95,8 +62,8 @@ export default function PlansPricingScreen() {
         showsVerticalScrollIndicator={false}
         className="flex-1 px-4 py-0"
         refreshControl={
-                    <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
-                  }
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+        }
       >
         {plans.map((plan, index) => {
           const style = getPlanStyles(plan.title);
@@ -124,11 +91,8 @@ export default function PlansPricingScreen() {
               </Text>
 
               <View className="flex-row mb-2">
-                <Text className={`ml-2 text-black`}>
-                  {/* Description: {sanitizeString(plan.description).replace(/<p[^>]*>|<\/p>/gi, '')} */}
-                  Description:{' '}
-                </Text>
-                <SanitizedHtml color='black' htmlString={plan.description} />
+                <Text className={`ml-2 text-black`}>Description: </Text>
+                <SanitizedHtml color="black" htmlString={plan.description} />
               </View>
 
               <TouchableOpacity className="mt-4 bg-slate-800 rounded-xl py-3">

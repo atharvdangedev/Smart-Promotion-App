@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, useColorScheme } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { ArrowLeft } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -9,7 +9,10 @@ export default function ({ title }) {
   const colors = useThemeColors();
 
   return (
-    <View className="flex-row p-4 py-5 items-center" style={{backgroundColor:colors.headerBg}}>
+    <View
+      className="flex-row p-4 py-5 items-center"
+      style={{ backgroundColor: colors.headerBg }}
+    >
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <ArrowLeft size={25} color={colors.icon} />
       </TouchableOpacity>

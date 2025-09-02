@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Linking } from 'react-native';
 import {
   PhoneMissed,
@@ -12,52 +12,19 @@ import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useQuery } from '@tanstack/react-query';
 import { fetchCall_log } from '../apis/Call_LogApi';
 import { useAuthStore } from '../store/useAuthStore';
+import { formatTimestamp } from '../utils/formatTimestamp';
+import { handleApiError } from '../utils/handleApiError';
 
 export default function CallLogScreen({ navigation }) {
-  const user= useAuthStore((state)=> state.rolename);
-  // const contacts = [
-  //   {
-  //     id: 1,
-  //     first_name: 'John',
-  //     last_name: 'Doe',
-  //     phone: '+919876543210',
-  //     date: '27 Jul 1:22',
-  //     type: 'missed',
-  //   },
-  //   {
-  //     id: 2,
-  //     first_name: 'Jane',
-  //     last_name: 'Smith',
-  //     phone: '+918123456789',
-  //     date: '27 Jul 2:33',
-  //     type: 'received',
-  //   },
-  //   {
-  //     id: 3,
-  //     first_name: 'Mike',
-  //     last_name: 'Johnson',
-  //     phone: '+917654321098',
-  //     date: '26 Jul 3:13',
-  //     type: 'outgoing',
-  //   },
-  //   {
-  //     id: 4,
-  //     first_name: 'Emily',
-  //     last_name: 'Brown',
-  //     phone: '+916543210987',
-  //     date: '25 Jul 6:08',
-  //     type: 'rejected',
-  //   },
-  // ];
+  const user = useAuthStore(state => state.rolename);
 
-  const {
-    data : call_logs =[],
-    isLoading,
-    refetch,
-  }= useQuery({
-    queryKey : ['call_logs'],
-    queryFn:()=> fetchCall_log(user),
+  const { data: call_logs = [] } = useQuery({
+    queryKey: ['call_logs'],
+    queryFn: () => fetchCall_log(user),
+    enabled: !!user,
+    onError: error => handleApiError(error, 'fetching call logs'),
   });
+
   const getCallIcon = type => {
     switch (type) {
       case 'missed':
@@ -84,14 +51,11 @@ export default function CallLogScreen({ navigation }) {
     outgoing: call_logs.filter(c => c.type === 'outgoing').length,
     rejected: call_logs.filter(c => c.type === 'rejected').length,
   };
-  useEffect(()=>{
-    console.log(call_logs);
-  },[call_logs]);
 
   return (
     <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background">
-        <Header title="Contact Log" />
-      <View className="px-4">
+      <Header title="Log Stats" />
+      <View className="flex-1 px-4">
         <View className="flex-row flex-wrap justify-between mb-5">
           <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">
             <Text className="text-red-400 text-xl font-bold">
@@ -146,14 +110,19 @@ export default function CallLogScreen({ navigation }) {
             </View>
           </View>
         </View>
+        <Text className="text-light-text dark:text-dark-text font-semibold mb-4">
+          Recent Call Logs
+        </Text>
         <FlatList
-          data={call_logs}
+          data={call_logs.slice(0, 6)}
           showsVerticalScrollIndicator={false}
           keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() =>
-                navigation.navigate('ContactDetails', { contact_id: item.contact_id })
+                navigation.navigate('ContactDetails', {
+                  contact_id: item.contact_id,
+                })
               }
               className="mb-3"
             >
@@ -165,13 +134,15 @@ export default function CallLogScreen({ navigation }) {
                   <View className="flex-row gap-2">
                     <Text className="text-gray-400">{item.contact_number}</Text>
                     <Text className="text-gray-400 text-xs mt-1">
-                      {item.created_at}
+                      {formatTimestamp(Number(item.timestamp))}
                     </Text>
                   </View>
                 </View>
                 <View className="flex-row items-center gap-4">
                   {getCallIcon(item.type)}
-                  <TouchableOpacity onPress={() => openWhatsApp(item.contact_number)}>
+                  <TouchableOpacity
+                    onPress={() => openWhatsApp(item.contact_number)}
+                  >
                     <FontAwesome name="whatsapp" size={22} color="#25D366" />
                   </TouchableOpacity>
                 </View>

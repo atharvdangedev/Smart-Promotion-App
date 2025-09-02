@@ -8,7 +8,6 @@ import ForgotPassword from './screens/ForgotPassword';
 import ChangePasswordScreen from './screens/ChangePasswordScreen';
 import TemplateDetailScreen from './screens/TemplateDetails';
 import ProfileScreen from './screens/ProfileScreen';
-import linking from './linking';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import BootSplash from 'react-native-bootsplash';
 import ShowTemplate from './screens/ShowTemplate';
@@ -21,15 +20,19 @@ import { useAuthStore } from './store/useAuthStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AgentsScreen from './screens/AgentsScreen';
 import ContactList from './screens/ContactList';
-import All_Logs from './screens/Contact_Logs';
 import Settings from './screens/Settings';
 import Contact_Logs from './screens/Contact_Logs';
+import { useMonitoringStore } from './store/useMonitoringStore';
+import { useCallMonitoringLifecycle } from './hooks/useCallMonitoringLifecycle';
+import { useCallLogMonitor } from './hooks/useCallLogMonitor';
+import { displayClientCheckNotification } from './utils/Notification';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const token = useAuthStore(state => state.token);
   const [isRehydrated, setIsRehydrated] = useState(false);
+  const { permission } = useMonitoringStore();
 
   const queryClient = new QueryClient();
 
@@ -40,6 +43,38 @@ export default function App() {
     return () => unsub();
   }, []);
 
+  useCallMonitoringLifecycle();
+
+  useCallLogMonitor({
+    onCallDetected: async event => {
+      if (permission.status === 'granted' && token) {
+        await displayClientCheckNotification(event);
+      } else {
+        console.warn(
+          'Skipping notification display: Permissions not granted or user not logged in.',
+        );
+      }
+    },
+  });
+
+  const SuccessToast = props => (
+    <BaseToast
+      {...props}
+      style={{ borderLeftColor: '#4CAF50' }}
+      text1Style={{ fontSize: 16, fontWeight: 'bold' }}
+      text2Style={{ fontSize: 14 }}
+    />
+  );
+
+  const CustomErrorToast = props => (
+    <ErrorToast
+      {...props}
+      style={{ borderLeftColor: '#F44336' }}
+      text1Style={{ fontSize: 16, fontWeight: 'bold' }}
+      text2Style={{ fontSize: 14 }}
+    />
+  );
+
   if (!isRehydrated) {
     return null;
   }
@@ -48,7 +83,6 @@ export default function App() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <NavigationContainer
-          linking={linking}
           onReady={() => {
             BootSplash.hide({ fade: true });
           }}
@@ -94,22 +128,10 @@ export default function App() {
                   name="SelectContacts"
                   component={SelectContacts}
                 />
-                <Stack.Screen
-                  name="AgentsScreen"
-                  component={AgentsScreen}
-                />
-                <Stack.Screen
-                  name="ContactsList"
-                  component={ContactList}
-                />
-                <Stack.Screen
-                  name="Contact_Logs"
-                  component={Contact_Logs}
-                />
-                <Stack.Screen
-                  name="Settings"
-                  component={Settings}
-                />
+                <Stack.Screen name="AgentsScreen" component={AgentsScreen} />
+                <Stack.Screen name="ContactsList" component={ContactList} />
+                <Stack.Screen name="Contact_Logs" component={Contact_Logs} />
+                <Stack.Screen name="Settings" component={Settings} />
               </>
             )}
           </Stack.Navigator>
@@ -118,22 +140,8 @@ export default function App() {
 
       <Toast
         config={{
-          success: props => (
-            <BaseToast
-              {...props}
-              style={{ borderLeftColor: '#4CAF50' }}
-              text1Style={{ fontSize: 16, fontWeight: 'bold' }}
-              text2Style={{ fontSize: 14 }}
-            />
-          ),
-          error: props => (
-            <ErrorToast
-              {...props}
-              style={{ borderLeftColor: '#F44336' }}
-              text1Style={{ fontSize: 16, fontWeight: 'bold' }}
-              text2Style={{ fontSize: 14 }}
-            />
-          ),
+          success: SuccessToast,
+          error: CustomErrorToast,
         }}
         position="top"
         topOffset={50}

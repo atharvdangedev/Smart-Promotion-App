@@ -5,6 +5,7 @@ import {
   usePagination,
   useSortBy,
   useTable,
+  useRowSelect,
 } from "react-table";
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
@@ -15,14 +16,17 @@ import { useSelector } from "react-redux";
 import usePermissions from "../../../hooks/usePermissions";
 import { APP_PERMISSIONS } from "../utils/permissions";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { setPageTitle } from "../utils/docTitle";
+import Can from "../Can/Can";
+import ImportContactsModal from "./ImportContactsModal";
+import DeleteModal from "../DeleteModal/DeleteModal";
 
 const Contacts = () => {
   // Navigate function
   const navigate = useNavigate();
 
-  const { can } = usePermissions();
+  const { can, canAny } = usePermissions();
 
   setPageTitle("Contacts | Vendor Panel");
 
@@ -34,13 +38,24 @@ const Contacts = () => {
 
   // State initialization
   const [totalRecords, setTotalRecords] = useState(0);
+  const [showModal, setShowModal] = useState(false);
   const [pageSize, setPageSize] = useState(10);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
   const [data, setData] = useState([]);
+  const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const useServerPagination = true;
 
   const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
+
+  const canSeeActionsColumn = canAny([
+    APP_PERMISSIONS.CONTACTS_EDIT,
+    APP_PERMISSIONS.CONTACTS_DELETE,
+  ]);
 
   // Handle edit page navigation
   const handleEdit = useCallback(
@@ -57,37 +72,101 @@ const Contacts = () => {
     [navigate]
   );
 
+  // Handle delete callback
+  const handleDelete = useCallback((contact_name, id) => {
+    if (!can(APP_PERMISSIONS.CONTACTS_DELETE)) {
+      toast.error("You do not have permission to delete contacts.");
+      return;
+    }
+    setContactToDelete({ contact_name, id });
+    setIsDeleteModalOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Handle delete functionality
+  const handleConfirmDelete = async () => {
+    if (contactToDelete) {
+      setIsDeleting(true);
+      try {
+        const response = await axios.delete(
+          `${APP_URL}/${user.rolename}/contacts/${contactToDelete.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json;",
+            },
+          }
+        );
+        if (response.status === 200) {
+          toast.success(response.data.message);
+          setData((prevData) =>
+            prevData.filter((contact) => contact.id !== contactToDelete.id)
+          );
+        }
+      } catch (error) {
+        handleApiError(error, "deleting", "contact");
+      } finally {
+        setIsDeleting(false);
+        setIsDeleteModalOpen(false);
+        setContactToDelete(null);
+      }
+    }
+  };
+
   // Table configuration
-  const columns = useMemo(
-    () => [
-      {
-        Header: "SR NO",
-        accessor: "serialNumber",
-        Cell: ({ row }) => {
-          return <div>{row.index + 1}</div>;
-        },
-      },
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "CONTACT NAME",
         accessor: "contact_name",
       },
       {
         Header: "CONTACT NO",
-        accessor: "contact_no",
+        accessor: "contact_number",
       },
       {
         Header: "CONTACT EMAIL",
-        accessor: "contact_email",
+        accessor: "email",
       },
       {
         Header: "CONTACT BIRTHDATE",
-        accessor: "contact_birthdate",
+        accessor: "birthdate",
       },
-    ],
-    []
-  );
+    ];
+    if (canSeeActionsColumn)
+      baseColumns.push({
+        Header: "ACTIONS",
+        accessor: "activated",
+        Cell: ({ row }) => (
+          <div>
+            <Can do={APP_PERMISSIONS.CONTACTS_EDIT}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleEdit(row.original.contact_name, row.original.id)
+                }
+                className="btn text-info px-2 me-1"
+              >
+                <i className="bi bi-pencil"></i>
+              </button>
+            </Can>
+            <Can do={APP_PERMISSIONS.CONTACTS_DELETE}>
+              <button
+                type="button"
+                onClick={() =>
+                  handleDelete(row.original.contact_name, row.original.id)
+                }
+                className="btn text-danger px-2"
+              >
+                <i className="fa fa-trash"></i>
+              </button>
+            </Can>
+          </div>
+        ),
+      });
+    return baseColumns;
+  }, [canSeeActionsColumn, handleDelete, handleEdit]);
 
-  // Use the useTable hook to build the table
   const {
     getTableProps,
     getTableBodyProps,
@@ -102,30 +181,49 @@ const Contacts = () => {
     nextPage,
     previousPage,
     setGlobalFilter,
+    selectedFlatRows,
     setPageSize: setTablePageSize,
     state: { pageIndex, globalFilter },
   } = useTable(
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize },
+      initialState: { pageSize },
       manualPagination: useServerPagination,
-      pageCount: useServerPagination
-        ? Math.ceil(totalRecords / pageSize)
-        : undefined,
+      autoResetPage: false,
+      pageCount:
+        useServerPagination && totalRecords !== null
+          ? Math.ceil(totalRecords / pageSize)
+          : -1,
     },
     useGlobalFilter,
     useSortBy,
-    usePagination
+    usePagination,
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        {
+          id: "selection",
+          Header: ({ getToggleAllRowsSelectedProps }) => (
+            <input type="checkbox" {...getToggleAllRowsSelectedProps()} />
+          ),
+          Cell: ({ row }) => (
+            <input type="checkbox" {...row.getToggleRowSelectedProps()} />
+          ),
+        },
+        ...columns,
+      ]);
+    }
   );
 
   useEffect(() => {
     if (!useServerPagination) return;
 
     const fetchData = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(
-          `${APP_URL}/${user.rolename}/contact/vendor/${user.id}`,
+          `${APP_URL}/${user.rolename}/contact/vendor`,
           {
             params: { page: pageIndex + 1, limit: pageSize },
             headers: {
@@ -155,9 +253,44 @@ const Contacts = () => {
     pageSize,
     token,
     useServerPagination,
-    user.id,
     user.rolename,
+    refetch,
   ]);
+
+  const handleBulkDelete = async () => {
+    const ids = selectedFlatRows.map((row) => row.original.id);
+
+    if (ids.length === 0) {
+      toast.error("Please select at least one contact to delete.");
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+
+      const response = await axios.delete(
+        `${APP_URL}/${user.rolename}/contacts/delete-multiple-contacts`,
+        {
+          data: { ids },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success(
+          response.data.message || "Contacts deleted successfully."
+        );
+        setData((prev) => prev.filter((c) => !ids.includes(c.id)));
+      }
+    } catch (error) {
+      handleApiError(error, "deleting", "contacts");
+    } finally {
+      setIsBulkDeleteOpen(false);
+      setIsDeleting(false);
+    }
+  };
 
   // Handle search function
   const handleGlobalFilterChange = (e) => {
@@ -171,8 +304,14 @@ const Contacts = () => {
     setTablePageSize(newPageSize);
   };
 
+  const handleImportContacts = () => {
+    setShowModal(false);
+    setRefetch((prev) => !prev);
+  };
+
   return (
     <div className="px-4 py-3 page-body">
+      <Toaster />
       <div className="col-lg-12 col-md-12">
         <div className="card mb-3 p-3">
           <div className="table-responsive">
@@ -180,6 +319,29 @@ const Contacts = () => {
               <h4 className="title-font">
                 <strong>Contacts</strong>
               </h4>
+              <div>
+                <Can do={APP_PERMISSIONS.CONTACTS_IMPORT}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => setShowModal(true)}
+                  >
+                    Import Contacts
+                  </button>
+                </Can>
+                <Can do={APP_PERMISSIONS.CONTACTS_DELETE}>
+                  {selectedFlatRows.length > 0 && (
+                    <button
+                      className="btn btn-danger mx-2"
+                      onClick={() => setIsBulkDeleteOpen(true)}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting
+                        ? "Deleting..."
+                        : `Delete Selected (${selectedFlatRows.length})`}
+                    </button>
+                  )}
+                </Can>
+              </div>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -189,9 +351,9 @@ const Contacts = () => {
                   fileName="Contacts"
                   fields={[
                     "contact_name",
-                    "contact_no",
-                    "contact_email",
-                    "contact_birthdate",
+                    "contact_number",
+                    "email",
+                    "birthdate",
                   ]}
                 />
               )}
@@ -222,6 +384,31 @@ const Contacts = () => {
                 </div>
               </div>
             </div>
+
+            <ImportContactsModal
+              show={showModal}
+              onClose={handleImportContacts}
+            />
+
+            {contactToDelete && (
+              <DeleteModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                message={`Are you sure you want to delete contact ${
+                  contactToDelete.contact_name || "Unknown Contact"
+                }?`}
+                isLoading={isDeleting}
+              />
+            )}
+
+            <DeleteModal
+              isOpen={isBulkDeleteOpen}
+              onClose={() => setIsBulkDeleteOpen(false)}
+              onConfirm={handleBulkDelete}
+              isLoading={isDeleting}
+              message={`Are you sure you want to delete ${selectedFlatRows.length} contacts? This action cannot be undone.`}
+            />
 
             <table
               {...getTableProps()}
@@ -295,7 +482,7 @@ const Contacts = () => {
             </table>
           </div>
 
-          {data.length > 0 && (
+          {totalRecords > 0 && (
             <ResponsivePagination
               pageIndex={pageIndex}
               pageOptions={pageOptions}

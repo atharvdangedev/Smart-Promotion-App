@@ -17,7 +17,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { API_CONTACT } from '@env';
 import { User } from 'lucide-react-native';
 
-export default function ContactList({navigation}) {
+export default function ContactList({ navigation }) {
   const colors = useThemeColors();
   const user = useAuthStore(state => state.rolename);
 
@@ -36,14 +36,12 @@ export default function ContactList({navigation}) {
     const firstLetter = item.contact_name
       ? item.contact_name.charAt(0).toUpperCase()
       : null;
-    const profileUrl = `${API_CONTACT.replace(/\/$/, '')}/${item.image}`;
-    console.log('Profile URL:', profileUrl);
 
     return (
       <TouchableOpacity
         onPress={() =>
-                navigation.navigate('ContactDetails', { contact_id: item.id })
-              }
+          navigation.navigate('ContactDetails', { contact_id: item.id })
+        }
         className={`flex-row justify-start gap-6 items-center p-3 rounded-xl mb-2 border-b border-gray-300 ${'bg-sky-100'}`}
       >
         <View className="border border-gray-700 rounded-full ">
@@ -70,7 +68,9 @@ export default function ContactList({navigation}) {
           )}
         </View>
         <View className="px-2 ">
-          <Text className="text-black text-lg">{item.contact_name ? item.contact_name : 'Unkown'}</Text>
+          <Text className="text-black text-lg">
+            {item.contact_name ? item.contact_name : 'Unkown'}
+          </Text>
           <Text className="text-gray-500 text-base">{item.contact_number}</Text>
         </View>
       </TouchableOpacity>
@@ -94,22 +94,12 @@ export default function ContactList({navigation}) {
           </View>
         ) : (
           <View className="mx-2">
-            <Text
-              className="text-2xl font-bold mb-2"
-              style={{ color: colors.headingText }}
-            >
-              Contacts List
-            </Text>
             <FlatList
               data={contacts}
               keyExtractor={item => item.id}
               renderItem={renderItem}
               refreshControl={
-                <RefreshControl
-                  refreshing={isRefetching}
-                  onRefresh={refetch}
-                  colors={[colors.headerBg]}
-                />
+                <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
               }
             />
           </View>
