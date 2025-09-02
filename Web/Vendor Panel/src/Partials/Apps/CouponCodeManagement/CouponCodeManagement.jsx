@@ -149,20 +149,24 @@ const CouponCodeManagement = () => {
         accessor: "coupon_code",
       },
       {
-        Header: "Plan",
-        accessor: (row) => `${row.plan_title} ${row.plan_type}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
+        Header: "Plans",
+        accessor: "plans",
+        Cell: ({ row }) => {
+          const plans = row.original.plans || [];
+          if (plans.length === 0) {
+            return <span>No Plans</span>;
+          }
+
+          return (
             <div className="d-flex flex-column">
-              <span>
-                <strong>Plan:</strong> {row.original.plan_title}
-              </span>
-              <span>
-                <strong>Plan Type:</strong> {row.original.plan_type}
-              </span>
+              {plans.map((plan, idx) => (
+                <div key={idx} className="mb-1">
+                  <strong>{plan.title}</strong> <span>({plan.plan_type})</span>
+                </div>
+              ))}
             </div>
-          </div>
-        ),
+          );
+        },
       },
       {
         Header: "User",

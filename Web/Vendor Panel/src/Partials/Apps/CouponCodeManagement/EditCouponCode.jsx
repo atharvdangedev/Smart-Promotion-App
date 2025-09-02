@@ -26,9 +26,15 @@ const schema = yup.object().shape({
     .required("Coupon Description is required")
     .min(3, "Minimum 3 characters required.")
     .max(500, "Maximum 500 characters allowed."),
-  plan_id: yup.string().required("Plan Type is required"),
+  plan_id: yup
+    .array()
+    .of(yup.string().required())
+    .min(1, "At least one Plan Type is required")
+    .required("Plan Type is required"),
   discount_type: yup.string().required("Discount Type is required"),
   discount: yup.string().required("Discount is required"),
+  validity_days: yup.string().required("Validity days is required"),
+  number_of_uses: yup.string().required("Number of uses is required"),
   is_recurring: yup.boolean().required("Is recurring is required"),
   valid_from: yup.date().required("Coupon validity start date is required"),
   valid_till: yup.date().required("Coupon validity end date is required"),
@@ -111,7 +117,7 @@ const EditCouponCode = () => {
     fetchPlans();
   }, [APP_URL, token]);
 
-  //fetch area details
+  //fetch coupon code details
   useEffect(() => {
     const fetchCouponDetails = async () => {
       try {
@@ -128,9 +134,14 @@ const EditCouponCode = () => {
           const couponData = response.data.coupon;
           setValue("coupon_code", couponData.coupon_code);
           setValue("description", couponData.description);
-          setValue("plan_id", couponData.plan_id);
+          setValue(
+            "plan_id",
+            couponData.plan_id ? couponData.plan_id.split(",") : []
+          );
           setValue("discount_type", couponData.discount_type);
           setValue("discount", couponData.discount);
+          setValue("validity_days", couponData.validity_days);
+          setValue("number_of_uses", couponData.number_of_uses);
           setValue("is_recurring", Number(couponData.is_recurring));
           setValue(
             "valid_from",
@@ -163,6 +174,8 @@ const EditCouponCode = () => {
       formData.append("plan_id", data.plan_id);
       formData.append("discount_type", data.discount_type);
       formData.append("discount", data.discount);
+      formData.append("validity_days", data.validity_days);
+      formData.append("number_of_uses", data.number_of_uses);
       formData.append("is_recurring", data.is_recurring ? 1 : 0);
       formData.append(
         "valid_from",
@@ -266,21 +279,23 @@ const EditCouponCode = () => {
                       <Select
                         {...field}
                         options={plans}
-                        tabIndex="4"
-                        className={`basic-single ${
+                        isMulti
+                        tabIndex={4}
+                        className={`basic-multi-select ${
                           errors.plan_id ? "is-invalid" : ""
                         }`}
                         classNamePrefix="select"
-                        isClearable={true}
-                        isSearchable={true}
+                        isClearable
+                        isSearchable
                         placeholder="Select plan type"
                         value={
-                          plans.find((type) => type.value === field.value) ||
-                          null
+                          plans.filter((plan) =>
+                            field.value?.includes(plan.value)
+                          ) || []
                         }
-                        onChange={(selectedOption) =>
+                        onChange={(selectedOptions) =>
                           field.onChange(
-                            selectedOption ? selectedOption.value : ""
+                            selectedOptions.map((option) => option.value)
                           )
                         }
                         styles={ReactSelectStyles}
@@ -359,6 +374,58 @@ const EditCouponCode = () => {
                   {errors.discount && (
                     <div className="invalid-feedback">
                       {errors.discount.message}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                <div className="form-floating">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={3}
+                    onInput={(e) =>
+                      (e.target.value = e.target.value.replace(/\D+/g, ""))
+                    }
+                    className={`form-control ${
+                      errors.validity_days ? "is-invalid" : ""
+                    }`}
+                    id="validity_days"
+                    {...register("validity_days")}
+                    placeholder="Validity Days"
+                    tabIndex="4"
+                  />
+                  <label htmlFor="validity_days">Validity Days</label>
+                  {errors.validity_days && (
+                    <div className="invalid-feedback">
+                      {errors.validity_days.message}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                <div className="form-floating">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={5}
+                    onInput={(e) =>
+                      (e.target.value = e.target.value.replace(/\D+/g, ""))
+                    }
+                    className={`form-control ${
+                      errors.number_of_uses ? "is-invalid" : ""
+                    }`}
+                    id="number_of_uses"
+                    {...register("number_of_uses")}
+                    placeholder="Number of Uses"
+                    tabIndex="4"
+                  />
+                  <label htmlFor="number_of_uses">Number of Uses</label>
+                  {errors.number_of_uses && (
+                    <div className="invalid-feedback">
+                      {errors.number_of_uses.message}
                     </div>
                   )}
                 </div>

@@ -230,6 +230,7 @@ const EditContact = () => {
                   )}
                 </div>
               </div>
+
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
