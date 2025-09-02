@@ -21,6 +21,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useQuery } from '@tanstack/react-query';
 import { fetchLog } from '../apis/Call_LogApi';
 import { getCallIcon } from '../utils/constants';
+import { formatDate } from '../utils/FormateDateHelper';
 
 export default function ContactDetails({ navigation }) {
   const route = useRoute();
@@ -108,9 +109,11 @@ export default function ContactDetails({ navigation }) {
           <Text className="text-gray-400 text-base mt-1">
             {contact.contact_number}
           </Text>
-          <Text className="bg-purple-600 text-white px-3 py-1 rounded-full mt-2 text-xs">
-            VIP Customer
-          </Text>
+          {contact.label ? (
+            <Text className="bg-purple-600 text-white px-3 py-1 rounded-full mt-2 text-xs">
+              {contact.label}
+            </Text>
+          ) : null}
         </View>
         <View className="flex-row justify-center gap-4 mt-5">
           <TouchableOpacity
@@ -134,15 +137,17 @@ export default function ContactDetails({ navigation }) {
           Information
         </Text>
         <View className="bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-xl p-4 ">
-          <Text className="text-white mb-2">
-            <Text className="text-light-text dark:text-dark-text">
-              Birthday:{' '}
-            </Text>
-            <Text className="text-green-400 font-semibold">
-              {contact.birthdate}
-            </Text>
-          </Text>
-          <Text className="text-white">
+            
+              <View>
+              {contact.dates.map((d)=>(
+                <View key={d.id} className='flex-row items-center gap-3'>
+                  <Text className='text-lg font-semibold' style={{color: colors.text}}>{d.date_title}: </Text>
+                  <Text style={{color: colors.text}}>{formatDate(d.date)}</Text>
+                </View>
+              ))}
+            </View>
+          
+          <Text className="text-white mt-1">
             <Text className="text-light-text dark:text-dark-text">
               Last Message Sent:{' '}
             </Text>
@@ -221,14 +226,20 @@ export default function ContactDetails({ navigation }) {
             <Text className="text-light-text dark:text-dark-text font-medium mb-2">
               Message Sent{' '}
             </Text>
-            <View className="p-4 bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-xl">
-              <Text className="text-light-text dark:text-dark-text font-semibold">
-                Sent 'First-Time User Offer'
-              </Text>
-              <Text className="text-light-text dark:text-dark-text text-xs mt-1">
-                {contact.created_at}
-              </Text>
-            </View>
+            {contact.recent_messages.length > 0 ? (
+              contact.recent_messages.map((msg, index) => (
+                <View key={index} className="p-4 bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-xl">
+                  <Text className="text-light-text dark:text-dark-text font-semibold">
+                    {msg.message_sent}
+                  </Text>
+                  <Text className="text-light-text dark:text-dark-text text-xs mt-1">
+                    {formatDate(contact.created_at)}
+                  </Text>
+                </View>
+              ))
+            ) : (
+              <Text className="text-gray-500" style={{color: colors.text}}>No recent messages</Text>
+            )}
           </View>
         </View>
       </ScrollView>
