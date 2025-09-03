@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { User, UserPen } from 'lucide-react-native';
 import SubHeader from '../components/SubHeader';
@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchLog } from '../apis/Call_LogApi';
 import { getCallIcon } from '../utils/constants';
 import { formatDate } from '../utils/FormateDateHelper';
+import { ref } from 'yup';
 
 export default function ContactDetails({ navigation }) {
   const route = useRoute();
@@ -29,7 +30,17 @@ export default function ContactDetails({ navigation }) {
   const colors = useThemeColors();
   const ActiveUser = useAuthStore(state => state.rolename);
 
-  const { data: contact = {}, isLoading } = useQuery({
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
+
+  const {
+    data: contact = {},
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['contact', contact_id],
     queryFn: () => fetchContactDetails(contact_id, ActiveUser),
     onError: error => handleApiError(error, 'fetching contact details'),
@@ -71,7 +82,13 @@ export default function ContactDetails({ navigation }) {
     >
       <SubHeader title="Contact Details" />
       <View className="items-end mx-6 mt-3 ">
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('EditContactDetails', {
+              contact,
+            })
+          }
+        >
           <UserPen size={30} color={colors.text} />
         </TouchableOpacity>
       </View>
@@ -137,16 +154,27 @@ export default function ContactDetails({ navigation }) {
           Information
         </Text>
         <View className="bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-xl p-4 ">
-            
-              <View>
-              {contact.dates.map((d)=>(
-                <View key={d.id} className='flex-row items-center gap-3'>
-                  <Text className='text-lg font-semibold' style={{color: colors.text}}>{d.date_title}: </Text>
-                  <Text style={{color: colors.text}}>{formatDate(d.date)}</Text>
-                </View>
-              ))}
-            </View>
-          
+          <View>
+            <Text
+              className="text-lg font-semibold"
+              style={{ color: colors.text }}
+            >
+              Email: {contact.email}
+            </Text>
+
+            {contact.dates.map(d => (
+              <View key={d.id} className="flex-row items-center gap-3">
+                <Text
+                  className="text-lg font-semibold"
+                  style={{ color: colors.text }}
+                >
+                  {d.date_title}:{' '}
+                </Text>
+                <Text style={{ color: colors.text }}>{formatDate(d.date)}</Text>
+              </View>
+            ))}
+          </View>
+
           <Text className="text-white mt-1">
             <Text className="text-light-text dark:text-dark-text">
               Last Message Sent:{' '}
@@ -228,7 +256,10 @@ export default function ContactDetails({ navigation }) {
             </Text>
             {contact.recent_messages.length > 0 ? (
               contact.recent_messages.map((msg, index) => (
-                <View key={index} className="p-4 bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-xl">
+                <View
+                  key={index}
+                  className="p-4 bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-xl"
+                >
                   <Text className="text-light-text dark:text-dark-text font-semibold">
                     {msg.message_sent}
                   </Text>
@@ -238,7 +269,9 @@ export default function ContactDetails({ navigation }) {
                 </View>
               ))
             ) : (
-              <Text className="text-gray-500" style={{color: colors.text}}>No recent messages</Text>
+              <Text className="text-gray-500" style={{ color: colors.text }}>
+                No recent messages
+              </Text>
             )}
           </View>
         </View>
