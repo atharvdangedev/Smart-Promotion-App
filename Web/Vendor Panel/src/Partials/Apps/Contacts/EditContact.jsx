@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast, { Toaster } from "react-hot-toast";
@@ -8,6 +8,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { handleApiError } from "../utils/handleApiError";
 import { useSelector } from "react-redux";
 import { setPageTitle } from "../utils/docTitle";
+import DatePicker from "react-datepicker";
+import "./datepicker.css";
+import "react-datepicker/dist/react-datepicker.css";
+import { Trash2 } from "lucide-react";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -28,6 +32,20 @@ const schema = yup.object().shape({
     .required("Contact number is required"),
   label: yup.string().notRequired(),
   note: yup.string().notRequired(),
+  dates: yup.array().of(
+    yup.object().shape({
+      date_title: yup
+        .string()
+        .required("Date title is required")
+        .matches(
+          /^[A-Za-z\s]+$/,
+          "Date title must contain only alphabets and spaces."
+        )
+        .max(20, "Date title must be less than 20 characters"),
+      date: yup.date().required("Date is required"),
+      id: yup.string().nullable(),
+    })
+  ),
 });
 
 const EditContact = () => {
@@ -69,12 +87,19 @@ const EditContact = () => {
   const {
     register,
     handleSubmit,
+    control,
     reset,
+    watch,
     setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     mode: "onChange",
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "dates",
   });
 
   //fetch contact data
@@ -97,6 +122,14 @@ const EditContact = () => {
           setValue("label", res.data.contact.label);
           setValue("note", res.data.contact.note);
 
+          const dates = res.data.contact.dates.map((date) => ({
+            date_title: date.date_title,
+            date: new Date(date.date),
+            id: date.id,
+          }));
+
+          setValue("dates", dates);
+
           // Set profile image if available
           if (res.data.contact.image) {
             setValue("image", res.data.contact.image);
@@ -112,6 +145,13 @@ const EditContact = () => {
     fetchContact();
   }, [token, APP_URL, setValue, user.rolename, contactId, Img_url]);
 
+  const handleDelete = useCallback(
+    (index) => {
+      remove(index);
+    },
+    [remove]
+  );
+
   // Handle submit
   const onSubmit = async (data) => {
     const formData = new FormData();
@@ -124,8 +164,13 @@ const EditContact = () => {
     formData.append("note", data.note);
     if (data.image && data.image[0] instanceof File)
       formData.append("image", data.image[0]);
-    // if (data.old_image)
-    //   formData.append("old_image", data.old_image);
+
+    const isoDates = data.dates.map((contactDate) => ({
+      ...contactDate,
+      date: contactDate.date.toLocaleDateString("en-CA"),
+    }));
+
+    formData.append("dates", JSON.stringify(isoDates));
 
     try {
       const res = await axios.post(
@@ -190,6 +235,7 @@ const EditContact = () => {
                   )}
                 </div>
               </div>
+
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
@@ -210,6 +256,7 @@ const EditContact = () => {
                   )}
                 </div>
               </div>
+
               <div className="col-md-4">
                 <div className="form-floating">
                   <input
@@ -277,6 +324,7 @@ const EditContact = () => {
                   )}
                 </div>
               </div>
+
               {profilePicPreview && (
                 <div className="col-md-1">
                   <img
@@ -309,6 +357,89 @@ const EditContact = () => {
                   )}
                 </div>
               </div>
+
+              <div className="col-md-4">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h5>Special Dates Related to Contact</h5>
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary btn-sm"
+                    onClick={() => {
+                      append({
+                        date_title: "",
+                        date: "",
+                      });
+                    }}
+                    tabIndex="9"
+                  >
+                    Add Date
+                  </button>
+                </div>
+
+                {fields.map((field, index) => (
+                  <div key={field.id} className="card mb-3">
+                    <div className="card-body">
+                      <div className="d-flex justify-content-between mb-3">
+                        <h6>Date {index + 1}</h6>
+                        <button
+                          type="button"
+                          className="btn btn-sm"
+                          onClick={() => handleDelete(index)}
+                        >
+                          <Trash2 color="red" />
+                        </button>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Date Title</label>
+                          <input
+                            type="text"
+                            className={`form-control ${
+                              errors.dates?.[index]?.date_title
+                                ? "is-invalid"
+                                : ""
+                            }`}
+                            placeholder="Date Title"
+                            maxLength={20}
+                            {...register(`dates.${index}.date_title`)}
+                          />
+                          {errors.dates?.[index]?.date_title && (
+                            <div className="invalid-feedback">
+                              {errors.dates[index].date_title.message}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Date</label>
+                          <DatePicker
+                            id="date"
+                            selected={watch(`dates.${index}.date`)}
+                            onChange={(date) =>
+                              setValue(`dates.${index}.date`, date)
+                            }
+                            dateFormat="yyyy-MM-dd"
+                            className={`form-control z-index-3`}
+                            placeholderText="Select a date"
+                          />
+                          {errors.dates?.[index]?.date && (
+                            <div className="text-danger">
+                              {errors.dates[index].date.message}
+                            </div>
+                          )}
+                        </div>
+
+                        <input
+                          type="hidden"
+                          {...register(`dates.${index}.id`)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <div className="col-12">
                 <button
                   tabIndex="10"

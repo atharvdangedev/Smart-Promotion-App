@@ -21,6 +21,7 @@ import { setPageTitle } from "../utils/docTitle";
 import Can from "../Can/Can";
 import ImportContactsModal from "./ImportContactsModal";
 import DeleteModal from "../DeleteModal/DeleteModal";
+import { formatDate } from "../utils/formatDate";
 
 const Contacts = () => {
   // Navigate function
@@ -129,8 +130,21 @@ const Contacts = () => {
         accessor: "email",
       },
       {
-        Header: "CONTACT BIRTHDATE",
-        accessor: "birthdate",
+        Header: "CONTACT DATES",
+        accessor: "dates",
+        Cell: ({ value }) => {
+          if (!value || value.length === 0) return "-";
+
+          return (
+            <div>
+              {value.map((d) => (
+                <div key={d.id}>
+                  <strong>{d.date_title}:</strong> {formatDate(d.date)}
+                </div>
+              ))}
+            </div>
+          );
+        },
       },
     ];
     if (canSeeActionsColumn)
