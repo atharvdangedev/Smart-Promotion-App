@@ -4,9 +4,11 @@ import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import SubHeader from '../components/SubHeader';
 import { LockIcon, Monitor } from 'lucide-react-native';
 import useThemeColors from '../hooks/useThemeColor';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Settings() {
   const colors = useThemeColors();
+  const navigation = useNavigation();
 
   return (
     <SafeAreaWrapper style={{ backgroundColor: colors.background }}>
@@ -36,7 +38,7 @@ export default function Settings() {
           className="p-4 border border-[#CBCBCB] rounded-xl mb-4"
           style={{ backgroundColor: colors.inputBg }}
         >
-          <TouchableOpacity className="flex-row items-center pb-1 border-b-hairline mb-3">
+          <TouchableOpacity onPress={()=> navigation.navigate('MonitoringSettings')} className="flex-row items-center pb-1 border-b-hairline mb-3">
             <Monitor size={18} color="black" />
             <Text className="text-lg text-black"> Call Monitoring</Text>
           </TouchableOpacity>
