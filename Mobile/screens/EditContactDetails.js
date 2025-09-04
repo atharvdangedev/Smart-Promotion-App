@@ -20,12 +20,15 @@ import SubHeader from '../components/SubHeader';
 import { handleApiSuccess } from '../utils/handleApiSuccess';
 import { handleApiError } from '../utils/handleApiError';
 import { useAuthStore } from '../store/useAuthStore';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function EditContactDetails({ navigation }) {
   const colors = useThemeColors();
   const route = useRoute();
   const user = useAuthStore(state => state.rolename);
   const contact = route.params?.contact;
+  const [openPickerIndex, setOpenPickerIndex] = useState(null);
+  const [pickerDate, setPickerDate] = useState(new Date());
 
   const [profilePicPreview, setProfilePicPreview] = useState(
     contact?.image ? `${API_CONTACT}/${contact.image}` : null,
@@ -115,7 +118,7 @@ export default function EditContactDetails({ navigation }) {
     <SafeAreaWrapper style={{ backgroundColor: colors.background }}>
       <SubHeader title="Edit Contact" />
       <ScrollView className="pb-10">
-        <View className="mx-4">
+        <View className="mx-6">
           <View className="flex-row justify-center items-center">
             <View className="mt-4 w-24 h-24 rounded-full bg-gray-700 mb-3 border-4 border-sky-500 overflow-hidden">
               <TouchableOpacity onPress={handleProfilePic}>
@@ -143,7 +146,7 @@ export default function EditContactDetails({ navigation }) {
             </View>
           </View>
 
-          <View className="mx-2">
+          <View className="">
             {[
               { name: 'contact_name', label: 'Name' },
               { name: 'contact_number', label: 'Contact Number' },
@@ -200,18 +203,41 @@ export default function EditContactDetails({ navigation }) {
                   setDates(newDates);
                 }}
               />
-              <TextInput
-                className="flex-1 text-black dark:text-white border border-gray-300 rounded-lg px-3 py-2"
-                placeholder="YYYY-MM-DD"
-                value={d.date}
-                onChangeText={text => {
-                  const newDates = [...dates];
-                  newDates[index].date = text;
-                  setDates(newDates);
+
+              <TouchableOpacity
+                onPress={() => {
+                  setOpenPickerIndex(index);
+                  setPickerDate(d.date ? new Date(d.date) : new Date());
                 }}
-              />
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 justify-center"
+              >
+                <Text style={{ color: d.date ? 'black' : '#aaa'  }}>
+                  {d.date || 'Select Date'}
+                </Text>
+              </TouchableOpacity>
+
+              {openPickerIndex === index && (
+                <DateTimePicker
+                  value={pickerDate}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) => {
+                    if (event.type === 'dismissed') {
+                      setOpenPickerIndex(null);
+                      return;
+                    }
+                    const currentDate = selectedDate || pickerDate;
+                    const formatted = currentDate.toISOString().split('T')[0]; 
+                    const newDates = [...dates];
+                    newDates[index].date = formatted;
+                    setDates(newDates);
+                    setOpenPickerIndex(null);
+                  }}
+                />
+              )}
             </View>
           ))}
+
           <TouchableOpacity
             className="bg-sky-500 rounded-lg py-2 px-4 mb-4"
             onPress={() =>
