@@ -22,7 +22,6 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchLog } from '../apis/Call_LogApi';
 import { getCallIcon } from '../utils/constants';
 import { formatDate } from '../utils/FormateDateHelper';
-import { ref } from 'yup';
 
 export default function ContactDetails({ navigation }) {
   const route = useRoute();
