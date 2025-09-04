@@ -2,7 +2,7 @@ import { View, Text } from 'react-native';
 import React from 'react';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useQuery } from '@tanstack/react-query';
-import { fetchLog } from '../apis/Call_LogApi';
+import { fetchCall_log, fetchLog } from '../apis/Call_LogApi';
 import { getCallIcon } from '../utils/constants';
 import { useRoute } from '@react-navigation/native';
 import SubHeader from '../components/SubHeader';
@@ -18,13 +18,20 @@ export default function Contact_Logs() {
 
   const colors = useThemeColors();
 
-  const ActiveUser = useAuthStore(state => state.rolename);
+  const user = useAuthStore(state => state.rolename);
 
-  const { data: call_logs = [] } = useQuery({
-    queryKey: ['call-log', contact_id],
-    queryFn: () => fetchLog(contact_id, ActiveUser),
-    onError: error => handleApiError(error, 'fetching call log'),
-  });
+  const [filters, setFilters] = useState({
+      
+    });
+
+  const {
+      data: call_logs = [],
+      isFetching,
+      refetch,
+    } = useQuery({
+      queryKey: ['call_logs', filters],
+      queryFn: () => fetchCall_log(user),
+    });
 
   return (
     <SafeAreaWrapper
