@@ -27,6 +27,7 @@ import { useCallMonitoringLifecycle } from './hooks/useCallMonitoringLifecycle';
 import { useCallLogMonitor } from './hooks/useCallLogMonitor';
 import { displayClientCheckNotification } from './utils/Notification';
 import EditContactDetails from './screens/EditContactDetails';
+import MonitoringSettings from './screens/MonitoringSettings';
 
 const Stack = createNativeStackNavigator();
 
@@ -134,6 +135,7 @@ export default function App() {
                 <Stack.Screen name="Contact_Logs" component={Contact_Logs} />
                 <Stack.Screen name="Settings" component={Settings} />
                 <Stack.Screen name="EditContactDetails" component={EditContactDetails} />
+                <Stack.Screen name="MonitoringSettings" component={MonitoringSettings} />
               </>
             )}
           </Stack.Navigator>
