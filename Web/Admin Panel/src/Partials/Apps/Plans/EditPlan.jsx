@@ -103,7 +103,7 @@ const EditPlan = () => {
           setValue("type", response.data.plan.plan_type);
         }
       } catch (error) {
-        handleApiError(error, "fetching", "template details");
+        handleApiError(error, "fetching", "plan details");
       }
     };
 

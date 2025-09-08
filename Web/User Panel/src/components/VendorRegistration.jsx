@@ -71,11 +71,18 @@ const Registration = () => {
     onSuccess: (data) => {
       toast.success(data.message);
       startTransition(() => {
+        const plan = location.state?.plan;
+        const token = data.token;
+        const user = data.user;
+        sessionStorage.setItem(
+          "checkout_state",
+          JSON.stringify({ plan, token, user })
+        );
         navigate("/checkout", {
           state: {
-            plan: location.state?.plan,
-            token: data.token,
-            user: data.user,
+            plan,
+            token,
+            user,
           },
           replace: true,
         });

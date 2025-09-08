@@ -93,10 +93,15 @@ const CouponCodeManagement = () => {
         );
         if (response.status === 200) {
           toast.success(response.data.message);
+
           setData((prevData) =>
             prevData.map((coupon) =>
               coupon.id === couponToApprove.id
-                ? { ...coupon, approve: coupon.approve === "1" ? "0" : "1" }
+                ? {
+                    ...coupon,
+                    approve: "1",
+                    status: "1",
+                  }
                 : coupon
             )
           );

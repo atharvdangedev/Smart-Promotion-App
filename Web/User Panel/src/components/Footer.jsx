@@ -1,4 +1,6 @@
 import { CheckCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import logo from "/logo.png";
 
 const Footer = () => {
   return (
@@ -8,7 +10,7 @@ const Footer = () => {
           <div className="md:col-span-2">
             <div className="flex items-center mb-6">
               <div className="text-white p-2 rounded-lg mr-3">
-                <img src="/logo.png" alt="logo" className="w-10 h-10" />
+                <img src={logo} alt="logo" className="w-10 h-10" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white">
@@ -92,28 +94,28 @@ const Footer = () => {
             <h4 className="font-bold text-white mb-6">Company</h4>
             <ul className="space-y-3">
               <li>
-                <a
-                  href="/about-us"
+                <Link
+                  to="/about-us"
                   className="hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
                 >
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/privacy-policy"
+                <Link
+                  to="/privacy-policy"
                   className="hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/terms-of-service"
+                <Link
+                  to="/terms-of-service"
                   className="hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
                 >
                   Terms of Service
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

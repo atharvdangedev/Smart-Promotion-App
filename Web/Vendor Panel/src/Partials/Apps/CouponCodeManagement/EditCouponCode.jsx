@@ -33,7 +33,6 @@ const schema = yup.object().shape({
     .required("Plan Type is required"),
   discount_type: yup.string().required("Discount Type is required"),
   discount: yup.string().required("Discount is required"),
-  validity_days: yup.string().required("Validity days is required"),
   number_of_uses: yup.string().required("Number of uses is required"),
   is_recurring: yup.boolean().required("Is recurring is required"),
   valid_from: yup.date().required("Coupon validity start date is required"),
@@ -140,7 +139,6 @@ const EditCouponCode = () => {
           );
           setValue("discount_type", couponData.discount_type);
           setValue("discount", couponData.discount);
-          setValue("validity_days", couponData.validity_days);
           setValue("number_of_uses", couponData.number_of_uses);
           setValue("is_recurring", Number(couponData.is_recurring));
           setValue(
@@ -174,16 +172,15 @@ const EditCouponCode = () => {
       formData.append("plan_id", data.plan_id);
       formData.append("discount_type", data.discount_type);
       formData.append("discount", data.discount);
-      formData.append("validity_days", data.validity_days);
       formData.append("number_of_uses", data.number_of_uses);
       formData.append("is_recurring", data.is_recurring ? 1 : 0);
       formData.append(
         "valid_from",
-        data.valid_from.toISOString().split("T")[0]
+        data.valid_from.toLocaleDateString("en-CA")
       );
       formData.append(
         "valid_till",
-        data.valid_till.toISOString().split("T")[0]
+        data.valid_till.toLocaleDateString("en-CA")
       );
       const response = await axios.post(
         `${APP_URL}/affiliate/coupons/${couponId}`,
@@ -374,32 +371,6 @@ const EditCouponCode = () => {
                   {errors.discount && (
                     <div className="invalid-feedback">
                       {errors.discount.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="col-md-6">
-                <div className="form-floating">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={3}
-                    onInput={(e) =>
-                      (e.target.value = e.target.value.replace(/\D+/g, ""))
-                    }
-                    className={`form-control ${
-                      errors.validity_days ? "is-invalid" : ""
-                    }`}
-                    id="validity_days"
-                    {...register("validity_days")}
-                    placeholder="Validity Days"
-                    tabIndex="4"
-                  />
-                  <label htmlFor="validity_days">Validity Days</label>
-                  {errors.validity_days && (
-                    <div className="invalid-feedback">
-                      {errors.validity_days.message}
                     </div>
                   )}
                 </div>

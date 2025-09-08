@@ -7,6 +7,7 @@ import AffiliateTerms from "./components/AffiliateTerms";
 import AboutUs from "./components/AboutUs";
 import TermsOfService from "./components/TermsOfService";
 import PrivacyPolicy from "./components/PrivacyPolicy";
+import PaymentStatus from "./components/PaymentStatus";
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/register" element={<VendorRegistration />} />
       <Route path="/affiliate-register" element={<AffiliateRegistration />} />
+      <Route path="/payment-status" element={<PaymentStatus />} />
       {/* <Route path="/affiliate-terms" element={<AffiliateTerms />} /> */}
       {/* <Route path="/about-us" element={<AboutUs />} /> */}
       {/* <Route path="/terms-of-service" element={<TermsOfService />} /> */}

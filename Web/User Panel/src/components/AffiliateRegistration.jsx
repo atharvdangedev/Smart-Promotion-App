@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import PasswordInput from "./password-input";
 import { Button } from "./ui/button";
 import FormField from "./form-field";
+import { Link } from "react-router-dom";
 
 const AffiliateRegistration = () => {
   const [isPending, startTransition] = useTransition();
@@ -295,12 +296,12 @@ const AffiliateRegistration = () => {
               <div className="ml-3 text-sm">
                 <label htmlFor="consent" className="font-medium text-gray-700">
                   I agree to the
-                  <a
-                    href="/affiliate-terms"
+                  <Link
+                    to="/affiliate-terms"
                     className="text-indigo-600 hover:text-indigo-500 ml-1"
                   >
                     affiliate terms and conditions
-                  </a>
+                  </Link>
                 </label>
                 {errors.consent && (
                   <p className="text-red-500 text-xs italic">

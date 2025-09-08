@@ -5,6 +5,8 @@ export const routePatterns = [
   { pattern: "orders/:orderId", title: "Orders / Order Details" },
   { pattern: "invoice", title: "Invoices / Invoice Details" },
   { pattern: "change-password", title: "Change Password" },
+  { pattern: "subscriptions", title: "Subscriptions" },
+
   // user routes
   { pattern: "my-profile", title: "User / My Profile" },
   // agent routes

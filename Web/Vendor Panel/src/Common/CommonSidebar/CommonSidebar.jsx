@@ -49,15 +49,9 @@ const CommonSidebar = memo(({ iconColor }) => {
                 menuItems={[]}
               />
               <MenuItem
-                title="Payments"
-                link="payments"
-                icon={<i className="bi bi-wallet2"></i>}
-                menuItems={[]}
-              />
-              <MenuItem
-                title="Orders"
-                link="orders"
-                icon={<i className="bi bi-cart"></i>}
+                title="Subscriptions"
+                link="subscriptions"
+                icon={<i className="bi bi-wallet"></i>}
                 menuItems={[]}
               />
               <Can do={APP_PERMISSIONS.AGENTS_VIEW}>

@@ -15,6 +15,9 @@ export const APP_PERMISSIONS = {
   // Commissions Management
   COMMISSIONS_VIEW: "commissions:view",
 
+  // Subscriptions Management
+  SUBSCRIPTIONS_VIEW: "commissions:view",
+
   // Contacts Management
   CONTACTS_IMPORT: "contacts:import",
   CONTACTS_VIEW: "contacts:view",
@@ -61,6 +64,8 @@ export const ROLE_PERMISSIONS = {
     APP_PERMISSIONS.EXPORTS,
 
     APP_PERMISSIONS.BECOME_AN_AFFILIATE,
+
+    APP_PERMISSIONS.SUBSCRIPTIONS_VIEW,
   ],
   6: [
     APP_PERMISSIONS.CONTACTS_VIEW,

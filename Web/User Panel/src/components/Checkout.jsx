@@ -16,18 +16,20 @@ import {
 
 const Checkout = () => {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
+  const state =
+    location.state ||
+    JSON.parse(sessionStorage.getItem("checkout_state") || "{}");
 
-  const plan = location.state?.plan;
-  const token = location.state?.token;
-  const user = location.state?.user;
+  const plan = state?.plan;
+  const token = state?.token;
+  const user = state?.user;
 
   const [coupon, setCoupon] = useState("");
   const [couponDetails, setCouponDetails] = useState(null);
   const [couponMessage, setCouponMessage] = useState("");
   const [isValidCoupon, setIsValidCoupon] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState(null);
 
   const { mutate: validateCoupon, isLoading: isValidatingCoupon } = useMutation(
     {
@@ -48,18 +50,12 @@ const Checkout = () => {
   const { mutate: verifyPaymentMutation } = useMutation({
     mutationFn: (formdata) => verifyPaymentApi(BASE_URL, token, formdata),
     onSuccess: () => {
-      setPaymentStatus("success");
       toast.success("Payment verified! Redirecting...");
-      setTimeout(() => {
-        window.location.replace(
-          "https://smart-promotion-app-vendor.vercel.app"
-        );
-      }, 2500);
+      navigate(`/payment-status?status=success`, { replace: true });
     },
     onError: (error) => {
-      setPaymentStatus("failed");
       toast.error(error.message);
-      setTimeout(() => navigate("/", { replace: true }), 2500);
+      navigate(`/payment-status?status=failed`, { replace: true });
     },
   });
 
@@ -76,7 +72,6 @@ const Checkout = () => {
     onSuccess: ({ order }) => {
       const payment = new PaymentComponent({
         amount: order.amount,
-        planId: plan.id,
         orderId: order.razorpay_order_id,
         customerInfo: {
           name: `${user.first_name} ${user.last_name}`,
@@ -116,30 +111,11 @@ const Checkout = () => {
     );
   }
 
-  const renderPaymentStatus = () => {
-    if (!paymentStatus) return null;
-
-    return (
-      <div
-        className={`mt-4 p-4 rounded-lg font-medium ${
-          paymentStatus === "success"
-            ? "bg-green-100 text-green-800 border border-green-300"
-            : "bg-red-100 text-red-800 border border-red-300"
-        }`}
-      >
-        {paymentStatus === "success"
-          ? "Payment successful! Thank you for your purchase."
-          : "Payment failed. Please try again."}
-      </div>
-    );
-  };
-
   return (
     <>
       <Header />
       <div className="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto grid lg:grid-cols-2 gap-12">
-          <div className="lg:col-span-2">{renderPaymentStatus()}</div>
           {/* Billing Form */}
           <div className="bg-white p-8 rounded-2xl shadow-lg">
             <h2 className="text-3xl font-bold text-gray-900 mb-6">

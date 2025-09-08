@@ -5,7 +5,7 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
@@ -15,6 +15,10 @@ import { formatDate } from "../utils/formatDate";
 import { useSelector } from "react-redux";
 import { APP_PERMISSIONS } from "../utils/permissions";
 import usePermissions from "../../../hooks/usePermissions";
+import { createOrderApi, verifyPaymentApi } from "../utils/paymentApis";
+import PaymentComponent from "../utils/PaymentComponent";
+import PlansModal from "./PlansModal";
+import CheckoutModal from "./CheckoutModal";
 
 const Subscriptions = () => {
   // Access token
@@ -26,11 +30,16 @@ const Subscriptions = () => {
   const APP_URL = import.meta.env.VITE_API_URL;
 
   // State initialization
+  const [showPlansModal, setShowPlansModal] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [processingPayment, setProcessingPayment] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [refetch, setRefetch] = useState(false);
 
-  //fetch plans
+  //fetch subscriptions
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
@@ -58,9 +67,64 @@ const Subscriptions = () => {
     };
 
     fetchData();
-  }, [APP_URL, token, user.rolename]);
+  }, [APP_URL, token, user.rolename, refetch]);
 
   const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
+
+  const handlePurchase = useCallback((plan) => {
+    setSelectedPlan(plan);
+    setShowPlansModal(false);
+    setShowCheckoutModal(true);
+  }, []);
+
+  const handleRenew = useCallback(() => {
+    setShowPlansModal(true);
+  }, []);
+
+  const handleProceedToPayment = async (finalPrice, coupon) => {
+    setProcessingPayment(true);
+    try {
+      const order = await createOrderApi(
+        APP_URL,
+        token,
+        selectedPlan.id,
+        coupon
+      );
+      const payment = new PaymentComponent({
+        amount: finalPrice,
+        orderId: order.razorpay_order_id,
+        customerInfo: {
+          name: `${user.first_name} ${user.last_name}`,
+          email: user.email,
+          phone: user.contact_no,
+        },
+        metadata: {
+          companyName: "Smartscripts Private Limited",
+          description: `Purchase of subscription for ${selectedPlan.validity} days`,
+          themeColor: "#1C6EA5",
+        },
+        onSuccess: async (paymentResult) => {
+          try {
+            await verifyPaymentApi(APP_URL, token, {
+              razorpay_order_id: paymentResult.orderId,
+              razorpay_payment_id: paymentResult.paymentId,
+              razorpay_signature: paymentResult.signature,
+            });
+            setShowCheckoutModal(false);
+            setRefetch((prev) => !prev);
+          } catch (error) {
+            handleApiError(error, "verifying", "payment");
+          }
+        },
+        onError: (error) => handleApiError(error, "processing", "payment"),
+      });
+      await payment.initializePayment();
+    } catch (error) {
+      handleApiError(error, "creating", "order");
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
 
   const columns = useMemo(
     () => [
@@ -76,35 +140,9 @@ const Subscriptions = () => {
         accessor: (row) => `${row.plan_name} ${row.plan_type}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              <span>{row.original.plan_name}</span>
-              <span>{row.original.plan_type}</span>
-            </div>
-          </div>
-        ),
-      },
-      {
-        Header: "Vendor",
-        accessor: (row) => `${row.first_name} ${row.last_name}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              {row.original.first_name
-                ? `${row.original.first_name} ${row.original.last_name}`
-                : "No Vendor"}
-            </div>
-          </div>
-        ),
-      },
-      {
-        Header: "Business",
-        accessor: (row) => `${row.business_name}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              {row.original.business_name
-                ? `${row.original.business_name}`
-                : "No Business"}
+            <div className="d-flex gap-2">
+              <strong>{row.original.plan_name}</strong>{" "}
+              <span>({row.original.plan_type})</span>
             </div>
           </div>
         ),
@@ -113,20 +151,30 @@ const Subscriptions = () => {
         Header: "Plan Validity",
         accessor: (row) => `${row.start_date} ${row.end_date}`,
         Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              <span>{formatDate(row.original.start_date || "")}</span> to
-              <span>{formatDate(row.original.end_date || "")}</span>
+          <div className="d-flex align-items-center justify-content-start">
+            <div className="d-flex gap-2">
+              <span className="mr-2">
+                {formatDate(row.original.start_date || "")}
+              </span>
+              -
+              <span className="ml-2">
+                {formatDate(row.original.end_date || "")}
+              </span>
             </div>
           </div>
         ),
       },
       {
-        Header: "PRICE",
+        Header: "Price",
         accessor: "price",
         Cell: ({ row }) => {
           return (
-            <div>
+            <div
+              style={{
+                color: "green",
+                fontWeight: "bold",
+              }}
+            >
               {Number(row.original.price).toLocaleString("en-IN", {
                 style: "currency",
                 currency: "INR",
@@ -135,8 +183,50 @@ const Subscriptions = () => {
           );
         },
       },
+      {
+        Header: "Paid Amount",
+        accessor: "paid_amount",
+        Cell: ({ row }) => {
+          return (
+            <div
+              style={{
+                color: "green",
+                fontWeight: "bold",
+              }}
+            >
+              {Number(row.original.paid_amount).toLocaleString("en-IN", {
+                style: "currency",
+                currency: "INR",
+              })}
+            </div>
+          );
+        },
+      },
+      {
+        Header: "Actions",
+        accessor: "action",
+        Cell: ({ row }) =>
+          new Date(row.original.end_date) < new Date() ? (
+            <button
+              onClick={handleRenew}
+              type="button"
+              className="btn text-info px-2 me-1"
+            >
+              Renew
+            </button>
+          ) : (
+            <span
+              style={{
+                color: "green",
+                fontWeight: "bold",
+              }}
+            >
+              Active
+            </span>
+          ),
+      },
     ],
-    []
+    [handleRenew]
   );
 
   // Use the useTable hook to build the table
@@ -188,6 +278,15 @@ const Subscriptions = () => {
               <h4 className="title-font">
                 <strong>Subscriptions</strong>
               </h4>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowPlansModal(true);
+                }}
+              >
+                Add New Sub
+              </button>
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -307,6 +406,20 @@ const Subscriptions = () => {
               </tbody>
             </table>
           </div>
+
+          <PlansModal
+            show={showPlansModal}
+            onClose={() => setShowPlansModal(false)}
+            onPurchase={handlePurchase}
+          />
+
+          <CheckoutModal
+            show={showCheckoutModal}
+            onClose={() => setShowCheckoutModal(false)}
+            plan={selectedPlan}
+            onProceedToPayment={handleProceedToPayment}
+            processingPayment={processingPayment}
+          />
 
           {data.length > 0 && (
             <ResponsivePagination
