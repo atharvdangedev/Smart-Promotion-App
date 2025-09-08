@@ -1,12 +1,18 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import { LANDING_URL } from '@env';
 
 export default function WelcomeScreen({ navigation }) {
+  const handleSignupRedirect = () => {
+    Linking.openURL(LANDING_URL).catch(err =>
+      console.error('Failed to open URL:', err),
+    );
+  };
   return (
     <SafeAreaView className="flex-1 px-6 bg-white">
       <View className="items-center mt-[15%]">
@@ -42,7 +48,10 @@ export default function WelcomeScreen({ navigation }) {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="px-6 py-4 border border-[#0083C4] rounded-xl w-full">
+        <TouchableOpacity
+          className="px-6 py-4 border border-[#0083C4] rounded-xl w-full"
+          onPress={handleSignupRedirect}
+        >
           <Text className="text-center text-[#0083C4] font-semibold">
             Create Account or Sign Up
           </Text>

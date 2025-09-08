@@ -132,7 +132,7 @@ export default function CallLogScreen({ navigation }) {
                     {item.contact_name ? item.contact_name : 'Unkown'}
                   </Text>
                   <View className="flex-row gap-2">
-                    <Text className="text-gray-400">{item.contact_number}</Text>
+                    <Text className="text-gray-400">{item.number}</Text>
                     <Text className="text-gray-400 text-xs mt-1">
                       {formatTimestamp(Number(item.timestamp))}
                     </Text>
