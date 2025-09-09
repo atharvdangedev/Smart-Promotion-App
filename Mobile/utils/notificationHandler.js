@@ -3,6 +3,7 @@ import { openWhatsApp } from './OpenWhatsApp';
 import { fetchTemplate } from '../apis/TemplateApi';
 import { vendorCallLog } from '../apis/ContactsApi';
 import { useAuthStore } from '../store/useAuthStore';
+import { useMonitoringStore } from '../store/useMonitoringStore';
 import { saveRecentMessage } from '../apis/ProfileApi';
 
 function getPrimaryTemplateForCall(call, templates) {
@@ -32,9 +33,11 @@ export async function notificationBackgroundHandler({ type, detail }) {
     case EventType.ACTION_PRESS:
       switch (pressAction.id) {
         case 'no_client':
+          // Add the number to the blacklist
+          useMonitoringStore.getState().addToBlacklist(call.number);
           await notifee.cancelNotification(notification.id);
           console.log(
-            `Headless Task: User chose NO for client: ${call.number}`,
+            `Headless Task: User chose NO for client: ${call.number}. Added to blacklist.`,
           );
           break;
 
@@ -71,6 +74,9 @@ export async function notificationBackgroundHandler({ type, detail }) {
               'Hello! We recently had a call. How can I help you today?',
             );
           }
+
+          // Log that a message was sent to this number for the cooldown timer
+          useMonitoringStore.getState().logSentMessage(call.number);
 
           await notifee.cancelNotification(notification.id);
           break;
