@@ -95,7 +95,6 @@ const ImportContactsModal = ({ show, onClose }) => {
       "contact_name",
       "contact_number",
       "email",
-      "birthdate",
       "label",
       "note",
     ];
@@ -103,7 +102,6 @@ const ImportContactsModal = ({ show, onClose }) => {
       "Jane Smith",
       "8149017842",
       "jane@example.com",
-      "01-01-1990",
       "Client",
       "Met at expo",
     ];
@@ -171,11 +169,6 @@ const ImportContactsModal = ({ show, onClose }) => {
                   <strong>email (required):</strong> Must be valid format{" "}
                   <em>(local@domain.tld)</em>. Example:{" "}
                   <em>jane@example.com</em>
-                </li>
-                <li>
-                  <strong>birthdate (optional):</strong> Format{" "}
-                  <em>DD-MM-YYYY</em>, must be a valid date. Example:{" "}
-                  <em>01-01-1990</em>
                 </li>
                 <li>
                   <strong>label (optional):</strong> One word/short tag like{" "}

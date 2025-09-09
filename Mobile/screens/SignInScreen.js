@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
+  Linking,
 } from 'react-native';
 import { Eye, EyeOff, CheckCircle, Circle } from 'lucide-react-native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
@@ -14,7 +15,7 @@ import { handleApiError } from '../utils/handleApiError';
 import { Controller, useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { BASE_URL, API_KEY } from '@env';
+import { BASE_URL, API_KEY, LANDING_URL } from '@env';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import useThemeColors from '../hooks/useThemeColor';
@@ -91,7 +92,14 @@ export default function LoginScreen() {
     navigation.navigate('ForgotPassword');
     reset();
   };
+
   const colors = useThemeColors();
+
+  const handleSignupRedirect = () => {
+    Linking.openURL(LANDING_URL).catch(err =>
+      console.error('Failed to open URL:', err),
+    );
+  };
 
   return (
     <SafeAreaWrapper
@@ -229,7 +237,7 @@ export default function LoginScreen() {
         <Text className="text-center text-base " style={{ color: colors.text }}>
           Don’t have an account?
         </Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleSignupRedirect}>
           <Text
             className="font-semibold border-b-hairline"
             style={{ color: colors.text }}

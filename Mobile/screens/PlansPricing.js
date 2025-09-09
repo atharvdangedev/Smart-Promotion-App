@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/useAuthStore';
 import { fetchPlans } from '../apis/PlansApi';
 import SanitizedHtml from '../utils/sanatizeHTML';
+import formatCurrency from '../utils/formatCurrency';
 
 export default function PlansPricingScreen() {
   const user = useAuthStore(state => state.rolename);
@@ -84,7 +85,7 @@ export default function PlansPricingScreen() {
                 {plan.title}
               </Text>
               <Text className={`text-xl mb-2 ${style.text}`}>
-                Price: ₹{Math.round(plan.final_price)}
+                Price: {formatCurrency(plan.price)}
               </Text>
               <Text className={`text-xl mb-4 ${style.text}`}>
                 Validity: {plan.validity} Months

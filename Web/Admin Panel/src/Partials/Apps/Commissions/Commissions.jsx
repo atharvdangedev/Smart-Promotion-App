@@ -5,7 +5,7 @@ import {
   useSortBy,
   useTable,
 } from "react-table";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ResponsivePagination from "../ResponsivePagination/ResponsivePagination";
 import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
@@ -15,6 +15,10 @@ import { useSelector } from "react-redux";
 import usePermissions from "../../../hooks/usePermissions.js";
 import { APP_PERMISSIONS } from "../utils/permissions.js";
 import Can from "../Can/Can.jsx";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import toast, { Toaster } from "react-hot-toast";
 
 const Commissions = () => {
   const { can } = usePermissions();
@@ -26,9 +30,29 @@ const Commissions = () => {
   const APP_URL = import.meta.env.VITE_API_URL;
 
   // State initialization
-  const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [recordToUpdate, setRecordToUpdate] = useState(null);
+  const [refetch, setRefetch] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pageSize, setPageSize] = useState(10);
+
+  const payoutSchema = yup.object().shape({
+    transaction_id: yup.string().required("Transaction ID is required"),
+    note: yup.string().required("Reference note is required"),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    clearErrors,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(payoutSchema),
+    mode: "onChange",
+  });
 
   //fetch commissions
   useEffect(() => {
@@ -58,7 +82,46 @@ const Commissions = () => {
     };
 
     fetchData();
-  }, [APP_URL, token, user.rolename]);
+  }, [APP_URL, token, user.rolename, refetch]);
+
+  // Handle payout click callback
+  const handlePayoutClick = useCallback((record) => {
+    setRecordToUpdate(record);
+    setIsModalOpen(true);
+  }, []);
+
+  // Handle payout complete functionality
+  const onSubmit = async (data) => {
+    try {
+      const payload = {
+        id: recordToUpdate.id,
+        transaction_id: data.transaction_id,
+        note: data.note,
+      };
+
+      setIsUpdating(true);
+      const response = await axios.post(
+        `${APP_URL}/${user.rolename}/pay-commission`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success(response.data.message);
+      }
+    } catch (err) {
+      handleApiError(err, "paying", "commission");
+    } finally {
+      setIsUpdating(false);
+      reset();
+      setRefetch((prev) => !prev);
+      setIsModalOpen(false);
+      clearErrors(["transaction_id", "note"]);
+    }
+  };
 
   const canSeeExports = can(APP_PERMISSIONS.EXPORTS);
   const canSeeActionsColumn = can(APP_PERMISSIONS.COMMISSIONS_PAY);
@@ -75,6 +138,20 @@ const Commissions = () => {
       {
         Header: "Coupon",
         accessor: "coupon_code",
+        Cell: ({ row }) => (
+          <div className="d-flex align-items-center">
+            <div className="d-flex flex-column">
+              <span
+                style={{
+                  color: "blue",
+                  fontWeight: "bold",
+                }}
+              >
+                {row.original.coupon_code}
+              </span>
+            </div>
+          </div>
+        ),
       },
       {
         Header: "Plan",
@@ -110,7 +187,12 @@ const Commissions = () => {
         accessor: "commission",
         Cell: ({ row }) => {
           return (
-            <div>
+            <div
+              style={{
+                color: "green",
+                fontWeight: "bold",
+              }}
+            >
               {Number(row.original.commission).toLocaleString("en-IN", {
                 style: "currency",
                 currency: "INR",
@@ -124,7 +206,12 @@ const Commissions = () => {
         accessor: "payout_balance",
         Cell: ({ row }) => {
           return (
-            <div>
+            <div
+              style={{
+                color: "green",
+                fontWeight: "bold",
+              }}
+            >
               {Number(row.original.payout_balance).toLocaleString("en-IN", {
                 style: "currency",
                 currency: "INR",
@@ -132,6 +219,30 @@ const Commissions = () => {
             </div>
           );
         },
+      },
+      {
+        Header: "Payout Status",
+        accessor: "payout_status",
+        Cell: ({ row }) => (
+          <div
+            className="d-flex flex-wrap gap-2"
+            style={{
+              textTransform: "capitalize",
+            }}
+          >
+            <span
+              className={`badge ${
+                row.original.payout_status === "paid"
+                  ? "bg-success"
+                  : row.original.payout_status === "pending"
+                  ? "bg-warning"
+                  : "bg-danger"
+              }`}
+            >
+              {row.original.payout_status ? row.original.payout_status : "N/A"}
+            </span>
+          </div>
+        ),
       },
     ];
 
@@ -148,6 +259,8 @@ const Commissions = () => {
                   data-toggle="tooltip"
                   data-placement="bottom"
                   title="Payout"
+                  disabled={row.original.payout_status === "paid"}
+                  onClick={() => handlePayoutClick(row.original)}
                 >
                   Pay
                 </button>
@@ -157,7 +270,7 @@ const Commissions = () => {
         ),
       });
     return baseColumns;
-  }, [canSeeActionsColumn]);
+  }, [canSeeActionsColumn, handlePayoutClick]);
 
   // Use the useTable hook to build the table
   const {
@@ -199,8 +312,15 @@ const Commissions = () => {
     setTablePageSize(newPageSize);
   };
 
+  const handleClose = () => {
+    setIsModalOpen(false);
+    reset();
+    clearErrors(["transaction_id", "note"]);
+  };
+
   return (
     <div className="px-4 py-3 page-body">
+      <Toaster />
       <div className="col-lg-12 col-md-12">
         <div className="card mb-3 p-3">
           <div className="table-responsive">
@@ -326,6 +446,104 @@ const Commissions = () => {
               </tbody>
             </table>
           </div>
+
+          {isModalOpen && (
+            <>
+              <div className="modal-backdrop show"></div>
+
+              <div className="modal show d-block" tabIndex="-1" role="dialog">
+                <div
+                  className="modal-dialog modal-dialog-centered modal-lg"
+                  role="document"
+                >
+                  <div className="modal-content">
+                    <div className="modal-header border-bottom-0">
+                      <button
+                        type="button"
+                        className="btn-close"
+                        onClick={handleClose}
+                        aria-label="Close"
+                      />
+                    </div>
+
+                    <div className="modal-body pt-0">
+                      <h5 className="mb-3">
+                        Confirm Payout for coupon code{" "}
+                        <strong>{recordToUpdate?.coupon_code}</strong> of{" "}
+                        <strong>
+                          {recordToUpdate?.plan_title} (
+                          {recordToUpdate?.plan_type})
+                        </strong>{" "}
+                        from affiliate{" "}
+                        <strong>
+                          {recordToUpdate?.first_name}{" "}
+                          {recordToUpdate?.last_name}{" "}
+                        </strong>
+                      </h5>
+                      <p>Please fill up the following extra information</p>
+                      <p
+                        style={{
+                          fontSize: 12,
+                        }}
+                      >
+                        If payment is done by cash, please enter Transaction Id
+                        as N/A, and write amount paid in note
+                      </p>
+                      <form onSubmit={handleSubmit(onSubmit)}>
+                        {/* Transaction Id */}
+                        <div className="mb-3">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className={`form-control ${
+                                errors.transaction_id ? "is-invalid" : ""
+                              }`}
+                              {...register("transaction_id")}
+                              placeholder="Enter Transaction Id"
+                            />
+                            <label className="form-label">Transaction Id</label>
+                            {errors.transaction_id && (
+                              <div className="invalid-feedback">
+                                {errors.transaction_id.message}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Reference note */}
+                        <div className="mb-3">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className={`form-control ${
+                                errors.note ? "is-invalid" : ""
+                              }`}
+                              {...register("note")}
+                              placeholder="Enter reference note"
+                            />
+                            <label className="form-label">Reference Note</label>
+                            {errors.note && (
+                              <div className="invalid-feedback">
+                                {errors.note.message}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <button
+                          className="me-1 btn btn-primary"
+                          type="submit"
+                          disabled={isUpdating}
+                        >
+                          {isUpdating ? "Processing..." : "Confirm Payout"}
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
           {data.length > 0 && (
             <ResponsivePagination

@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useQuery } from '@tanstack/react-query';
 import { fetchCall_log, fetchLog } from '../apis/Call_LogApi';
@@ -20,18 +20,16 @@ export default function Contact_Logs() {
 
   const user = useAuthStore(state => state.rolename);
 
-  const [filters, setFilters] = useState({
-      
-    });
+  const [filters, setFilters] = useState({});
 
   const {
-      data: call_logs = [],
-      isFetching,
-      refetch,
-    } = useQuery({
-      queryKey: ['call_logs', filters],
-      queryFn: () => fetchCall_log(user),
-    });
+    data: call_logs = [],
+    isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: ['call_logs', filters],
+    queryFn: () => fetchCall_log(user),
+  });
 
   return (
     <SafeAreaWrapper

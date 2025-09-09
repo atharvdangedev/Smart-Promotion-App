@@ -52,6 +52,8 @@ export async function displayClientCheckNotification(call) {
     android: {
       channelId: CHANNEL_ID,
       autoCancel: false,
+      smallIcon: 'ic_app_logo',
+      largeIcon: 'ic_app_logo',
       pressAction: {
         id: 'default',
         launchActivity: 'default',

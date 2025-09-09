@@ -11,7 +11,7 @@ import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import axios from "axios";
 import { handleApiError } from "../utils/handleApiError";
-import { formatDateTime } from "../utils/formatDate";
+import { formatDate } from "../utils/formatDate";
 import { useSelector } from "react-redux";
 import { APP_PERMISSIONS } from "../utils/permissions";
 import usePermissions from "../../../hooks/usePermissions";
@@ -115,8 +115,8 @@ const Subscriptions = () => {
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>{formatDateTime(row.original.start_date || "")}</span> to
-              <span>{formatDateTime(row.original.end_date || "")}</span>
+              <span>{formatDate(row.original.start_date || "")}</span> to
+              <span>{formatDate(row.original.end_date || "")}</span>
             </div>
           </div>
         ),

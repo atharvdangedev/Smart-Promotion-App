@@ -63,6 +63,7 @@ const App = () => {
     "/invoice": "InvoiceDetails",
     "/my-profile": "MyProfile",
     "/change-password": "ChangePassword",
+    "/subscriptions": "Subscriptions",
     "/agents": "Agents",
     "/agents/add-agent": "AddAgent",
     "/agents/edit-agent": "EditAgent",

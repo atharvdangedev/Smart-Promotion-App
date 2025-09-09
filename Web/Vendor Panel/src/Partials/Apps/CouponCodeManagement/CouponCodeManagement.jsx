@@ -19,6 +19,7 @@ import usePermissions from "../../../hooks/usePermissions.js";
 import { APP_PERMISSIONS } from "../utils/permissions.js";
 import Can from "../Can/Can.jsx";
 import { setPageTitle } from "../utils/docTitle.js";
+import { formatDate } from "../utils/formatDate.js";
 
 const CouponCodeManagement = () => {
   // Navigation function
@@ -147,22 +148,40 @@ const CouponCodeManagement = () => {
       {
         Header: "Coupon",
         accessor: "coupon_code",
-      },
-      {
-        Header: "Plan",
-        accessor: (row) => `${row.plan_title} ${row.plan_type}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>
-                <strong>Plan:</strong> {row.original.plan_title}
-              </span>
-              <span>
-                <strong>Plan Type:</strong> {row.original.plan_type}
+              <span
+                style={{
+                  color: "blue",
+                  fontWeight: "bold",
+                }}
+              >
+                {row.original.coupon_code}
               </span>
             </div>
           </div>
         ),
+      },
+      {
+        Header: "Plans",
+        accessor: "plans",
+        Cell: ({ row }) => {
+          const plans = row.original.plans || [];
+          if (plans.length === 0) {
+            return <span>No Plans</span>;
+          }
+
+          return (
+            <div className="d-flex flex-column">
+              {plans.map((plan, idx) => (
+                <div key={idx} className="mb-1">
+                  <strong>{plan.title}</strong> <span>({plan.plan_type})</span>
+                </div>
+              ))}
+            </div>
+          );
+        },
       },
       {
         Header: "User",
@@ -181,31 +200,31 @@ const CouponCodeManagement = () => {
         Header: "Status",
         accessor: "status",
         Cell: ({ value }) => (
-          <span
-            className={`btn btn-sm ${
-              value === "1" ? "btn-success" : "btn-danger"
-            }`}
+          <div
+            className={`badge ${value === "1" ? "bg-success" : "bg-danger"}`}
             style={{
-              cursor: "default",
               backgroundColor: value === "1" ? "#28a745" : "#dc3545",
               borderColor: value === "1" ? "#28a745" : "#dc3545",
               color: "#fff",
-              width: "90px",
-              height: "35px",
             }}
           >
             {value === "1" ? "Active" : "Inactive"}
-          </span>
+          </div>
         ),
       },
       {
         Header: "Plan Validity",
         accessor: (row) => `${row.valid_from} ${row.valid_till}`,
         Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              from <span>{row.original.valid_from}</span> to
-              <span>{row.original.valid_till}</span>
+          <div className="d-flex align-items-center justify-content-start">
+            <div className="d-flex gap-2">
+              <span className="mr-2">
+                {formatDate(row.original.valid_from || "")}
+              </span>
+              -
+              <span className="ml-2">
+                {formatDate(row.original.valid_till || "")}
+              </span>
             </div>
           </div>
         ),

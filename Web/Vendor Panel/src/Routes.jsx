@@ -47,6 +47,9 @@ const AddTemplate = lazyLoad(() =>
 const EditTemplate = lazyLoad(() =>
   import("./Partials/Apps/Templates/EditTemplate")
 );
+const Subscriptions = lazyLoad(() =>
+  import("./Partials/Apps/Subscriptions/Subscriptions")
+);
 const Contacts = lazyLoad(() => import("./Partials/Apps/Contacts/Contacts"));
 import CouponCodeManagement from "./Partials/Apps/CouponCodeManagement/CouponCodeManagement";
 import Commissions from "./Partials/Apps/Commissions/Commissions";
@@ -75,6 +78,7 @@ const AppRoutes = () => {
               <Route path="/dashboard" element={<Index />} />
               <Route path="/payments" element={<MyWallet />} />
               <Route path="/orders" element={<Invoices />} />
+              <Route path="/subscriptions" element={<Subscriptions />} />
               <Route
                 path="/order-details/:orderId"
                 element={<OrderDetails />}

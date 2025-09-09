@@ -34,6 +34,7 @@
     "html-to-markdown": "^1.0.0",
     "html2canvas": "^1.4.1",
     "inputmask": "^5.0.8",
+    "jose": "^6.1.0",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.2",
     "jsvectormap": "^1.5.3",

@@ -76,6 +76,20 @@ const Commissions = () => {
       {
         Header: "Coupon",
         accessor: "coupon_code",
+        Cell: ({ row }) => (
+          <div className="d-flex align-items-center">
+            <div className="d-flex flex-column">
+              <span
+                style={{
+                  color: "blue",
+                  fontWeight: "bold",
+                }}
+              >
+                {row.original.coupon_code}
+              </span>
+            </div>
+          </div>
+        ),
       },
       {
         Header: "Plan",
@@ -94,7 +108,12 @@ const Commissions = () => {
         accessor: "commission",
         Cell: ({ row }) => {
           return (
-            <div>
+            <div
+              style={{
+                color: "green",
+                fontWeight: "bold",
+              }}
+            >
               {Number(row.original.commission).toLocaleString("en-IN", {
                 style: "currency",
                 currency: "INR",
@@ -108,7 +127,12 @@ const Commissions = () => {
         accessor: "payout_balance",
         Cell: ({ row }) => {
           return (
-            <div>
+            <div
+              style={{
+                color: "green",
+                fontWeight: "bold",
+              }}
+            >
               {Number(row.original.payout_balance).toLocaleString("en-IN", {
                 style: "currency",
                 currency: "INR",
