@@ -23,20 +23,18 @@ export const fetchContactDetails = async (id, activeUser) => {
   }
 };
 
-export const updateContact = async (contact_id, data, user) =>{
+export const updateContact = async (contact_id, data, user) => {
   try {
     const endpoint =
       user === 'agent'
         ? `agent/contacts/${contact_id}`
-        : `vendor/contacts/${contact_id}`
-    const response = await api.post(endpoint, data,{
-       headers: { "Content-Type": "multipart/form-data" },
+        : `vendor/contacts/${contact_id}`;
+    const response = await api.post(endpoint, data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data;
-  } catch (error) {
-    
-  }
-}
+  } catch (error) {}
+};
 
 export const importContacts = async (selectedContacts, user) => {
   try {

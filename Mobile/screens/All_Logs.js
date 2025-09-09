@@ -3,7 +3,6 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  Linking,
   RefreshControl,
   TextInput,
   Modal,
@@ -20,6 +19,7 @@ import SubHeader from '../components/SubHeader';
 import { formatTimestamp } from '../utils/formatTimestamp';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { openWhatsApp } from '../utils/Messaging';
 
 export default function All_Logs() {
   const colors = useThemeColors();
@@ -46,11 +46,6 @@ export default function All_Logs() {
     queryKey: ['call_logs', filters],
     queryFn: () => fetchCall_log(user, filters),
   });
-
-  const openWhatsApp = phone => {
-    const number = phone.replace(/\D/g, '');
-    Linking.openURL(`https://wa.me/${number}`).catch(console.error);
-  };
 
   const clearAllFilters = () => {
     setFilters({

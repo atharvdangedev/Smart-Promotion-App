@@ -35,7 +35,13 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   const token = useAuthStore(state => state.token);
   const [isRehydrated, setIsRehydrated] = useState(false);
-  const { permission, blacklist, minCallDuration, messageCooldownDays, sentMessageTimestamps } = useMonitoringStore();
+  const {
+    permission,
+    blacklist,
+    minCallDuration,
+    messageCooldownDays,
+    sentMessageTimestamps,
+  } = useMonitoringStore();
 
   const queryClient = new QueryClient();
 
@@ -59,7 +65,9 @@ export default function App() {
 
       // Rule 1: Check blacklist
       if (blacklist.includes(event.number)) {
-        console.log(`Skipping notification: ${event.number} is in the blacklist.`);
+        console.log(
+          `Skipping notification: ${event.number} is in the blacklist.`,
+        );
         return;
       }
 
@@ -70,7 +78,7 @@ export default function App() {
         event.duration < minCallDuration
       ) {
         console.log(
-          `Skipping notification: Call duration (${event.duration}s) is less than minimum (${minCallduration}s).`,
+          `Skipping notification: Call duration (${event.duration}s) is less than minimum (${minCallDuration}s).`,
         );
         return;
       }
@@ -169,8 +177,14 @@ export default function App() {
                 <Stack.Screen name="ContactsList" component={ContactList} />
                 <Stack.Screen name="Contact_Logs" component={Contact_Logs} />
                 <Stack.Screen name="Settings" component={Settings} />
-                <Stack.Screen name="EditContactDetails" component={EditContactDetails} />
-                <Stack.Screen name="MonitoringSettings" component={MonitoringSettings} />
+                <Stack.Screen
+                  name="EditContactDetails"
+                  component={EditContactDetails}
+                />
+                <Stack.Screen
+                  name="MonitoringSettings"
+                  component={MonitoringSettings}
+                />
                 <Stack.Screen name="Blacklist" component={BlacklistScreen} />
               </>
             )}

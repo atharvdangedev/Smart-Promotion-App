@@ -20,3 +20,17 @@ export const openWhatsApp = async (number, templateMessage) => {
     console.error('An error occurred while trying to open WhatsApp:', error);
   }
 };
+
+export const openSMS = async (number, templateMessage) => {
+  const url = `sms:${number}?body=${encodeURIComponent(templateMessage)}`;
+  try {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      console.error('SMS functionality is not supported on this device.');
+    }
+  } catch (error) {
+    console.error('An error occurred while trying to open SMS:', error);
+  }
+};

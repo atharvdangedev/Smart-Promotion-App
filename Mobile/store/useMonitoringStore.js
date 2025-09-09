@@ -17,7 +17,7 @@ export const useMonitoringStore = create(
       minCallDuration: 0, // in seconds
 
       // STATE
-      sentMessageTimestamps: {}, // e.g., { '1234567890': 1678886400000 }
+      sentMessageTimestamps: {},
       permission: {
         status: 'checking',
         message: 'Checking permissions...',
@@ -189,7 +189,6 @@ export const useMonitoringStore = create(
     {
       name: 'monitoring-settings-storage',
       storage: createJSONStorage(() => AsyncStorage),
-      // Only persist the settings part of the store
       partialize: state => ({
         blacklist: state.blacklist,
         messageCooldownDays: state.messageCooldownDays,

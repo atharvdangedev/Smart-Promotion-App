@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchLog } from '../apis/Call_LogApi';
 import { getCallIcon } from '../utils/constants';
 import { formatDate } from '../utils/FormateDateHelper';
+import { openWhatsApp } from '../utils/Messaging';
 
 export default function ContactDetails({ navigation }) {
   const route = useRoute();
@@ -50,11 +51,6 @@ export default function ContactDetails({ navigation }) {
     queryFn: () => fetchLog(contact_id, ActiveUser),
     onError: error => handleApiError(error, 'fetching call log'),
   });
-
-  const openWhatsApp = phone => {
-    const number = phone.replace(/\D/g, '');
-    Linking.openURL(`https://wa.me/${number}`).catch(console.error);
-  };
 
   const handleCall = () => {
     const number = contact.contact_number.replace(/\D/g, '');

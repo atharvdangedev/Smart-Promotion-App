@@ -1,5 +1,5 @@
 import notifee, { EventType } from '@notifee/react-native';
-import { openWhatsApp } from './OpenWhatsApp';
+import { openWhatsApp, openSMS } from './Messaging';
 import { fetchTemplate } from '../apis/TemplateApi';
 import { vendorCallLog } from '../apis/ContactsApi';
 import { useAuthStore } from '../store/useAuthStore';
@@ -33,7 +33,6 @@ export async function notificationBackgroundHandler({ type, detail }) {
     case EventType.ACTION_PRESS:
       switch (pressAction.id) {
         case 'no_client':
-          // Add the number to the blacklist
           useMonitoringStore.getState().addToBlacklist(call.number);
           await notifee.cancelNotification(notification.id);
           console.log(
@@ -41,7 +40,8 @@ export async function notificationBackgroundHandler({ type, detail }) {
           );
           break;
 
-        case 'yes_send_message':
+        case 'send_whatsapp':
+        case 'send_sms':
           let templates = [];
           try {
             const data = await fetchTemplate('vendor');
@@ -51,28 +51,28 @@ export async function notificationBackgroundHandler({ type, detail }) {
           }
 
           const template = getPrimaryTemplateForCall(call, templates);
+          const message = template
+            ? template.description
+            : 'Hello! We recently had a call. How can I help you today?';
 
           if (template) {
             await vendorCallLog(call);
-
             const payload = {
               contact_no: call.number,
-              message_sent: template.description,
+              message_sent: message,
               timestamp: call.timestamp,
             };
-
             await saveRecentMessage(rolename, payload);
-
-            await openWhatsApp(call.number, template.description);
           } else {
             console.log(
               `No matching primary template found for call type: ${call.type}, sending fallback message.`,
             );
+          }
 
-            await openWhatsApp(
-              call.number,
-              'Hello! We recently had a call. How can I help you today?',
-            );
+          if (pressAction.id === 'send_whatsapp') {
+            await openWhatsApp(call.number, message);
+          } else {
+            await openSMS(call.number, message);
           }
 
           // Log that a message was sent to this number for the cooldown timer

@@ -453,7 +453,7 @@ export default function DashboardScreen({ navigation }) {
                 <View className="flex-row items-center">
                   <View className="w-3 h-3 bg-blue-500 rounded-full mr-2" />
                   <Text className="text-light-subtext dark:text-dark-subtext">
-                    Inbound
+                    Incoming
                   </Text>
                 </View>
                 <View className="flex-row items-center">

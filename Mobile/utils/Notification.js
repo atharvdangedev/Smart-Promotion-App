@@ -60,13 +60,19 @@ export async function displayClientCheckNotification(call) {
       },
       actions: [
         {
-          title: '✅ Yes, Send',
+          title: 'Via WhatsApp',
           pressAction: {
-            id: 'yes_send_message',
+            id: 'send_whatsapp',
           },
         },
         {
-          title: '❌ No',
+          title: 'Via SMS',
+          pressAction: {
+            id: 'send_sms',
+          },
+        },
+        {
+          title: 'Ignore',
           pressAction: {
             id: 'no_client',
           },
