@@ -55,10 +55,10 @@ export default function All_Logs() {
   const clearAllFilters = () => {
     setFilters({
       search: '',
-    type: '',
-    startDate: '',
-    endDate: '',
-    })
+      type: '',
+      startDate: '',
+      endDate: '',
+    });
     refetch();
   };
 
@@ -115,7 +115,12 @@ export default function All_Logs() {
           onPress={clearAllFilters}
           className="px-3 py-2 rounded-lg"
         >
-          <Text style={{color: colors.text}} className="border border-light-border dark:border-dark-border py-1 rounded-xl text-center font-bold">Clear All</Text>
+          <Text
+            style={{ color: colors.text }}
+            className="border border-light-border dark:border-dark-border py-1 rounded-xl text-center font-bold"
+          >
+            Clear All
+          </Text>
         </TouchableOpacity>
       </View>
 

@@ -20,7 +20,6 @@ export const fetchCall_log = async (user, filters = {}) => {
   }
 };
 
-
 export const fetchLog = async (Id, user) => {
   try {
     const endpoint =

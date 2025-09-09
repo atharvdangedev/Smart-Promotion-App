@@ -24,7 +24,7 @@ class CallLogMonitorService : Service() {
 
         try {
            val notification = NotificationCompat.Builder(this, "CallLogChannel")
-            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setSmallIcon(R.drawable.ic_app_logo)
             .setContentTitle("Monitoring Call Logs")
             .setContentText("Watching call history for changes...")
             .setOngoing(true)
