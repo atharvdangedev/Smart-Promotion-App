@@ -28,13 +28,20 @@ import { useCallLogMonitor } from './hooks/useCallLogMonitor';
 import { displayClientCheckNotification } from './utils/Notification';
 import EditContactDetails from './screens/EditContactDetails';
 import MonitoringSettings from './screens/MonitoringSettings';
+import BlacklistScreen from './screens/BlacklistScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   const token = useAuthStore(state => state.token);
   const [isRehydrated, setIsRehydrated] = useState(false);
-  const { permission } = useMonitoringStore();
+  const {
+    permission,
+    blacklist,
+    minCallDuration,
+    messageCooldownDays,
+    sentMessageTimestamps,
+  } = useMonitoringStore();
 
   const queryClient = new QueryClient();
 
@@ -49,13 +56,49 @@ export default function App() {
 
   useCallLogMonitor({
     onCallDetected: async event => {
-      if (permission.status === 'granted' && token) {
-        await displayClientCheckNotification(event);
-      } else {
+      if (permission.status !== 'granted' || !token) {
         console.warn(
-          'Skipping notification display: Permissions not granted or user not logged in.',
+          'Skipping notification: Permissions not granted or user not logged in.',
         );
+        return;
       }
+
+      // Rule 1: Check blacklist
+      if (blacklist.includes(event.number)) {
+        console.log(
+          `Skipping notification: ${event.number} is in the blacklist.`,
+        );
+        return;
+      }
+
+      // Rule 2: Check minimum call duration (only for connected calls)
+      if (
+        event.type !== 'missed' &&
+        event.type !== 'rejected' &&
+        event.duration < minCallDuration
+      ) {
+        console.log(
+          `Skipping notification: Call duration (${event.duration}s) is less than minimum (${minCallDuration}s).`,
+        );
+        return;
+      }
+
+      // Rule 3: Check message cooldown period
+      const lastSentTimestamp = sentMessageTimestamps[event.number];
+      if (lastSentTimestamp) {
+        const cooldownMillis = messageCooldownDays * 24 * 60 * 60 * 1000;
+        const timeSinceLastSent = Date.now() - lastSentTimestamp;
+
+        if (timeSinceLastSent < cooldownMillis) {
+          console.log(
+            `Skipping notification: Cooldown period for ${event.number} has not passed.`,
+          );
+          return;
+        }
+      }
+
+      // All rules passed, display the notification
+      await displayClientCheckNotification(event);
     },
   });
 
@@ -134,8 +177,15 @@ export default function App() {
                 <Stack.Screen name="ContactsList" component={ContactList} />
                 <Stack.Screen name="Contact_Logs" component={Contact_Logs} />
                 <Stack.Screen name="Settings" component={Settings} />
-                <Stack.Screen name="EditContactDetails" component={EditContactDetails} />
-                <Stack.Screen name="MonitoringSettings" component={MonitoringSettings} />
+                <Stack.Screen
+                  name="EditContactDetails"
+                  component={EditContactDetails}
+                />
+                <Stack.Screen
+                  name="MonitoringSettings"
+                  component={MonitoringSettings}
+                />
+                <Stack.Screen name="Blacklist" component={BlacklistScreen} />
               </>
             )}
           </Stack.Navigator>

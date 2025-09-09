@@ -9,7 +9,6 @@ export const api = axios.create({
   },
 });
 
-// Attach token from Zustand store
 api.interceptors.request.use(
   async config => {
     const { token } = useAuthStore.getState();
@@ -21,7 +20,6 @@ api.interceptors.request.use(
   error => Promise.reject(error),
 );
 
-// Handle 401 errors
 api.interceptors.response.use(
   response => response,
   async error => {

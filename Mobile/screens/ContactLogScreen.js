@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, Linking } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import {
   PhoneMissed,
   PhoneIncoming,
@@ -14,11 +20,16 @@ import { fetchCall_log } from '../apis/Call_LogApi';
 import { useAuthStore } from '../store/useAuthStore';
 import { formatTimestamp } from '../utils/formatTimestamp';
 import { handleApiError } from '../utils/handleApiError';
+import { openWhatsApp } from '../utils/Messaging';
 
 export default function CallLogScreen({ navigation }) {
   const user = useAuthStore(state => state.rolename);
 
-  const { data: call_logs = [] } = useQuery({
+  const {
+    data: call_logs = [],
+    isRefetching,
+    refetch,
+  } = useQuery({
     queryKey: ['call_logs'],
     queryFn: () => fetchCall_log(user),
     enabled: !!user,
@@ -38,11 +49,6 @@ export default function CallLogScreen({ navigation }) {
       default:
         return null;
     }
-  };
-
-  const openWhatsApp = phone => {
-    const number = phone.replace(/\D/g, '');
-    Linking.openURL(`https://wa.me/${number}`).catch(console.error);
   };
 
   const counts = {
@@ -116,6 +122,9 @@ export default function CallLogScreen({ navigation }) {
         <FlatList
           data={call_logs.slice(0, 6)}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+          }
           keyExtractor={item => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
