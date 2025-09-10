@@ -1,8 +1,8 @@
 import { api } from '../utils/api';
 
-export const fetchContacts = async () => {
+export const fetchContacts = async (user) => {
   try {
-    const endpoint = 'vendor/contact/vendor';
+    const endpoint = user ==='vendor'? 'vendor/contact/vendor': 'agent/contact/vendor';
     const response = await api.get(endpoint);
     return response.data.vendor_contacts;
   } catch (error) {

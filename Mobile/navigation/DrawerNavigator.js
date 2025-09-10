@@ -20,10 +20,12 @@ import AgentsScreen from '../screens/AgentsScreen';
 import ContactList from '../screens/ContactList';
 import Settings from '../screens/Settings';
 import All_Logs from '../screens/All_Logs';
+import { useAuthStore } from '../store/useAuthStore';
 
 const Drawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
+  const user = useAuthStore((state)=> state.rolename);
   return (
     <Drawer.Navigator
       screenOptions={{
@@ -102,7 +104,7 @@ export default function DrawerNavigator() {
           drawerIcon: () => <Contact color="black" size={20} />,
         }}
       />
-      <Drawer.Screen
+      {user ==='agent'? null:(<Drawer.Screen
         name="Agents"
         component={AgentsScreen}
         options={{
@@ -113,7 +115,7 @@ export default function DrawerNavigator() {
           },
           drawerIcon: () => <User color="black" size={20} />,
         }}
-      />
+      />)}
       <Drawer.Screen
         name="Contact List"
         component={ContactList}
