@@ -15,7 +15,7 @@ import Header from '../components/Header';
 import { useAuthStore } from '../store/useAuthStore';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { fetchAgents, toggleStatus } from '../apis/AgentApi';
-import { API_PROFILE } from '@env';
+import { API_CONTACT } from '@env';
 import { handleApiSuccess } from '../utils/handleApiSuccess';
 import { handleApiError } from '../utils/handleApiError';
 
@@ -88,7 +88,7 @@ export default function AgentsScreen() {
                 <View className="border border-gray-700 rounded-full ">
                   {agent.profile_pic ? (
                     <Image
-                      source={{ uri: `${API_PROFILE}/${agent.profile_pic}` }}
+                      source={{ uri: `${API_CONTACT}/${agent.profile_pic}` }}
                       className="w-14 h-14 rounded-full"
                       resizeMode="cover"
                     />
