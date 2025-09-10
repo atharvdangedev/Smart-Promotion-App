@@ -12,207 +12,207 @@ const Index = memo(() => {
   const APP_URL = import.meta.env.VITE_API_URL;
 
   const { user: userData = {}, token } = useSelector((state) => state.auth);
-  const [orders, setOrders] = useState([]);
-  const [payoutOrders, setPayoutOrders] = useState([]);
   const [monthlyAnalytics, setMonthlyAnalytics] = useState([]);
-  const [isTransactionLoading, setIsTransactionLoading] = useState(false);
-  const [salesRevenueData, setSalesRevenueData] = useState([]);
-  const [transactionTotals, setTransactionTotals] = useState({
-    total_order_amount: "0",
-    category_totals: [],
-  });
+  // const [orders, setOrders] = useState([]);
+  // const [payoutOrders, setPayoutOrders] = useState([]);
+  // const [isTransactionLoading, setIsTransactionLoading] = useState(false);
+  // const [salesRevenueData, setSalesRevenueData] = useState([]);
+  // const [transactionTotals, setTransactionTotals] = useState({
+  //   total_order_amount: "0",
+  //   category_totals: [],
+  // });
 
   // Fetch all orders
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${APP_URL}/all-orders`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (response.status === 200) {
-          setOrders(response.data.orders);
-          setSalesRevenueData(formatSalesRevenueData(response.data.orders));
-        } else if (response.status === 204) {
-          setSalesRevenueData([]);
-        }
-      } catch (error) {
-        handleApiError(error, "fetching", "orders");
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await axios.get(`${APP_URL}/all-orders`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+  //       if (response.status === 200) {
+  //         setOrders(response.data.orders);
+  //         setSalesRevenueData(formatSalesRevenueData(response.data.orders));
+  //       } else if (response.status === 204) {
+  //         setSalesRevenueData([]);
+  //       }
+  //     } catch (error) {
+  //       handleApiError(error, "fetching", "orders");
+  //     }
+  //   };
 
-    fetchData();
-  }, [APP_URL, token]);
+  //   fetchData();
+  // }, [APP_URL, token]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${APP_URL}/admin-payout-orders`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (response.status === 200) {
-          setPayoutOrders(response.data.orders);
-        }
-      } catch (error) {
-        console.log(error);
-        setPayoutOrders([]);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await axios.get(`${APP_URL}/admin-payout-orders`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+  //       if (response.status === 200) {
+  //         setPayoutOrders(response.data.orders);
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //       setPayoutOrders([]);
+  //     }
+  //   };
 
-    fetchData();
-  }, [APP_URL, token]);
+  //   fetchData();
+  // }, [APP_URL, token]);
 
   // Fetch monthly analytics
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${APP_URL}/monthly-analytics`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (response.status === 200) {
-          setMonthlyAnalytics(response.data.monthly_analytics);
-        } else if (response.status === 204) {
-          setMonthlyAnalytics([]);
-        }
-      } catch (error) {
-        handleApiError(error, "fetching", "monthly analytics");
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await axios.get(`${APP_URL}/monthly-analytics`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+  //       if (response.status === 200) {
+  //         setMonthlyAnalytics(response.data.monthly_analytics);
+  //       } else if (response.status === 204) {
+  //         setMonthlyAnalytics([]);
+  //       }
+  //     } catch (error) {
+  //       handleApiError(error, "fetching", "monthly analytics");
+  //     }
+  //   };
 
-    fetchData();
-  }, [APP_URL, token]);
+  //   fetchData();
+  // }, [APP_URL, token]);
 
   // get transaction totals
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsTransactionLoading(true);
-      try {
-        const response = await axios.get(`${APP_URL}/all-order-totals`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (response.status === 200) {
-          setTransactionTotals(response.data.totals);
-        } else if (response.status === 204) {
-          setTransactionTotals({
-            total_order_amount: "0",
-            category_totals: [],
-          });
-        }
-      } catch (error) {
-        handleApiError(error, "fetching", "transaction totals");
-      } finally {
-        setIsTransactionLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     setIsTransactionLoading(true);
+  //     try {
+  //       const response = await axios.get(`${APP_URL}/all-order-totals`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+  //       if (response.status === 200) {
+  //         setTransactionTotals(response.data.totals);
+  //       } else if (response.status === 204) {
+  //         setTransactionTotals({
+  //           total_order_amount: "0",
+  //           category_totals: [],
+  //         });
+  //       }
+  //     } catch (error) {
+  //       handleApiError(error, "fetching", "transaction totals");
+  //     } finally {
+  //       setIsTransactionLoading(false);
+  //     }
+  //   };
 
-    fetchData();
-  }, [APP_URL, token]);
+  //   fetchData();
+  // }, [APP_URL, token]);
 
   //transform the transaction totals data
-  const transformedData = transactionTotals
-    ? [
-        {
-          title: "Total Revenue",
-          value: `${Number(
-            transactionTotals.total_order_amount || 0
-          ).toLocaleString("en-IN", {
-            style: "currency",
-            currency: "INR",
-          })}`,
-          icon: DollarSign,
-        },
-        ...(transactionTotals.category_totals || []).map((category) => ({
-          title: category.category_name,
-          value: `${Number(category.total_amount || 0).toLocaleString("en-IN", {
-            style: "currency",
-            currency: "INR",
-          })}`,
-          icon: category.category_name.includes("Review")
-            ? Mail
-            : category.category_name.includes("Business")
-            ? CreditCard
-            : ShoppingBag,
-        })),
-      ]
-    : [];
+  // const transformedData = transactionTotals
+  //   ? [
+  //       {
+  //         title: "Total Revenue",
+  //         value: `${Number(
+  //           transactionTotals.total_order_amount || 0
+  //         ).toLocaleString("en-IN", {
+  //           style: "currency",
+  //           currency: "INR",
+  //         })}`,
+  //         icon: DollarSign,
+  //       },
+  //       ...(transactionTotals.category_totals || []).map((category) => ({
+  //         title: category.category_name,
+  //         value: `${Number(category.total_amount || 0).toLocaleString("en-IN", {
+  //           style: "currency",
+  //           currency: "INR",
+  //         })}`,
+  //         icon: category.category_name.includes("Review")
+  //           ? Mail
+  //           : category.category_name.includes("Business")
+  //           ? CreditCard
+  //           : ShoppingBag,
+  //       })),
+  //     ]
+  //   : [];
 
-  const chartData = useMemo(() => {
-    const { category_totals } = transactionTotals;
-    if (!category_totals.length) {
-      return {
-        series: [],
-        chart: { type: "bar", height: 300 },
-        xaxis: { categories: [] },
-      };
-    }
+  // const chartData = useMemo(() => {
+  //   const { category_totals } = transactionTotals;
+  //   if (!category_totals.length) {
+  //     return {
+  //       series: [],
+  //       chart: { type: "bar", height: 300 },
+  //       xaxis: { categories: [] },
+  //     };
+  //   }
 
-    const sortedTotals = [...category_totals].sort(
-      (a, b) => parseFloat(b.total_amount) - parseFloat(a.total_amount)
-    );
+  //   const sortedTotals = [...category_totals].sort(
+  //     (a, b) => parseFloat(b.total_amount) - parseFloat(a.total_amount)
+  //   );
 
-    const categories = sortedTotals.map((item) => item.category_name);
-    const amounts = sortedTotals.map((item) => parseFloat(item.total_amount));
+  //   const categories = sortedTotals.map((item) => item.category_name);
+  //   const amounts = sortedTotals.map((item) => parseFloat(item.total_amount));
 
-    return {
-      series: [
-        {
-          name: "Revenue",
-          data: amounts,
-        },
-      ],
-      chart: {
-        type: "bar",
-        height: 300,
-      },
-      xaxis: {
-        categories,
-        labels: {
-          rotate: -45,
-          hideOverlappingLabels: true,
-        },
-      },
-      yaxis: {
-        labels: {
-          formatter: (val) =>
-            val.toLocaleString("en-IN", {
-              style: "currency",
-              currency: "INR",
-            }),
-        },
-      },
-      plotOptions: {
-        bar: {
-          dataLabels: {
-            position: "top",
-          },
-        },
-      },
-      dataLabels: {
-        enabled: true,
-        formatter: (val) =>
-          val.toLocaleString("en-IN", {
-            style: "currency",
-            currency: "INR",
-          }),
-        offsetY: -20,
-        style: {
-          fontSize: "12px",
-          colors: ["#304758"],
-        },
-      },
-    };
-  }, [transactionTotals]);
+  //   return {
+  //     series: [
+  //       {
+  //         name: "Revenue",
+  //         data: amounts,
+  //       },
+  //     ],
+  //     chart: {
+  //       type: "bar",
+  //       height: 300,
+  //     },
+  //     xaxis: {
+  //       categories,
+  //       labels: {
+  //         rotate: -45,
+  //         hideOverlappingLabels: true,
+  //       },
+  //     },
+  //     yaxis: {
+  //       labels: {
+  //         formatter: (val) =>
+  //           val.toLocaleString("en-IN", {
+  //             style: "currency",
+  //             currency: "INR",
+  //           }),
+  //       },
+  //     },
+  //     plotOptions: {
+  //       bar: {
+  //         dataLabels: {
+  //           position: "top",
+  //         },
+  //       },
+  //     },
+  //     dataLabels: {
+  //       enabled: true,
+  //       formatter: (val) =>
+  //         val.toLocaleString("en-IN", {
+  //           style: "currency",
+  //           currency: "INR",
+  //         }),
+  //       offsetY: -20,
+  //       style: {
+  //         fontSize: "12px",
+  //         colors: ["#304758"],
+  //       },
+  //     },
+  //   };
+  // }, [transactionTotals]);
 
   // Categories for the chart
   const categories = [
@@ -354,7 +354,7 @@ const Index = memo(() => {
       </div>
       <div className="row g-3">
         {/* Transaction Totals */}
-        {isTransactionLoading ? (
+        {/* {isTransactionLoading ? (
           <LoadingFallback message="Loading transactions..." />
         ) : (
           <>
@@ -381,10 +381,10 @@ const Index = memo(() => {
               </div>
             ))}
           </>
-        )}
+        )} */}
 
         {/* Initiate Order(Pending Payments) */}
-        <div className="col-xxl-4 col-xl-4 col-lg-6 col-md-6">
+        {/* <div className="col-xxl-4 col-xl-4 col-lg-6 col-md-6">
           <div className="card border-danger">
             <div className="card-header bg-danger text-white">
               <h6 className="card-title mb-0 fw-bold">
@@ -455,10 +455,10 @@ const Index = memo(() => {
               </ul>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Confirmed Orders(Payment Received) */}
-        <div className="col-xxl-4 col-xl-4 col-lg-6 col-md-6">
+        {/* <div className="col-xxl-4 col-xl-4 col-lg-6 col-md-6">
           <div className="card border-info">
             <div className="card-header bg-info text-white">
               <h6 className="card-title mb-0 fw-bold">
@@ -528,10 +528,10 @@ const Index = memo(() => {
               </ul>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Completed Orders */}
-        <div className="col-xxl-4 col-xl-4 col-lg-6 col-md-6">
+        {/* <div className="col-xxl-4 col-xl-4 col-lg-6 col-md-6">
           <div className="card border-success">
             <div className="card-header bg-success text-white">
               <h6 className="card-title mb-0 fw-bold">Completed Orders</h6>
@@ -615,10 +615,10 @@ const Index = memo(() => {
               </ul>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* City Based Revenue */}
-        <div className="col-xxl-4 col-xl-5 col-lg-6 col-md-6">
+        {/* <div className="col-xxl-4 col-xl-5 col-lg-6 col-md-6">
           <div className="card">
             <div className="card-header">
               <h6 className="card-title mb-0 fw-bold">City Based Revenue</h6>
@@ -662,10 +662,10 @@ const Index = memo(() => {
               </table>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Category Performance */}
-        <div className="col-xxl-4 col-xl-4 col-lg-6 col-md-6">
+        {/* <div className="col-xxl-4 col-xl-4 col-lg-6 col-md-6">
           <div className="card">
             <div className="card-header">
               <h6 className="card-title mb-0 fw-bold">
@@ -687,7 +687,7 @@ const Index = memo(() => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -697,38 +697,38 @@ Index.displayName = "Index";
 
 export default Index;
 
-const formatSalesRevenueData = (orders) => {
-  // Build a map of total revenue per city
-  const cityRevenue = orders.reduce((acc, { city, admin_share }) => {
-    if (city) {
-      acc[city] =
-        (acc[city] || 0) + parseFloat(admin_share === null ? 0 : admin_share);
-    }
-    return acc;
-  }, {});
+// const formatSalesRevenueData = (orders) => {
+//   // Build a map of total revenue per city
+//   const cityRevenue = orders.reduce((acc, { city, admin_share }) => {
+//     if (city) {
+//       acc[city] =
+//         (acc[city] || 0) + parseFloat(admin_share === null ? 0 : admin_share);
+//     }
+//     return acc;
+//   }, {});
 
-  // Convert the revenue map to an array of objects, retaining the numeric revenue
-  // and also formatting it for display purposes.
-  const salesData = Object.entries(cityRevenue).map(([city, revenue]) => ({
-    city,
-    revenue, // numeric value for calculations
-    formattedRevenue: revenue.toLocaleString("en-IN", {
-      style: "currency",
-      currency: "INR",
-    }),
-    width: "0%",
-  }));
+//   // Convert the revenue map to an array of objects, retaining the numeric revenue
+//   // and also formatting it for display purposes.
+//   const salesData = Object.entries(cityRevenue).map(([city, revenue]) => ({
+//     city,
+//     revenue, // numeric value for calculations
+//     formattedRevenue: revenue.toLocaleString("en-IN", {
+//       style: "currency",
+//       currency: "INR",
+//     }),
+//     width: "0%",
+//   }));
 
-  // Sort in descending order based on the revenue
-  salesData.sort((a, b) => b.revenue - a.revenue);
+//   // Sort in descending order based on the revenue
+//   salesData.sort((a, b) => b.revenue - a.revenue);
 
-  // Compute width percentages relative to the highest revenue
-  if (salesData.length > 0) {
-    const maxRevenue = salesData[0].revenue;
-    salesData.forEach((item) => {
-      item.width = `${Math.round((item.revenue / maxRevenue) * 100)}%`;
-    });
-  }
+//   // Compute width percentages relative to the highest revenue
+//   if (salesData.length > 0) {
+//     const maxRevenue = salesData[0].revenue;
+//     salesData.forEach((item) => {
+//       item.width = `${Math.round((item.revenue / maxRevenue) * 100)}%`;
+//     });
+//   }
 
-  return salesData;
-};
+//   return salesData;
+// };

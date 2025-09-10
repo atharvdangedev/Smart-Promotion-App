@@ -15,6 +15,7 @@ import { useSelector } from "react-redux";
 import usePermissions from "../../../hooks/usePermissions";
 import { APP_PERMISSIONS } from "../utils/permissions";
 import { setPageTitle } from "../utils/docTitle";
+import formatCurrency from "../utils/formatCurrency.js";
 
 const Commissions = () => {
   const { can } = usePermissions();
@@ -96,9 +97,9 @@ const Commissions = () => {
         accessor: (row) => `${row.plan_title} ${row.plan_type}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              <span>{row.original.plan_title}</span>
-              <span>{row.original.plan_type}</span>
+            <div className="d-flex gap-2">
+              <strong>{row.original.plan_title}</strong>{" "}
+              <span>({row.original.plan_type})</span>
             </div>
           </div>
         ),
@@ -114,10 +115,7 @@ const Commissions = () => {
                 fontWeight: "bold",
               }}
             >
-              {Number(row.original.commission).toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-              })}
+              {formatCurrency(row.original.commission)}
             </div>
           );
         },
@@ -133,10 +131,7 @@ const Commissions = () => {
                 fontWeight: "bold",
               }}
             >
-              {Number(row.original.payout_balance).toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-              })}
+              {formatCurrency(row.original.payout_balance)}
             </div>
           );
         },

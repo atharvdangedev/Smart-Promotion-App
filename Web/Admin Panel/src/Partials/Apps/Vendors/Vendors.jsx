@@ -316,7 +316,9 @@ const Vendors = () => {
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>{row.original.business_name}</span>
+              <span>
+                {row.original.business_name || "Business name not provided"}
+              </span>
               <span>
                 {row.original.business_type || "Business type not provided"}
               </span>
@@ -331,15 +333,16 @@ const Vendors = () => {
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
             <div className="d-flex flex-column">
-              <span>{row.original.business_email}</span>
-              <span>{row.original.business_contact}</span>
+              <span>
+                {row.original.business_email || "Business email not provided"}
+              </span>
+              <span>
+                {row.original.business_contact ||
+                  "Business contact not provided"}
+              </span>
             </div>
           </div>
         ),
-      },
-      {
-        Header: "ROLE",
-        accessor: "rolename",
       },
       {
         Header: "STATUS",

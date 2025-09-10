@@ -3,6 +3,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import DataTable from "../../../../../Common/DataTable/DataTable";
 import StatusBadge from "../../../StatusBadge/StatusBadge";
+import formatCurrency from "../../../utils/formatCurrency";
 
 const orderStatuses = {
   Failed: "#dc3545",
@@ -66,12 +67,13 @@ const InvoicesTable = ({ invoiceData, isLoading }) => {
         <div className="d-flex align-items-center">
           <div className="d-flex flex-column">
             <span>{row.original.order_date}</span>
-            <span>{row.original.note ? "By Admin" : "By Customer"}</span>
-            <span>
-              {Number(row.original.total_amount).toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-              })}
+            <span
+              style={{
+                color: "green",
+                fontWeight: "bold",
+              }}
+            >
+              {formatCurrency(row.original.total_amount)}
             </span>
           </div>
         </div>

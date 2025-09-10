@@ -6,17 +6,42 @@ export const generatePDF = async (elementToPrintId) => {
   if (!element) {
     throw new Error(`Element with id ${elementToPrintId} not found`);
   }
-  const canvas = await html2canvas(element, { scale: 2 });
-  const data = canvas.toDataURL("image/png");
-  const pdf = new jsPDF({
-    orientation: "landscape",
-    unit: "mm",
-    format: [129, 70],
-  });
-  const imgProperties = pdf.getImageProperties(data);
-  const pdfWidth = pdf.internal.pageSize.getWidth();
-  const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
 
-  pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
-  pdf.save("print.pdf");
+  const canvas = await html2canvas(element, {
+    scale: 1,
+    useCORS: true,
+    logging: false,
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF({
+    orientation: "p",
+    unit: "mm",
+    format: "a4", // standard invoice format
+  });
+
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+  const imgProps = pdf.getImageProperties(imgData);
+  const imgRatio = imgProps.width / imgProps.height;
+
+  let finalWidth, finalHeight;
+  if (pdfWidth / pdfHeight > imgRatio) {
+    finalHeight = pdfHeight;
+    finalWidth = imgRatio * pdfHeight;
+  } else {
+    finalWidth = pdfWidth;
+    finalHeight = pdfWidth / imgRatio;
+  }
+
+  pdf.addImage(
+    imgData,
+    "PNG",
+    (pdfWidth - finalWidth) / 2,
+    (pdfHeight - finalHeight) / 2,
+    finalWidth,
+    finalHeight
+  );
+
+  pdf.save(`invoice-${Date.now()}.pdf`);
 };

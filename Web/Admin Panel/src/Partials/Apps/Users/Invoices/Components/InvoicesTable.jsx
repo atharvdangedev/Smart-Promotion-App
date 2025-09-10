@@ -1,7 +1,9 @@
 /* eslint-disable react/prop-types */
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import DataTable from "../../../../../Common/DataTable/DataTable";
 import StatusBadge from "../../../StatusBadge/StatusBadge";
+import { formatDate } from "../../../utils/formatDate";
+import formatCurrency from "../../../utils/formatCurrency";
 
 const paymentStatus = {
   Failed: "#dc3545",
@@ -28,24 +30,46 @@ const InvoicesTable = ({ invoiceData, isLoading }) => {
     {
       Header: "Order Id",
       accessor: "razorpay_order_id",
+      Cell: ({ row }) => (
+        <div className="d-flex align-items-center">
+          <div className="d-flex flex-column">
+            {row.original.razorpay_order_id
+              ? row.original.razorpay_order_id
+              : "N/A"}
+          </div>
+        </div>
+      ),
     },
     {
       Header: "Transaction Id",
       accessor: "transaction_id",
-    },
-    {
-      Header: "Plan Name",
-      accessor: "plan_name",
-    },
-    {
-      Header: "Vendor",
-      accessor: (row) => `${row.vendor_firstname} ${row.vendor_lastname}`,
       Cell: ({ row }) => (
         <div className="d-flex align-items-center">
           <div className="d-flex flex-column">
-            {row.original.vendor_firstname
-              ? `${row.original.vendor_firstname} ${row.original.vendor_lastname}`
-              : "No Vendor"}
+            {row.original.transaction_id ? row.original.transaction_id : "N/A"}
+          </div>
+        </div>
+      ),
+    },
+    {
+      Header: "Plan",
+      accessor: (row) => `${row.title} ${row.plan_type}`,
+      Cell: ({ row }) => (
+        <div className="d-flex align-items-center">
+          <div className="d-flex gap-2">
+            <strong>{row.original.title}</strong>{" "}
+            <span>({row.original.plan_type})</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      Header: "Vendor",
+      accessor: (row) => `${row.first_name} ${row.last_name}`,
+      Cell: ({ row }) => (
+        <div className="d-flex align-items-center">
+          <div className="d-flex flex-column">
+            {row.original.first_name} {row.original.last_name}
           </div>
         </div>
       ),
@@ -57,13 +81,14 @@ const InvoicesTable = ({ invoiceData, isLoading }) => {
       Cell: ({ row }) => (
         <div className="d-flex align-items-center">
           <div className="d-flex flex-column">
-            <span>{row.original.order_date}</span>
-            <span>{row.original.note ? "By Admin" : "By Customer"}</span>
-            <span>
-              {Number(row.original.total_amount).toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-              })}
+            <span>{formatDate(row.original.payment_date)}</span>
+            <span
+              style={{
+                color: "green",
+                fontWeight: "bold",
+              }}
+            >
+              {formatCurrency(row.original.amount)}
             </span>
           </div>
         </div>
@@ -89,18 +114,18 @@ const InvoicesTable = ({ invoiceData, isLoading }) => {
       Cell: ({ row }) => {
         return (
           <div>
-            <Link
-              to={`/admin/app/orders/${row.original.id}`}
+            {/* <Link
+              to={`/admin/app/orders/${row.original.order_id}`}
               className="btn text-info px-2 me-1"
               data-toggle="tooltip"
               data-placement="bottom"
               title="View Details"
             >
               <i className="bi bi-eye"></i>
-            </Link>
-            {row.original.order_status === "Delivered" && (
+            </Link> */}
+            {row.original.payment_status === "Completed" && (
               <button
-                onClick={() => handleInvoice(row.original.id)}
+                onClick={() => handleInvoice(row.original.order_id)}
                 className="btn text-info px-2 me-1"
                 data-toggle="tooltip"
                 data-placement="bottom"

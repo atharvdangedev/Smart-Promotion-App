@@ -19,7 +19,11 @@ import usePermissions from "../../../hooks/usePermissions.js";
 import { APP_PERMISSIONS } from "../utils/permissions.js";
 import Can from "../Can/Can.jsx";
 import { setPageTitle } from "../utils/docTitle.js";
-import { formatDate } from "../utils/formatDate.js";
+import { DiscountBadge } from "../utils/DiscountBadge.jsx";
+import { UsageBar } from "../utils/UsageBar.jsx";
+import { formatRecurring } from "../utils/couponFormatters.js";
+import { Validity } from "../utils/Validity.jsx";
+import { createMarkup } from "../utils/createMarkup.js";
 
 const CouponCodeManagement = () => {
   // Navigation function
@@ -149,18 +153,31 @@ const CouponCodeManagement = () => {
         Header: "Coupon",
         accessor: "coupon_code",
         Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              <span
+          <div className="d-flex flex-column">
+            <span style={{ color: "blue", fontWeight: "bold" }}>
+              {row.original.coupon_code}
+            </span>
+            {row.original.description && (
+              <small
                 style={{
-                  color: "blue",
-                  fontWeight: "bold",
+                  wordWrap: "break-word",
+                  maxWidth: "400px",
+                  overflow: "hidden",
                 }}
-              >
-                {row.original.coupon_code}
-              </span>
-            </div>
+                dangerouslySetInnerHTML={createMarkup(row.original.description)}
+              />
+            )}
           </div>
+        ),
+      },
+      {
+        Header: "Discount",
+        accessor: "discount",
+        Cell: ({ row }) => (
+          <DiscountBadge
+            type={row.original.discount_type}
+            value={row.original.discount}
+          />
         ),
       },
       {
@@ -168,11 +185,9 @@ const CouponCodeManagement = () => {
         accessor: "plans",
         Cell: ({ row }) => {
           const plans = row.original.plans || [];
-          if (plans.length === 0) {
-            return <span>No Plans</span>;
-          }
-
-          return (
+          return plans.length === 0 ? (
+            <span>No Plans</span>
+          ) : (
             <div className="d-flex flex-column">
               {plans.map((plan, idx) => (
                 <div key={idx} className="mb-1">
@@ -184,16 +199,28 @@ const CouponCodeManagement = () => {
         },
       },
       {
-        Header: "User",
-        accessor: (row) => `${row.first_name} ${row.last_name}`,
+        Header: "Usage",
+        accessor: "total_used",
         Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              {row.original.first_name
-                ? `${row.original.first_name} ${row.original.last_name}`
-                : "No User"}
-            </div>
-          </div>
+          <UsageBar
+            used={row.original.total_used}
+            limit={row.original.number_of_uses}
+          />
+        ),
+      },
+      {
+        Header: "Recurring",
+        accessor: "is_recurring",
+        Cell: ({ value }) => formatRecurring(value),
+      },
+      {
+        Header: "Plan Validity",
+        accessor: (row) => `${row.valid_from} ${row.valid_till}`,
+        Cell: ({ row }) => (
+          <Validity
+            from={row.original.valid_from}
+            till={row.original.valid_till}
+          />
         ),
       },
       {
@@ -212,24 +239,8 @@ const CouponCodeManagement = () => {
           </div>
         ),
       },
-      {
-        Header: "Plan Validity",
-        accessor: (row) => `${row.valid_from} ${row.valid_till}`,
-        Cell: ({ row }) => (
-          <div className="d-flex align-items-center justify-content-start">
-            <div className="d-flex gap-2">
-              <span className="mr-2">
-                {formatDate(row.original.valid_from || "")}
-              </span>
-              -
-              <span className="ml-2">
-                {formatDate(row.original.valid_till || "")}
-              </span>
-            </div>
-          </div>
-        ),
-      },
     ];
+
     if (canSeeActionsColumn)
       baseColumns.push({
         Header: "Actions",

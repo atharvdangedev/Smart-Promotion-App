@@ -70,6 +70,15 @@ const Checkout = () => {
       return { order };
     },
     onSuccess: ({ order }) => {
+      if (plan.id === "1") {
+        toast.success("Payment successful! Redirecting...");
+        setTimeout(
+          () => navigate(`/payment-status?status=success`, { replace: true }),
+          2500
+        );
+
+        return;
+      }
       const payment = new PaymentComponent({
         amount: order.amount,
         orderId: order.razorpay_order_id,
@@ -231,44 +240,46 @@ const Checkout = () => {
             </div>
 
             {/* Coupon Input */}
-            <div>
-              <label
-                htmlFor="coupon"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Coupon Code
-              </label>
-              <div className="mt-1 flex rounded-lg shadow-sm">
-                <input
-                  id="coupon"
-                  type="text"
-                  value={coupon}
-                  onChange={(e) => setCoupon(e.target.value)}
-                  className="flex-1 block w-full px-4 py-3 border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button
-                  onClick={() => validateCoupon()}
-                  disabled={isValidatingCoupon}
-                  type="button"
-                  className="px-4 py-3 rounded-r-lg text-white bg-gray-800 hover:bg-gray-900 disabled:opacity-50"
+            {!plan.id === "1" && (
+              <div>
+                <label
+                  htmlFor="coupon"
+                  className="block text-sm font-medium text-gray-700"
                 >
-                  {isValidatingCoupon ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    "Apply"
-                  )}
-                </button>
+                  Coupon Code
+                </label>
+                <div className="mt-1 flex rounded-lg shadow-sm">
+                  <input
+                    id="coupon"
+                    type="text"
+                    value={coupon}
+                    onChange={(e) => setCoupon(e.target.value)}
+                    className="flex-1 block w-full px-4 py-3 border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <button
+                    onClick={() => validateCoupon()}
+                    disabled={isValidatingCoupon}
+                    type="button"
+                    className="px-4 py-3 rounded-r-lg text-white bg-gray-800 hover:bg-gray-900 disabled:opacity-50"
+                  >
+                    {isValidatingCoupon ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Apply"
+                    )}
+                  </button>
+                </div>
+                {couponMessage && (
+                  <p
+                    className={`mt-2 text-sm ${
+                      isValidCoupon ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {couponMessage}
+                  </p>
+                )}
               </div>
-              {couponMessage && (
-                <p
-                  className={`mt-2 text-sm ${
-                    isValidCoupon ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {couponMessage}
-                </p>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>
