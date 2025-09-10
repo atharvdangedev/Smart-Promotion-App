@@ -240,7 +240,7 @@ const Checkout = () => {
             </div>
 
             {/* Coupon Input */}
-            {!plan.id === "1" && (
+            {plan.id !== "1" && (
               <div>
                 <label
                   htmlFor="coupon"
