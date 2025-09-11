@@ -79,7 +79,7 @@ export default function All_Logs() {
           className="px-3 py-2 rounded-lg"
           style={{ backgroundColor: colors.inputBg }}
         >
-          <Text style={{ color: colors.text }}>
+          <Text className='text-black'>
             {filters.type ? `Filters: ${filters.type}` : 'Filter Call Type'}
           </Text>
         </TouchableOpacity>
@@ -89,7 +89,7 @@ export default function All_Logs() {
           className="px-3 py-2 rounded-lg"
           style={{ backgroundColor: colors.inputBg }}
         >
-          <Text style={{ color: colors.text }}>
+          <Text className='text-black'>
             {filters.startDate || 'Start Date'}
           </Text>
         </TouchableOpacity>
@@ -99,7 +99,7 @@ export default function All_Logs() {
           className="px-3 py-2 rounded-lg"
           style={{ backgroundColor: colors.inputBg }}
         >
-          <Text style={{ color: colors.text }}>
+          <Text className='text-black'>
             {filters.endDate || 'End Date'}
           </Text>
         </TouchableOpacity>

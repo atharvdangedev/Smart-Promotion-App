@@ -81,18 +81,6 @@ export default function DrawerNavigator() {
         }}
       />
       <Drawer.Screen
-        name="Browse Plans"
-        component={PlansPricingScreen}
-        options={{
-          drawerLabel: 'Browse Plans',
-          drawerLabelStyle: {
-            color: 'black',
-            fontSize: 16,
-          },
-          drawerIcon: () => <ShoppingCart color="black" size={20} />,
-        }}
-      />
-      <Drawer.Screen
         name="Contact Log"
         component={ContactLogScreen}
         options={{
@@ -102,6 +90,30 @@ export default function DrawerNavigator() {
             fontSize: 16,
           },
           drawerIcon: () => <Contact color="black" size={20} />,
+        }}
+      />
+      <Drawer.Screen
+        name="All Logs"
+        component={All_Logs}
+        options={{
+          drawerLabel: 'All Logs',
+          drawerLabelStyle: {
+            color: 'black',
+            fontSize: 16,
+          },
+          drawerIcon: () => <List color="black" size={20} />,
+        }}
+      />
+      <Drawer.Screen
+        name="Contact List"
+        component={ContactList}
+        options={{
+          drawerLabel: 'Contact List',
+          drawerLabelStyle: {
+            color: 'black',
+            fontSize: 16,
+          },
+          drawerIcon: () => <List color="black" size={20} />,
         }}
       />
       {user ==='agent'? null:(<Drawer.Screen
@@ -117,17 +129,19 @@ export default function DrawerNavigator() {
         }}
       />)}
       <Drawer.Screen
-        name="Contact List"
-        component={ContactList}
+        name="Browse Plans"
+        component={PlansPricingScreen}
         options={{
-          drawerLabel: 'Contact List',
+          drawerLabel: 'Browse Plans',
           drawerLabelStyle: {
             color: 'black',
             fontSize: 16,
           },
-          drawerIcon: () => <List color="black" size={20} />,
+          drawerIcon: () => <ShoppingCart color="black" size={20} />,
         }}
       />
+      
+      
       <Drawer.Screen
         name="Settings"
         component={Settings}
@@ -138,18 +152,6 @@ export default function DrawerNavigator() {
             fontSize: 16,
           },
           drawerIcon: () => <LucideSettings color="black" size={20} />,
-        }}
-      />
-      <Drawer.Screen
-        name="All Logs"
-        component={All_Logs}
-        options={{
-          drawerLabel: 'All Logs',
-          drawerLabelStyle: {
-            color: 'black',
-            fontSize: 16,
-          },
-          drawerIcon: () => <List color="black" size={20} />,
         }}
       />
     </Drawer.Navigator>
