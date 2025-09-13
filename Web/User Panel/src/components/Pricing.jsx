@@ -1,8 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createMarkup } from "../utils/createMarkup";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle } from "lucide-react";
-import { features } from "../lib/features";
 import formatCurrency from "@/utils/formatCurrency";
 
 const Pricing = () => {
@@ -77,17 +75,6 @@ const Pricing = () => {
                     dangerouslySetInnerHTML={createMarkup(plan.description)}
                   ></p>
                 </div>
-
-                <ul className="mb-8 space-y-4">
-                  {features
-                    .find((f) => f.planId === plan.id)
-                    ?.features.map((feature, fIndex) => (
-                      <li key={fIndex} className="flex items-start">
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                </ul>
 
                 <button
                   onClick={() => handleSelectPlan(plan)}

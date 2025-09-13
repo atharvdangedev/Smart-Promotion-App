@@ -1,33 +1,26 @@
 import { View, Text } from 'react-native';
-import React, { useState } from 'react';
+import React from 'react';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useQuery } from '@tanstack/react-query';
-import { fetchCall_log, fetchLog } from '../apis/Call_LogApi';
+import { fetchCall_log } from '../apis/Call_LogApi';
 import { getCallIcon } from '../utils/constants';
 import { useRoute } from '@react-navigation/native';
 import SubHeader from '../components/SubHeader';
 import useThemeColors from '../hooks/useThemeColor';
 import { User } from 'lucide-react-native';
-import { handleApiError } from '../utils/handleApiError';
 import { useAuthStore } from '../store/useAuthStore';
 
 export default function Contact_Logs() {
   const route = useRoute();
 
-  const { contact_id, contact_name } = route.params;
+  const { contact_name } = route.params;
 
   const colors = useThemeColors();
 
   const user = useAuthStore(state => state.rolename);
 
-  const [filters, setFilters] = useState({});
-
-  const {
-    data: call_logs = [],
-    isFetching,
-    refetch,
-  } = useQuery({
-    queryKey: ['call_logs', filters],
+  const { data: call_logs = [] } = useQuery({
+    queryKey: ['call_logs'],
     queryFn: () => fetchCall_log(user),
   });
 

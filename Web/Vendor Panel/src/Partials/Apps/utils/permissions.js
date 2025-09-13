@@ -16,7 +16,7 @@ export const APP_PERMISSIONS = {
   COMMISSIONS_VIEW: "commissions:view",
 
   // Subscriptions Management
-  SUBSCRIPTIONS_VIEW: "commissions:view",
+  SUBSCRIPTIONS_VIEW: "subscriptions:view",
 
   // Contacts Management
   CONTACTS_IMPORT: "contacts:import",

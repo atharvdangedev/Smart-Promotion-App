@@ -18,7 +18,7 @@ const Home = () => {
     >
       <Header />
 
-      <Hero />
+      {/* <Hero />
 
       <HowItWorks />
 
@@ -26,11 +26,11 @@ const Home = () => {
 
       <Stats />
 
-      <Testimonials />
+      <Testimonials /> */}
 
       <Pricing />
 
-      <CTA />
+      {/* <CTA /> */}
 
       <Footer />
     </div>

@@ -7,7 +7,7 @@ const NotFound = lazyLoad(() => import("./NotFound/NotFound"));
 import ErrorComponent from "./Common/ErrorComponent/ErrorComponent";
 // Library Imports
 import { useSelector } from "react-redux";
-import { useLocation, Routes, Route, Navigate } from "react-router-dom";
+import { useLocation, Routes, Route } from "react-router-dom";
 import React from "react";
 import { lazyLoad } from "./lazyLoad";
 
@@ -87,11 +87,9 @@ const App = () => {
   return (
     <ErrorBoundary>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
         {isAuthRoute && (
           <Route element={<AuthLayout />}>
-            <Route path={pathname} element={<AppRoutes />} />
+            <Route path="/*" element={<AppRoutes />} />
           </Route>
         )}
 
@@ -114,6 +112,11 @@ const App = () => {
           >
             <Route path="/*" element={<AppRoutes />} />
           </Route>
+        )}
+
+        {/* fallback for public routes like "/" */}
+        {!isAuthRoute && !isAdminRoute && (
+          <Route path="/*" element={<AppRoutes />} />
         )}
 
         <Route path="*" element={<NotFound />} />

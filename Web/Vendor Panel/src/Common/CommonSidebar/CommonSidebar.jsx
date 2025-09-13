@@ -48,12 +48,14 @@ const CommonSidebar = memo(({ iconColor }) => {
                 icon={<i className="bi bi-house-door"></i>}
                 menuItems={[]}
               />
-              <MenuItem
-                title="Subscriptions"
-                link="subscriptions"
-                icon={<i className="bi bi-wallet"></i>}
-                menuItems={[]}
-              />
+              <Can do={APP_PERMISSIONS.SUBSCRIPTIONS_VIEW}>
+                <MenuItem
+                  title="Subscriptions"
+                  link="subscriptions"
+                  icon={<i className="bi bi-wallet"></i>}
+                  menuItems={[]}
+                />
+              </Can>
               <Can do={APP_PERMISSIONS.AGENTS_VIEW}>
                 <MenuItem
                   title="Agents"

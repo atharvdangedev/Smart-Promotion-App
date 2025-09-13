@@ -15,6 +15,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import usePermissions from "../../../hooks/usePermissions.js";
 import { APP_PERMISSIONS } from "../utils/permissions.js";
+import { formatDate } from "../utils/formatDate";
 
 const VendorContacts = () => {
   const { can } = usePermissions();
@@ -61,6 +62,11 @@ const VendorContacts = () => {
       {
         Header: "CONTACT NAME",
         accessor: "contact_name",
+        Cell: ({ row }) => (
+          <span>
+            {row.original.contact_name || "Contact name not provided"}
+          </span>
+        ),
       },
       {
         Header: "CONTACT NO",
@@ -69,10 +75,26 @@ const VendorContacts = () => {
       {
         Header: "CONTACT EMAIL",
         accessor: "email",
+        Cell: ({ row }) => (
+          <span>{row.original.email || "Contact email not provided"}</span>
+        ),
       },
       {
-        Header: "CONTACT BIRTHDATE",
-        accessor: "birthdate",
+        Header: "CONTACT DATES",
+        accessor: "dates",
+        Cell: ({ value }) => {
+          if (!value || value.length === 0) return "-";
+
+          return (
+            <div>
+              {value.map((d) => (
+                <div key={d.id}>
+                  <strong>{d.date_title}:</strong> {formatDate(d.date)}
+                </div>
+              ))}
+            </div>
+          );
+        },
       },
     ],
     []

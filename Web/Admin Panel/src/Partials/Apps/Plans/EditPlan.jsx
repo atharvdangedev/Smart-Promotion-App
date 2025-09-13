@@ -147,6 +147,8 @@ const EditPlan = () => {
     navigate("/admin/plans");
   };
 
+  console.log(errors);
+
   return (
     <div className="px-4 py-3 page-body">
       <Toaster />
@@ -333,7 +335,7 @@ const EditPlan = () => {
                         placeholder="Please type here..."
                       />
                       {errors.description && (
-                        <div className="invalid-feedback">
+                        <div className="text-danger">
                           {errors.description.message}
                         </div>
                       )}

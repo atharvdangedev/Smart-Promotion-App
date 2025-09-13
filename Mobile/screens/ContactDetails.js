@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { User, UserPen } from 'lucide-react-native';
 import SubHeader from '../components/SubHeader';
@@ -30,17 +30,7 @@ export default function ContactDetails({ navigation }) {
   const colors = useThemeColors();
   const ActiveUser = useAuthStore(state => state.rolename);
 
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, [refetch]),
-  );
-
-  const {
-    data: contact = {},
-    isLoading,
-    refetch,
-  } = useQuery({
+  const { data: contact = {}, isLoading } = useQuery({
     queryKey: ['contact', contact_id],
     queryFn: () => fetchContactDetails(contact_id, ActiveUser),
     onError: error => handleApiError(error, 'fetching contact details'),
@@ -114,6 +104,7 @@ export default function ContactDetails({ navigation }) {
             </View>
           </View>
         </View>
+
         <View className=" justify-center items-center">
           <Text className="text-light-text dark:text-dark-text text-2xl font-bold">
             {contact.contact_name ? contact.contact_name : 'Unkown'}
@@ -127,9 +118,10 @@ export default function ContactDetails({ navigation }) {
             </Text>
           ) : null}
         </View>
+
         <View className="flex-row justify-center gap-4 mt-5">
           <TouchableOpacity
-            onPress={() => handleCall()}
+            onPress={handleCall}
             className="bg-green-500 px-4 items-center justify-center py-2 rounded-xl"
           >
             <Text className="text-white font-semibold">Call</Text>
@@ -148,6 +140,7 @@ export default function ContactDetails({ navigation }) {
           {' '}
           Information
         </Text>
+
         <View className="bg-light-background dark:bg-dark-background border border-light-border dark:border-dark-border rounded-xl p-4 ">
           <View>
             <Text
@@ -253,7 +246,7 @@ export default function ContactDetails({ navigation }) {
               contact.recent_messages.map((msg, index) => (
                 <View
                   key={index}
-                  className="p-4 bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-xl"
+                  className="p-4 my-2 bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-xl"
                 >
                   <Text className="text-light-text dark:text-dark-text font-semibold">
                     {msg.message_sent}

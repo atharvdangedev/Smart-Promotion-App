@@ -1,20 +1,18 @@
-import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import ImagePreview from "../utils/ImagePreview";
-import { evaluatePasswordStrength } from "../utils/evaluatePasswordStrength";
-import { handleApiError } from "../utils/handleApiError";
-import { useSelector } from "react-redux";
-import { setPageTitle } from "../utils/docTitle";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { evaluatePasswordStrength } from "../../Apps/utils/evaluatePasswordStrength";
+import Header from "./Header";
+import Footer from "./Footer";
+import { Toaster } from "react-hot-toast";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-// Schema definition
-const schema = yup.object().shape({
+const RegistrationSchema = yup.object().shape({
   firstname: yup
     .string()
     .min(2, "Minimum 2 characters required.")
@@ -40,25 +38,17 @@ const schema = yup.object().shape({
     .string()
     .oneOf([yup.ref("password"), null], "Passwords must match")
     .required("Confirm password is required"),
-  profile_pic: yup.mixed().notRequired(),
-  address: yup.string().notRequired(),
 });
 
-const AddAgent = () => {
-  // Navigate function
+const VendorRegistration = () => {
   const navigate = useNavigate();
-
-  // Access token
-  const { token, user } = useSelector((state) => state.auth);
-
-  setPageTitle("Add Agent | Vendor Panel");
+  const location = useLocation();
 
   // API URLs
   const APP_URL = import.meta.env.VITE_API_URL;
+  const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
-  // State initialization
-  const fileInputRef = useRef();
-  const [profilePicPreview, setProfilePicPreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState([]);
 
@@ -66,12 +56,10 @@ const AddAgent = () => {
   const {
     register,
     handleSubmit,
-    reset,
-    resetField,
     formState: { errors },
     watch,
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(RegistrationSchema),
     mode: "onChange",
   });
 
@@ -92,82 +80,82 @@ const AddAgent = () => {
   // Handle submit
   const onSubmit = async (data) => {
     const { isStrong, errors } = evaluatePasswordStrength(data.password);
+
     if (!isStrong) {
       setPasswordErrors(errors);
       return;
     }
 
     try {
+      setIsSubmitting(true);
       const formData = new FormData();
-
-      formData.append("vendor_id", user?.id);
       formData.append("first_name", data.firstname);
       formData.append("last_name", data.lastname);
       formData.append("email", data.email);
       formData.append("contact_no", data.contact_no);
       formData.append("password", data.password);
-      formData.append("address", data.address);
-      if (data.profile_pic && data.profile_pic[0] instanceof File)
-        formData.append("profile_pic", data.profile_pic[0]);
 
-      const res = await axios.post(
-        `${APP_URL}/${user.rolename}/agents`,
+      const response = await axios.post(
+        `${APP_URL}/vendor-register`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
+            "X-App-Secret": `${SECRET_KEY}`,
           },
         }
       );
-      if (res.status === 201) {
-        toast.success(res.data.message);
-        setTimeout(() => {
-          navigate(`/agents`);
+      if (response.status === 201) {
+        toast.success(response.data.message);
+        const plan = location.state?.plan;
+        const token = response.data.token;
+        const user = response.data.user;
+        sessionStorage.setItem(
+          "checkout_state",
+          JSON.stringify({ plan, token, user })
+        );
+
+        const redirectTimer = setTimeout(() => {
+          navigate("/checkout", {
+            state: {
+              plan,
+              token,
+              user,
+            },
+            replace: true,
+          });
         }, 2000);
+
+        return () => {
+          clearTimeout(redirectTimer);
+        };
       }
     } catch (error) {
-      handleApiError(error, "adding", "agent");
-    }
-  };
-
-  // Handle cancel
-  const handleCancel = () => {
-    reset();
-    navigate(`/agents`);
-  };
-
-  const handleProfilePic = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfilePicPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleRemoveProfilePic = () => {
-    setProfilePicPreview(null);
-    resetField("profile_pic");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      toast.error(error.response?.data?.message || "An error occurred");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="px-4 py-3 page-body">
+    <>
       <Toaster />
-      <div className="card">
-        <div className="card-header py-3 bg-transparent border-bottom-0">
-          <h4 className="title-font mt-2 mb-0">
-            <strong>Add New Agent</strong>
+
+      <Header />
+
+      <div className="d-flex justify-content-center align-items-center my-5">
+        <div className="w-100" style={{ maxWidth: "500px" }}>
+          <h4 className="text-center mb-4">
+            <strong>Vendor Registration</strong>
           </h4>
-          <button className="btn btn-info text-white" onClick={handleCancel}>
-            Back
-          </button>
-        </div>
-        <div className="card-body card-main-one">
+          <div className="alert alert-info text-center my-4">
+            <p className="mb-0">
+              Please create an account to connect your plan purchase to your
+              profile.
+            </p>
+          </div>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="row g-3">
-              <div className="col-md-4">
+              <div className="col-md-12">
                 <div className="form-floating">
                   <input
                     type="text"
@@ -187,7 +175,7 @@ const AddAgent = () => {
                   )}
                 </div>
               </div>
-              <div className="col-md-4">
+              <div className="col-md-12">
                 <div className="form-floating">
                   <input
                     type="text"
@@ -207,7 +195,7 @@ const AddAgent = () => {
                   )}
                 </div>
               </div>
-              <div className="col-md-4">
+              <div className="col-md-12">
                 <div className="form-floating">
                   <input
                     type="text"
@@ -227,7 +215,7 @@ const AddAgent = () => {
                   )}
                 </div>
               </div>
-              <div className="col-md-4">
+              <div className="col-md-12">
                 <div className="form-floating">
                   <input
                     type="text"
@@ -252,7 +240,7 @@ const AddAgent = () => {
                   )}
                 </div>
               </div>
-              <div className="col-md-4">
+              <div className="col-md-12">
                 <div
                   className={`form-floating ${
                     errors.password ? "is-invalid" : ""
@@ -296,7 +284,7 @@ const AddAgent = () => {
                   </div>
                 )}
               </div>
-              <div className="col-md-4">
+              <div className="col-md-12">
                 <div className="form-floating">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -327,79 +315,39 @@ const AddAgent = () => {
                   )}
                 </div>
               </div>
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    className={`form-control ${
-                      errors.profile_pic ? "is-invalid" : ""
-                    }`}
-                    id="profile_pic"
-                    {...register("profile_pic")}
-                    onChange={handleProfilePic}
-                    accept="image/*"
-                    tabIndex="7"
-                  />
-                  <label htmlFor="profile_pic">
-                    Profile Picture (Optional)
-                  </label>
-                  {errors.profile_pic && (
-                    <div className="invalid-feedback">
-                      {errors.profile_pic.message}
-                    </div>
-                  )}
-                </div>
-                {profilePicPreview && (
-                  <ImagePreview
-                    ImagePreviewURL={profilePicPreview}
-                    onRemove={handleRemoveProfilePic}
-                  />
-                )}
-              </div>
-              <div className="col-md-4">
-                <div className="form-floating">
-                  <textarea
-                    type="text"
-                    className={`form-control ${
-                      errors.address ? "is-invalid" : ""
-                    }`}
-                    id="address"
-                    {...register("address")}
-                    placeholder="Address"
-                    tabIndex="8"
-                  />
-                  <label htmlFor="address">Address</label>
-                  {errors.address && (
-                    <div className="invalid-feedback">
-                      {errors.address.message}
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="col-12">
+              <div className="col-md-12">
                 <button
                   tabIndex="10"
-                  className="me-1 btn btn-primary"
+                  style={{
+                    backgroundColor: "#216EA5",
+                    color: "white",
+                  }}
+                  className="me-1 btn"
                   type="submit"
+                  disabled={isSubmitting}
                 >
-                  Add Agent
-                </button>
-                <button
-                  tabIndex="11"
-                  className="btn btn-outline-secondary"
-                  type="button"
-                  onClick={handleCancel}
-                >
-                  Cancel
+                  {isSubmitting ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Creating Account...
+                    </>
+                  ) : (
+                    "Create Account"
+                  )}
                 </button>
               </div>
             </div>
           </form>
         </div>
       </div>
-    </div>
+
+      <Footer />
+    </>
   );
 };
 
-export default AddAgent;
+export default VendorRegistration;
