@@ -30,7 +30,7 @@ export default function CustomDrawerContent(props) {
               resizeMode: 'contain',
             }}
           />
-          <Text className='font-semibold text-base'>Smart Promotion App</Text>
+          <Text className='font-semibold text-base text-black'>Smart Promotion App</Text>
         </View>
       </View>
       <DrawerItemList {...props} />
