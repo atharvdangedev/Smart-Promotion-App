@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, useColorScheme } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import MLKitOcr from 'react-native-mlkit-ocr';
 import { Camera, Upload } from 'lucide-react-native';
@@ -7,22 +7,61 @@ import Toast from 'react-native-toast-message';
 import Header from '../components/Header';
 import { useNavigation } from '@react-navigation/native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import useThemeColors from '../hooks/useThemeColor';
 
 export default function CardScannerScreen() {
   const navigation = useNavigation();
 
-  const extractPhoneNumbers = rawText => {
-    const matches = rawText.match(/(?:\+?\d[\d\s-]{8,})/g);
-    if (!matches) return [];
+    const extractPhoneNumbers = rawText => {
+  const matches = rawText.match(/(?:\+?\d[\d\s-]{8,15})/g); 
+  if (!matches) return [];
 
-    return matches
-      .map(num => num.replace(/[^\d]/g, ''))
-      .filter(num => num.length >= 10 && num.length <= 13)
-      .map(num => ({
-        label: 'mobile',
-        number: num.startsWith('91') ? `+${num}` : `+91${num}`,
-      }));
-  };
+  return matches
+    .map(num => num.replace(/[^\d]/g, '')) 
+    .filter(num =>
+      
+      (num.length === 10 && /^[6-9]\d{9}$/.test(num)) ||
+      
+      (num.length === 12 && num.startsWith('91') && /^[6-9]\d{9}$/.test(num.slice(2))) ||
+      
+      (num.length >= 10 && num.length <= 12 && /^0\d{2,4}\d{6,8}$/.test(num)) ||
+      
+      (num.length >= 12 && num.startsWith('91') && /^0?\d{2,4}\d{6,8}$/.test(num.slice(2)))
+    )
+    .map(num => {
+      if (num.length === 10) {
+        
+        return { label: 'mobile', number: `+91${num}` };
+      } else if (num.length === 12 && num.startsWith('91')) {
+
+        return { label: 'mobile', number: `+${num}` };
+      } else {
+        return { label: 'landline', number: num.startsWith('91') ? `+${num}` : `+91${num}` };
+      }
+    });
+};
+
+const extractEmails = rawText => {
+  const matches = rawText.match(
+    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g
+  );
+  return matches ? [...new Set(matches)] : [];
+};
+
+const extractAddress = (text) => {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+  const addressKeywords = /(street|st\.|road|rd\.|nagar|colony|lane|tower|building|floor|area|sector|phase|block|pincode|pin|dist\.|city|village|taluka|po|opp\.|near)/i;
+  const pincodeRegex = /\b\d{6}\b/;
+
+  const phoneRegex = /(\+?\d[\d\s-]{9,})/;
+
+  const addressLines = lines.filter(line =>
+    addressKeywords.test(line) || pincodeRegex.test(line) && !phoneRegex.test(line) // exclude lines that are phone numbers
+  );
+
+  return addressLines.join(', ');
+};
 
   const handleScan = async () => {
     try {
@@ -77,40 +116,35 @@ export default function CardScannerScreen() {
   };
 
   const parseContactAndNavigate = fullText => {
-    const cleanedText = fullText.replace(/\s+/g, ' ').trim();
-    const lines = fullText
-      .split('\n')
-      .map(line => line.trim())
-      .filter(Boolean);
-    const probableName =
-      lines.find(line => /^[A-Za-z\s]+$/.test(line)) || 'Unknown';
+  const cleanedText = fullText.replace(/\s+/g, ' ').trim();
 
-    const phones = extractPhoneNumbers(cleanedText);
+  const phones = extractPhoneNumbers(cleanedText);
+  const emails = extractEmails(cleanedText);
+  const address = extractAddress(fullText);
 
-    if (phones.length === 0) {
-      Toast.show({
-        type: 'error',
-        text1: 'Oops!',
-        text2: 'No valid number found',
-        position: 'top',
-      });
-      return;
-    }
+  const lines = fullText.split('\n').map(l => l.trim()).filter(Boolean);
+  const probableName = lines.find(line => /^[A-Za-z\s]+$/.test(line)) || 'Unknown';
 
-    navigation.navigate('CardResultScreen', {
-      fullText,
-      numbers: phones,
-      name: probableName,
+  if (phones.length === 0) {
+    Toast.show({
+      type: 'error',
+      text1: 'Oops!',
+      text2: 'No valid number found',
+      position: 'top',
     });
-  };
-
-  const theme = useColorScheme();
-  let iconcolor = '';
-  if (theme === 'light') {
-    iconcolor = '#333333';
-  } else {
-    iconcolor = '#E0E0E0';
+    return;
   }
+
+  navigation.navigate('CardResultScreen', {
+    fullText,
+    numbers: phones,
+    name: probableName,
+    emails: emails?.[0] || '',
+    address: address || '',
+  });
+};
+
+  const colors = useThemeColors();
 
   return (
     <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background ">
@@ -139,7 +173,7 @@ export default function CardScannerScreen() {
             onPress={handlePickFromGallery}
             className="border border-light-border dark:border-dark-border rounded-2xl px-4 py-3 flex-row items-center justify-center w-full"
           >
-            <Upload color={iconcolor} size={20} className="mr-2" />
+            <Upload color={colors.text} size={20} className="mr-2" />
             <Text className="text-light-text dark:text-dark-text text-base font-medium">
               {' '}
               Upload from Gallery
