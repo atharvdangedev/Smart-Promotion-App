@@ -29,6 +29,7 @@ import { displayClientCheckNotification } from './utils/Notification';
 import EditContactDetails from './screens/EditContactDetails';
 import MonitoringSettings from './screens/MonitoringSettings';
 import BlacklistScreen from './screens/BlacklistScreen';
+import PermissionsScreen from './screens/PermissonsSettings';
 
 const Stack = createNativeStackNavigator();
 
@@ -184,6 +185,10 @@ export default function App() {
                 <Stack.Screen
                   name="MonitoringSettings"
                   component={MonitoringSettings}
+                />
+                <Stack.Screen
+                  name="PermissionsScreen"
+                  component={PermissionsScreen}
                 />
                 <Stack.Screen name="Blacklist" component={BlacklistScreen} />
               </>

@@ -7,17 +7,31 @@ import {
   TextInput,
   Pressable,
 } from 'react-native';
-import { Phone } from 'lucide-react-native';
+import { Mail, Phone } from 'lucide-react-native';
 import Contacts from 'react-native-contacts';
-import Toast from 'react-native-toast-message';
+// import Toast from 'react-native-toast-message';
 import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
+import Toast from 'react-native-toast-message';
+import useThemeColors from '../hooks/useThemeColor';
+// import { useMutation } from '@tanstack/react-query';
+// import { addContact } from '../apis/addContactApi';
+import { handleApiError } from '../utils/handleApiError';
 
 export default function CardResultScreen({ route }) {
-  const { fullText, numbers, name } = route.params;
+  const { fullText, numbers, name, emails, address } = route.params;
   const [isSaved, setIsSaved] = useState(false);
   const [contactName, setContactName] = useState(name);
   const [selectedNumber, setSelectedNumber] = useState(numbers[0]);
+
+  const [emailList, setEmailList] = useState(
+    Array.isArray(emails) ? emails : emails ? [emails] : []
+  );
+  const [selectedEmail, setSelectedEmail] = useState(emailList[0] || '');
+  const [contactAddress, setContactAddress] = useState(address || '');
+
+
+  const colors = useThemeColors();
 
   const saveContact = async () => {
     if (!selectedNumber || !contactName.trim()) {
@@ -33,7 +47,24 @@ export default function CardResultScreen({ route }) {
     const contact = {
       givenName: contactName.trim(),
       phoneNumbers: [selectedNumber],
+      emailAddresses: selectedEmail
+        ? [{ label: 'work', email: String(selectedEmail) }]
+        : [],
+      postalAddresses: contactAddress
+        ? [
+          {
+            label: 'home',
+            formattedAddress: String(contactAddress),
+            street: String(contactAddress),
+            city: '',
+            state: '',
+            postCode: '',
+            country: '',
+          },
+        ]
+        : [],
     };
+
 
     try {
       await Contacts.addContact(contact);
@@ -55,64 +86,108 @@ export default function CardResultScreen({ route }) {
     }
   };
 
+
+
   return (
-    <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background p-4">
+    <SafeAreaWrapper className="flex-1" style={{ backgroundColor: colors.background }}>
       <SubHeader title="Scan Result" />
-      <Text className="text-light-text dark:text-dark-text text-lg font-semibold mt-6">
-        Scanned Text:
-      </Text>
-      <View className="bg-zinc-800 p-4 rounded-2xl mt-2 max-h-60">
-        <ScrollView>
-          <Text className="text-white whitespace-pre-line">{fullText}</Text>
-        </ScrollView>
-      </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View className='p-4'>
+          <Text className="text-lg font-semibold mt-4" style={{ color: colors.text }}>
+            Scanned Text:
+          </Text>
+          <View className="p-4 rounded-2xl mt-2 max-h-60" style={{ backgroundColor: colors.inputBg }}>
+            <ScrollView>
+              <Text className="text-black whitespace-pre-line">{fullText}</Text>
+            </ScrollView>
+          </View>
 
-      <Text className="text-light-text dark:text-dark-text text-lg font-semibold mt-4">
-        Contact Name
-      </Text>
-      <View className="bg-zinc-800 rounded-xl px-4 py-1 mb-4">
-        <TextInput
-          placeholder="Enter contact name"
-          placeholderTextColor="#aaa"
-          className="text-white text-base"
-          value={contactName}
-          onChangeText={setContactName}
-        />
-      </View>
+          <Text className="text-lg font-semibold mt-4" style={{ color: colors.text }}>
+            Contact Name
+          </Text>
+          <View className="rounded-xl px-4 py-0 mb-4" style={{ backgroundColor: colors.inputBg }}>
+            <TextInput
+              placeholder="Enter contact name"
+              placeholderTextColor="black"
+              className="text-black text-base"
+              value={contactName}
+              onChangeText={setContactName}
+            />
+          </View>
 
-      <Text className="text-light-text dark:text-dark-text text-lg font-semibold mb-2">
-        Select Number
-      </Text>
+          <Text className=" text-lg font-semibold mb-2" style={{ color: colors.text }}>
+            Select Number
+          </Text>
 
-      {numbers.map((item, index) => (
-        <Pressable
-          key={index}
-          onPress={() => setSelectedNumber(item)}
-          className={`flex-row items-center px-4 py-3 rounded-xl mb-2 ${
-            selectedNumber?.number === item.number
-              ? 'bg-sky-600'
-              : 'bg-zinc-700'
-          }`}
-        >
-          <Phone color="white" size={18} className="mr-2" />
-          <Text className="text-white text-base">{item.number}</Text>
-        </Pressable>
-      ))}
+          {numbers.map((item, index) => (
+            <Pressable
+              key={index}
+              onPress={() => setSelectedNumber(item)}
+              className={`flex-row items-center px-4 py-3 rounded-xl mb-2 ${selectedNumber?.number === item.number
+                ? 'bg-sky-600'
+                : 'bg-zinc-700'
+                }`}
+            >
+              <Phone color="white" size={18} className="mr-2" />
+              <Text className="text-white text-base">{'  '}{item.number}</Text>
+            </Pressable>
+          ))}
 
-      <Text className="text-light-text dark:text-dark-text my-3">
-        Note : Only valid Indian (+91) numbers can be saved
-      </Text>
-      <TouchableOpacity
-        onPress={saveContact}
-        className={`rounded-2xl px-4 py-3 flex-row items-center justify-center mb-4 w-full ${isSaved ? 'bg-zinc-600' : 'bg-[#A8E6CF]'}`}
-        disabled={isSaved}
-      >
-        <Text
-          className={`text-center ${isSaved ? `text-[#E0E0E0]` : `text-[#333333]`} text-base font-medium`}
-        >
-          {isSaved ? 'Contact Saved' : 'Save Contact'}
-        </Text>
-      </TouchableOpacity>
+          <Text className="my-2 text-sm" style={{ color: colors.text }}>
+            Note : Only valid Indian (+91) numbers can be saved
+             </Text>
+
+          <Text className=" text-lg font-semibold mb-2" style={{ color: colors.text }}>
+            Email
+          </Text>
+
+          <View className='rounded-xl px-4 py-0 mb-2' style={{ backgroundColor: colors.inputBg }}>
+            <TextInput
+              placeholder="Enter email"
+              placeholderTextColor="grey"
+              className="text-black text-base py-3 px-1"
+              value={selectedEmail}
+              onChangeText={setSelectedEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
+
+          {emailList.length > 1 && (
+            <Text className="text-sm mb-2" style={{ color: colors.text }}>
+              Other detected emails: {emailList.filter(e => e !== selectedEmail).join(', ')}
+            </Text>
+          )}
+
+
+          <Text className="text-lg font-semibold mt-4" style={{ color: colors.text }}>
+            Address
+          </Text>
+          <View className="rounded-xl px-4 py-0 mb-4" style={{ backgroundColor: colors.inputBg }}>
+            <TextInput
+              placeholder="Enter address"
+              placeholderTextColor="grey"
+              className="text-black text-base py-3 px-1"
+              value={contactAddress}
+              onChangeText={setContactAddress}
+              multiline
+            />
+          </View>
+
+
+          <TouchableOpacity
+            onPress={saveContact}
+            className={`rounded-2xl px-4 py-3 flex-row items-center justify-center mb-4 w-full ${isSaved ? 'bg-zinc-600' : 'bg-[#A8E6CF]'}`}
+            disabled={isSaved}
+          >
+            <Text
+              className={`text-center ${isSaved ? `text-[#E0E0E0]` : `text-[#333333]`} text-base font-medium`}
+            >
+              {isSaved ? 'Contact Saved' : 'Save Contact'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </SafeAreaWrapper>
   );
 }

@@ -42,7 +42,7 @@ export default function Settings() {
             <Monitor size={18} color="black" />
             <Text className="text-lg text-black"> Call Monitoring</Text>
           </TouchableOpacity>
-          <TouchableOpacity className="flex-row items-center pb-1 border-b-hairline mb-2">
+          <TouchableOpacity onPress={()=> navigation.navigate('PermissionsScreen')} className="flex-row items-center pb-1 border-b-hairline mb-2">
             <LockIcon size={20} color="black" />
             <Text className="text-lg text-black"> Privacy & Security</Text>
           </TouchableOpacity>
