@@ -21,6 +21,7 @@ import ContactList from '../screens/ContactList';
 import Settings from '../screens/Settings';
 import All_Logs from '../screens/All_Logs';
 import { useAuthStore } from '../store/useAuthStore';
+import RequestReview from '../screens/ReviewRequest';
 
 const Drawer = createDrawerNavigator();
 
@@ -133,6 +134,18 @@ export default function DrawerNavigator() {
         component={PlansPricingScreen}
         options={{
           drawerLabel: 'Browse Plans',
+          drawerLabelStyle: {
+            color: 'black',
+            fontSize: 16,
+          },
+          drawerIcon: () => <ShoppingCart color="black" size={20} />,
+        }}
+      />
+      <Drawer.Screen
+        name="Request Review"
+        component={RequestReview}
+        options={{
+          drawerLabel: 'Request Review',
           drawerLabelStyle: {
             color: 'black',
             fontSize: 16,
