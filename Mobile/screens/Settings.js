@@ -14,21 +14,6 @@ export default function Settings() {
     <SafeAreaWrapper style={{ backgroundColor: colors.background }}>
       <SubHeader title="Settings" />
       <View className="mx-6 my-3">
-        <Text className="text-lg my-2" style={{ color: colors.text }}>
-          {' '}
-          User
-        </Text>
-        <View
-          className="p-4 pt-4 border border-[#CBCBCB] rounded-xl mb-4"
-          style={{ backgroundColor: colors.inputBg }}
-        >
-          <Text className="text-black font-bold mb-1">Name</Text>
-          <Text className="text-lg text-black mb-2 border-b-hairline">
-            Vendor User
-          </Text>
-          <Text className="text-black font-bold mb-1">Email</Text>
-          <Text className="text-lg text-black">example123@gmail.com</Text>
-        </View>
 
         <Text className="text-lg my-2" style={{ color: colors.text }}>
           {' '}
@@ -44,7 +29,7 @@ export default function Settings() {
           </TouchableOpacity>
           <TouchableOpacity onPress={()=> navigation.navigate('PermissionsScreen')} className="flex-row items-center pb-1 border-b-hairline mb-2">
             <LockIcon size={20} color="black" />
-            <Text className="text-lg text-black"> Privacy & Security</Text>
+            <Text className="text-lg text-black"> Permissions </Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -60,7 +60,7 @@ export default function CallLogScreen({ navigation }) {
 
   return (
     <SafeAreaWrapper className="flex-1 bg-light-background dark:bg-dark-background">
-      <Header title="Log Stats" />
+      <Header title="Vendor Logs" />
       <View className="flex-1 px-4">
         <View className="flex-row flex-wrap justify-between mb-5">
           <View className="w-[47%] items-center py-3 mb-3 rounded-xl bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border">

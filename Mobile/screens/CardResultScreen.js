@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import useThemeColors from '../hooks/useThemeColor';
 // import { useMutation } from '@tanstack/react-query';
 // import { addContact } from '../apis/addContactApi';
 import { handleApiError } from '../utils/handleApiError';
+import { requestPermission } from '../utils/handlePermissions';
 
 export default function CardResultScreen({ route }) {
   const { fullText, numbers, name, emails, address } = route.params;
@@ -32,6 +33,10 @@ export default function CardResultScreen({ route }) {
 
 
   const colors = useThemeColors();
+
+  useEffect(()=>{
+      requestPermission("contacts");
+    },[]);
 
   const saveContact = async () => {
     if (!selectedNumber || !contactName.trim()) {
