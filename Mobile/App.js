@@ -30,6 +30,7 @@ import EditContactDetails from './screens/EditContactDetails';
 import MonitoringSettings from './screens/MonitoringSettings';
 import BlacklistScreen from './screens/BlacklistScreen';
 import PermissionsScreen from './screens/PermissonsSettings';
+import ReviewContact from './screens/ReviewContact';
 
 const Stack = createNativeStackNavigator();
 
@@ -160,6 +161,7 @@ export default function App() {
                   component={TemplateDetailScreen}
                 />
                 <Stack.Screen name="ShowTemplate" component={ShowTemplate} />
+                <Stack.Screen name="ReviewContact" component={ReviewContact} />
                 <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
                 <Stack.Screen name="Header" component={Header} />
                 <Stack.Screen
