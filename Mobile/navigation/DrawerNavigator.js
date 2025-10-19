@@ -26,7 +26,7 @@ import RequestReview from '../screens/ReviewRequest';
 const Drawer = createDrawerNavigator();
 
 export default function DrawerNavigator() {
-  const user = useAuthStore((state)=> state.rolename);
+  const user = useAuthStore(state => state.rolename);
   return (
     <Drawer.Navigator
       screenOptions={{
@@ -117,18 +117,20 @@ export default function DrawerNavigator() {
           drawerIcon: () => <List color="black" size={20} />,
         }}
       />
-      {user ==='agent'? null:(<Drawer.Screen
-        name="Agents"
-        component={AgentsScreen}
-        options={{
-          drawerLabel: 'Agents',
-          drawerLabelStyle: {
-            color: 'black',
-            fontSize: 16,
-          },
-          drawerIcon: () => <User color="black" size={20} />,
-        }}
-      />)}
+      {user === 'agent' ? null : (
+        <Drawer.Screen
+          name="Agents"
+          component={AgentsScreen}
+          options={{
+            drawerLabel: 'Agents',
+            drawerLabelStyle: {
+              color: 'black',
+              fontSize: 16,
+            },
+            drawerIcon: () => <User color="black" size={20} />,
+          }}
+        />
+      )}
       <Drawer.Screen
         name="Browse Plans"
         component={PlansPricingScreen}
@@ -153,8 +155,7 @@ export default function DrawerNavigator() {
           drawerIcon: () => <ShoppingCart color="black" size={20} />,
         }}
       />
-      
-      
+
       <Drawer.Screen
         name="Settings"
         component={Settings}

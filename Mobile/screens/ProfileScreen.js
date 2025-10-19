@@ -714,6 +714,7 @@ const ProfileScreen = () => {
             </Text>
           </TouchableOpacity>
 
+          {/* Logout */}
           <TouchableOpacity
             onPress={() => setLogoutModalVisible(true)}
             className="bg-[#fa1505] rounded-xl py-3 mb-4"
@@ -723,6 +724,7 @@ const ProfileScreen = () => {
             </Text>
           </TouchableOpacity>
 
+          {/* Logout Modal*/}
           <Modal
             animationType="fade"
             transparent={true}
