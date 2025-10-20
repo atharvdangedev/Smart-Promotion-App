@@ -36,4 +36,10 @@ export const getCallIcon = type => {
   }
 };
 
-export const callTypes = ['Incoming', 'Outgoing', 'Missed', 'Rejected'];
+export const callTypes = [
+  'Incoming',
+  'Outgoing',
+  'Missed',
+  'Rejected',
+  'Review',
+];

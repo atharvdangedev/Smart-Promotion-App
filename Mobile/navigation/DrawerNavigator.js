@@ -6,6 +6,7 @@ import PlansPricingScreen from '../screens/PlansPricing';
 import ContactLogScreen from '../screens/ContactLogScreen';
 import CardScannerScreen from '../screens/CardScannerScreen';
 import {
+  ChartColumnIncreasing,
   Contact,
   LayoutDashboard,
   List,
@@ -14,6 +15,7 @@ import {
   ScanText,
   ShoppingCart,
   User,
+  UserCog,
 } from 'lucide-react-native';
 import CustomDrawerContent from '../screens/CustomDrawerContent';
 import AgentsScreen from '../screens/AgentsScreen';
@@ -81,16 +83,30 @@ export default function DrawerNavigator() {
           drawerIcon: () => <MessageSquareMore color="black" size={20} />,
         }}
       />
+
       <Drawer.Screen
-        name="Contact Log"
-        component={ContactLogScreen}
+        name="Request Review"
+        component={RequestReview}
         options={{
-          drawerLabel: 'Log Stats',
+          drawerLabel: 'Google Reviews',
           drawerLabelStyle: {
             color: 'black',
             fontSize: 16,
           },
-          drawerIcon: () => <Contact color="black" size={20} />,
+          drawerIcon: () => <UserCog color="black" size={20} />,
+        }}
+      />
+
+      <Drawer.Screen
+        name="Contact Log"
+        component={ContactLogScreen}
+        options={{
+          drawerLabel: 'Vendor Logs',
+          drawerLabelStyle: {
+            color: 'black',
+            fontSize: 16,
+          },
+          drawerIcon: () => <ChartColumnIncreasing color="black" size={20} />,
         }}
       />
       <Drawer.Screen
@@ -114,7 +130,7 @@ export default function DrawerNavigator() {
             color: 'black',
             fontSize: 16,
           },
-          drawerIcon: () => <List color="black" size={20} />,
+          drawerIcon: () => <Contact color="black" size={20} />,
         }}
       />
       {user === 'agent' ? null : (
@@ -136,18 +152,6 @@ export default function DrawerNavigator() {
         component={PlansPricingScreen}
         options={{
           drawerLabel: 'Browse Plans',
-          drawerLabelStyle: {
-            color: 'black',
-            fontSize: 16,
-          },
-          drawerIcon: () => <ShoppingCart color="black" size={20} />,
-        }}
-      />
-      <Drawer.Screen
-        name="Request Review"
-        component={RequestReview}
-        options={{
-          drawerLabel: 'Request Review',
           drawerLabelStyle: {
             color: 'black',
             fontSize: 16,
