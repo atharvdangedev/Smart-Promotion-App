@@ -32,7 +32,9 @@ export default function SelectContacts() {
     onSuccess: data => {
       handleApiSuccess(data.message, 'Contacts Import');
       setTimeout(() => {
-        navigation.navigate('ContactsList');
+        navigation.navigate('HomeScreen', {
+          screen: 'Contact List',
+        });
       }, 2000);
     },
     onError: error => {

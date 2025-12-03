@@ -15,9 +15,8 @@ import { useColorScheme } from 'react-native';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import { useAuthStore } from '../store/useAuthStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { fetchCall_log } from '../apis/Call_LogApi';
 import { useQuery } from '@tanstack/react-query';
-import { subDays, format, isToday, eachDayOfInterval } from 'date-fns';
+import { subDays, format, eachDayOfInterval } from 'date-fns';
 import useThemeColors from '../hooks/useThemeColor';
 import { useMonitoringStore } from '../store/useMonitoringStore';
 import { fetchStats } from '../apis/DashboardStatsApi';
@@ -28,7 +27,6 @@ let popupChecked = false;
 
 export default function DashboardScreen({ navigation }) {
   const [showPopup, setShowPopup] = useState(false);
-  // const [selectedChart, setSelectedChart] = useState('line');
   const colors = useThemeColors();
   const { monitoring, permission } = useMonitoringStore();
   const username = useAuthStore(state => state.username);
@@ -45,7 +43,6 @@ export default function DashboardScreen({ navigation }) {
   });
 
   const graphs = StatsData?.data?.graphs;
-  const dates = StatsData?.data?.contacts?.upcoming_dates;
 
   const callsByTypeData = Object.entries(graphs?.calls_by_type_chart || {}).map(
     ([key, value], index) => ({
@@ -71,7 +68,6 @@ export default function DashboardScreen({ navigation }) {
 
     last7Days.forEach(day => {
       const match = apiTrend.find(item => item.date === day.date);
-      console.log('date', dates);
       if (match) {
         day.count = Number(match.count);
       }
@@ -102,7 +98,6 @@ export default function DashboardScreen({ navigation }) {
     const checkPopupStatus = async () => {
       if (popupChecked) return;
       popupChecked = true;
-      console.log('stats are: ', StatsData.data.contacts.upcoming_dates);
       try {
         const hasSeenPopup = await AsyncStorage.getItem('hasSeenPopup');
         if (!hasSeenPopup) {
@@ -139,17 +134,6 @@ export default function DashboardScreen({ navigation }) {
       </SafeAreaWrapper>
     );
   }
-
-  const getTrendIcon = trend => {
-    switch (trend) {
-      case 'up':
-        return '📈';
-      case 'down':
-        return '📉';
-      default:
-        return '➡️';
-    }
-  };
 
   return (
     <SafeAreaWrapper className="flex-1 bg-white dark:bg-dark-background">
@@ -188,7 +172,8 @@ export default function DashboardScreen({ navigation }) {
                 color: permission.status === 'granted' ? 'green' : 'red',
               }}
             >
-              {permission.status}
+              {permission.status.charAt(0).toUpperCase() +
+                permission.status.slice(1)}
             </Text>
           </View>
           <View className="flex-row justify-between my-3">
@@ -309,21 +294,6 @@ export default function DashboardScreen({ navigation }) {
                 />
               </>
             )}
-            {/* <Text className="text-lg font-bold mt-4" style={{color:colors.text}}>Upcoming Dates: </Text>
-            
-            {dates?.map((item, index) => (
-              <View
-                key={index}
-                className="p-4 rounded-xl my-2"
-                style={{ backgroundColor: colors.inputBg }}
-              >
-                <Text className="text-black">{item.contact_name}</Text>
-                <View className="flex-row justify-between">
-                  <Text style={{ color: colors.text }}>{item.label}</Text>
-                  <Text style={{ color: colors.text }}>{item.date}</Text>
-                </View>
-              </View>
-            ))} */}
           </>
         ) : (
           <View className="flex-1 justify-center items-center py-10">

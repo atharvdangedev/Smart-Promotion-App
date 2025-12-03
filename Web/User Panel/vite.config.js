@@ -18,4 +18,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    outDir: "swp-plans",
+    base: "/swp-plans/",
+  },
 });

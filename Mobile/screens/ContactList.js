@@ -16,10 +16,12 @@ import { fetchContacts } from '../apis/ContactsApi';
 import { useAuthStore } from '../store/useAuthStore';
 import { API_CONTACT } from '@env';
 import { User } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 
-export default function ContactList({ navigation }) {
+export default function ContactList() {
   const colors = useThemeColors();
   const user = useAuthStore(state => state.rolename);
+  const navigation = useNavigation();
 
   const {
     data: contacts = [],

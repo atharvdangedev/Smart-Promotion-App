@@ -11,10 +11,11 @@ import ExportButtons from "../ExportButtons/ExportButtons";
 import LoadingFallback from "../LoadingFallback/LoadingFallback";
 import axios from "axios";
 import { handleApiError } from "../utils/handleApiError";
-import { formatDate } from "../utils/formatDate";
 import { useSelector } from "react-redux";
 import { APP_PERMISSIONS } from "../utils/permissions";
 import usePermissions from "../../../hooks/usePermissions";
+import formatCurrency from "../utils/formatCurrency";
+import { Validity } from "../utils/Validity";
 
 const Subscriptions = () => {
   // Access token
@@ -76,9 +77,9 @@ const Subscriptions = () => {
         accessor: (row) => `${row.plan_name} ${row.plan_type}`,
         Cell: ({ row }) => (
           <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              <span>{row.original.plan_name}</span>
-              <span>{row.original.plan_type}</span>
+            <div className="d-flex gap-2">
+              <strong>{row.original.plan_name}</strong>{" "}
+              <span>({row.original.plan_type})</span>
             </div>
           </div>
         ),
@@ -104,7 +105,7 @@ const Subscriptions = () => {
             <div className="d-flex flex-column">
               {row.original.business_name
                 ? `${row.original.business_name}`
-                : "No Business"}
+                : "No Business Information Available"}
             </div>
           </div>
         ),
@@ -113,12 +114,10 @@ const Subscriptions = () => {
         Header: "Plan Validity",
         accessor: (row) => `${row.start_date} ${row.end_date}`,
         Cell: ({ row }) => (
-          <div className="d-flex align-items-center">
-            <div className="d-flex flex-column">
-              <span>{formatDate(row.original.start_date || "")}</span> to
-              <span>{formatDate(row.original.end_date || "")}</span>
-            </div>
-          </div>
+          <Validity
+            from={row.original.start_date}
+            till={row.original.end_date}
+          />
         ),
       },
       {
@@ -126,11 +125,13 @@ const Subscriptions = () => {
         accessor: "price",
         Cell: ({ row }) => {
           return (
-            <div>
-              {Number(row.original.price).toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-              })}
+            <div
+              style={{
+                color: "green",
+                fontWeight: "bold",
+              }}
+            >
+              {formatCurrency(row.original.price)}
             </div>
           );
         },

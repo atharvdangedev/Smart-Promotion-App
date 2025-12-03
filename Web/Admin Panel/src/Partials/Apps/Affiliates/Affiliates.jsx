@@ -282,10 +282,6 @@ const Affiliates = () => {
       { Header: "EMAIL", accessor: "email" },
       { Header: "CONTACT", accessor: "contact_no" },
       {
-        Header: "ROLE",
-        accessor: "rolename",
-      },
-      {
         Header: "STATUS",
         accessor: "status",
         Cell: ({ value, row }) => (

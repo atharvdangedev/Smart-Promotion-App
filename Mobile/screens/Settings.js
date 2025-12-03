@@ -14,7 +14,6 @@ export default function Settings() {
     <SafeAreaWrapper style={{ backgroundColor: colors.background }}>
       <SubHeader title="Settings" />
       <View className="mx-6 my-3">
-
         <Text className="text-lg my-2" style={{ color: colors.text }}>
           {' '}
           General
@@ -23,11 +22,17 @@ export default function Settings() {
           className="p-4 border border-[#CBCBCB] rounded-xl mb-4"
           style={{ backgroundColor: colors.inputBg }}
         >
-          <TouchableOpacity onPress={()=> navigation.navigate('MonitoringSettings')} className="flex-row items-center pb-1 border-b-hairline mb-3">
+          <TouchableOpacity
+            onPress={() => navigation.navigate('MonitoringSettings')}
+            className="flex-row items-center pb-1 border-b-hairline mb-3"
+          >
             <Monitor size={18} color="black" />
             <Text className="text-lg text-black"> Call Monitoring</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={()=> navigation.navigate('PermissionsScreen')} className="flex-row items-center pb-1 border-b-hairline mb-2">
+          <TouchableOpacity
+            onPress={() => navigation.navigate('PermissionsScreen')}
+            className="flex-row items-center pb-1 border-b-hairline mb-2"
+          >
             <LockIcon size={20} color="black" />
             <Text className="text-lg text-black"> Permissions </Text>
           </TouchableOpacity>

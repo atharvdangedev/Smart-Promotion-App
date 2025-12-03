@@ -7,9 +7,8 @@ import {
   TextInput,
   Pressable,
 } from 'react-native';
-import { Mail, Phone } from 'lucide-react-native';
+import { Phone } from 'lucide-react-native';
 import Contacts from 'react-native-contacts';
-// import Toast from 'react-native-toast-message';
 import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import Toast from 'react-native-toast-message';
@@ -25,12 +24,9 @@ export default function CardResultScreen({ route }) {
   const [contactName, setContactName] = useState(name);
   const [selectedNumber, setSelectedNumber] = useState(numbers[0]);
 
-  const [emailList, setEmailList] = useState(
-    Array.isArray(emails) ? emails : emails ? [emails] : []
-  );
+  const emailList = Array.isArray(emails) ? emails : emails ? [emails] : [];
   const [selectedEmail, setSelectedEmail] = useState(emailList[0] || '');
   const [contactAddress, setContactAddress] = useState(address || '');
-
 
   const colors = useThemeColors();
 
@@ -57,19 +53,18 @@ export default function CardResultScreen({ route }) {
         : [],
       postalAddresses: contactAddress
         ? [
-          {
-            label: 'home',
-            formattedAddress: String(contactAddress),
-            street: String(contactAddress),
-            city: '',
-            state: '',
-            postCode: '',
-            country: '',
-          },
-        ]
+            {
+              label: 'home',
+              formattedAddress: String(contactAddress),
+              street: String(contactAddress),
+              city: '',
+              state: '',
+              postCode: '',
+              country: '',
+            },
+          ]
         : [],
     };
-
 
     try {
       await Contacts.addContact(contact);
@@ -91,26 +86,39 @@ export default function CardResultScreen({ route }) {
     }
   };
 
-
-
   return (
-    <SafeAreaWrapper className="flex-1" style={{ backgroundColor: colors.background }}>
+    <SafeAreaWrapper
+      className="flex-1"
+      style={{ backgroundColor: colors.background }}
+    >
       <SubHeader title="Scan Result" />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View className='p-4'>
-          <Text className="text-lg font-semibold mt-4" style={{ color: colors.text }}>
+        <View className="p-4">
+          <Text
+            className="text-lg font-semibold mt-4"
+            style={{ color: colors.text }}
+          >
             Scanned Text:
           </Text>
-          <View className="p-4 rounded-2xl mt-2 max-h-60" style={{ backgroundColor: colors.inputBg }}>
+          <View
+            className="p-4 rounded-2xl mt-2 max-h-60"
+            style={{ backgroundColor: colors.inputBg }}
+          >
             <ScrollView>
               <Text className="text-black whitespace-pre-line">{fullText}</Text>
             </ScrollView>
           </View>
 
-          <Text className="text-lg font-semibold mt-4" style={{ color: colors.text }}>
+          <Text
+            className="text-lg font-semibold mt-4"
+            style={{ color: colors.text }}
+          >
             Contact Name
           </Text>
-          <View className="rounded-xl px-4 py-0 mb-4" style={{ backgroundColor: colors.inputBg }}>
+          <View
+            className="rounded-xl px-4 py-0 mb-4"
+            style={{ backgroundColor: colors.inputBg }}
+          >
             <TextInput
               placeholder="Enter contact name"
               placeholderTextColor="black"
@@ -120,7 +128,10 @@ export default function CardResultScreen({ route }) {
             />
           </View>
 
-          <Text className=" text-lg font-semibold mb-2" style={{ color: colors.text }}>
+          <Text
+            className=" text-lg font-semibold mb-2"
+            style={{ color: colors.text }}
+          >
             Select Number
           </Text>
 
@@ -128,25 +139,35 @@ export default function CardResultScreen({ route }) {
             <Pressable
               key={index}
               onPress={() => setSelectedNumber(item)}
-              className={`flex-row items-center px-4 py-3 rounded-xl mb-2 ${selectedNumber?.number === item.number
-                ? 'bg-sky-600'
-                : 'bg-zinc-700'
-                }`}
+              className={`flex-row items-center px-4 py-3 rounded-xl mb-2 ${
+                selectedNumber?.number === item.number
+                  ? 'bg-sky-600'
+                  : 'bg-zinc-700'
+              }`}
             >
               <Phone color="white" size={18} className="mr-2" />
-              <Text className="text-white text-base">{'  '}{item.number}</Text>
+              <Text className="text-white text-base">
+                {'  '}
+                {item.number}
+              </Text>
             </Pressable>
           ))}
 
           <Text className="my-2 text-sm" style={{ color: colors.text }}>
             Note : Only valid Indian (+91) numbers can be saved
-             </Text>
+          </Text>
 
-          <Text className=" text-lg font-semibold mb-2" style={{ color: colors.text }}>
+          <Text
+            className=" text-lg font-semibold mb-2"
+            style={{ color: colors.text }}
+          >
             Email
           </Text>
 
-          <View className='rounded-xl px-4 py-0 mb-2' style={{ backgroundColor: colors.inputBg }}>
+          <View
+            className="rounded-xl px-4 py-0 mb-2"
+            style={{ backgroundColor: colors.inputBg }}
+          >
             <TextInput
               placeholder="Enter email"
               placeholderTextColor="grey"
@@ -160,15 +181,21 @@ export default function CardResultScreen({ route }) {
 
           {emailList.length > 1 && (
             <Text className="text-sm mb-2" style={{ color: colors.text }}>
-              Other detected emails: {emailList.filter(e => e !== selectedEmail).join(', ')}
+              Other detected emails:{' '}
+              {emailList.filter(e => e !== selectedEmail).join(', ')}
             </Text>
           )}
 
-
-          <Text className="text-lg font-semibold mt-4" style={{ color: colors.text }}>
+          <Text
+            className="text-lg font-semibold mt-4"
+            style={{ color: colors.text }}
+          >
             Address
           </Text>
-          <View className="rounded-xl px-4 py-0 mb-4" style={{ backgroundColor: colors.inputBg }}>
+          <View
+            className="rounded-xl px-4 py-0 mb-4"
+            style={{ backgroundColor: colors.inputBg }}
+          >
             <TextInput
               placeholder="Enter address"
               placeholderTextColor="grey"
@@ -178,7 +205,6 @@ export default function CardResultScreen({ route }) {
               multiline
             />
           </View>
-
 
           <TouchableOpacity
             onPress={saveContact}

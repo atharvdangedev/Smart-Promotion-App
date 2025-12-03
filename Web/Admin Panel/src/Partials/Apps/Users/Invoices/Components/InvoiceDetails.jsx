@@ -2,10 +2,13 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import LoadingFallback from "../../../LoadingFallback/LoadingFallback";
-import { generatePDF } from "../../../utils/generatePDF.js";
+// import { generatePDF } from "../../../utils/generatePDF.js";
 import { handleApiError } from "../../../utils/handleApiError.js";
 import { formatDate } from "../../../utils/formatDate.js";
+import formatCurrency from "../../../utils/formatCurrency.js";
 import { useSelector } from "react-redux";
+// import { generateBrandedInvoicePDF } from "../../../utils/generateInvoicePDF.js";
+import { openInvoicePrintWindow } from "../../../utils/printInvoice.js";
 
 const InvoiceDetails = () => {
   const { state } = useLocation();
@@ -39,7 +42,7 @@ const InvoiceDetails = () => {
       }
     };
 
-    if (state && state.invoiceId) {
+    if (state?.invoiceId) {
       setInvoiceId(state.invoiceId);
     }
 
@@ -49,171 +52,135 @@ const InvoiceDetails = () => {
   }, [APP_URL, invoiceId, state, token, user.rolename]);
 
   if (isLoading) return <LoadingFallback />;
+  if (!invoiceData) return <p>No invoice found.</p>;
 
   return (
     <div className="px-4 py-3 page-body">
-      {/* Header with Download and Back Buttons */}
       <div className="d-flex justify-content-between align-items-center mb-4 mt-5">
-        <h4>Invoice Details</h4>
+        <h4>Invoice #{invoiceData.invoice_number}</h4>
         <div>
           <button
             className="btn btn-primary me-2"
-            onClick={() => generatePDF("card")}
+            onClick={() => openInvoicePrintWindow(invoiceData)}
           >
-            Download Invoice
+            Print / Save as PDF
           </button>
+
           <Link to={`/admin/app/orders`} className="btn btn-info text-white">
             Back
           </Link>
         </div>
       </div>
+
       <div className="card p-4" id="card">
+        {/* Invoice Meta */}
         <div className="mb-4">
-          <h5 className="mb-1">Invoice ID: {invoiceData.invoice_id}</h5>
+          <h5 className="mb-1">Invoice ID: {invoiceData.invoice_number}</h5>
           <p className="mb-0">
-            Order Date: {formatDate(invoiceData.order_date)}
+            Payment Date: {formatDate(invoiceData.invoice_payment_date)}
+          </p>
+          <p>
+            Status:{" "}
+            <span
+              className={`badge ${
+                invoiceData.invoice_status === "paid"
+                  ? "bg-success"
+                  : "bg-warning"
+              }`}
+            >
+              {invoiceData.invoice_status}
+            </span>
           </p>
         </div>
+
         <hr />
+
+        {/* Customer Details */}
         <div className="row mb-4">
-          <div className="col-md-6">
-            <h6>
-              <strong>Order Details</strong>
-            </h6>
-            <p>
-              <strong>Order ID: </strong> {invoiceData.razorpay_order_id}
-            </p>
-            <p>
-              <strong>
-                Vendor: {invoiceData.firstname} {invoiceData.lastname}
-              </strong>
-            </p>
-            {invoiceData.gst_number && (
-              <p>
-                <strong>GST Number: </strong> {invoiceData.gst_number}
-              </p>
-            )}
-          </div>
-          <div className="col-md-6">
+          <div className="col-md-4">
             <h6>
               <strong>Customer Details</strong>
             </h6>
-            {invoiceData.company_name && (
-              <p>
-                <strong>Company Name: </strong> {invoiceData.company_name}
-              </p>
-            )}
-            <p
-              style={{
-                marginBottom: 0,
-              }}
-            >
-              <strong>Name: </strong> {invoiceData.name}
+            <p>
+              <strong>Name: </strong>
+              {invoiceData.first_name} {invoiceData.last_name}
             </p>
-            <p
-              style={{
-                marginBottom: 0,
-              }}
-            >
-              <strong>Email: </strong> {invoiceData.email}
+            <p>
+              <strong>Email: </strong>
+              {invoiceData.email}
             </p>
-            <p
-              style={{
-                marginBottom: 0,
-              }}
-            >
-              <strong>Mobile: </strong> {invoiceData.mobile}
+            <p>
+              <strong>Mobile: </strong>
+              {invoiceData.contact_no}
             </p>
-            <p
-              style={{
-                marginBottom: 0,
-              }}
-            >
-              <strong>Address:</strong> {invoiceData.address},{" "}
-              {invoiceData.city}, {invoiceData.state}, {invoiceData.zip_code}
+          </div>
+
+          <div className="col-md-4">
+            <h6>
+              <strong>Payment Details</strong>
+            </h6>
+            <p>
+              <strong>Method: </strong>
+              {invoiceData.invoice_payment_method}
+            </p>
+            <p>
+              <strong>Transaction ID: </strong>
+              {invoiceData.transaction_id || "N/A"}
+            </p>
+            <p>
+              <strong>Order ID: </strong>
+              {invoiceData.razorpay_order_id}
+            </p>
+          </div>
+
+          <div className="col-md-4">
+            <h6>
+              <strong>Plan Details</strong>
+            </h6>
+            <p>
+              <strong>Plan Name: </strong>
+              {invoiceData.title}
+            </p>
+            <p>
+              <strong>Plan Type: </strong>
+              {invoiceData.plan_type}
             </p>
           </div>
         </div>
+
         <hr />
-        <h5>Ordered Items</h5>
+
+        {/* Invoice Summary */}
+        <hr />
+        <h5>Invoice Summary</h5>
         <div className="table-responsive">
           <table className="table table-bordered">
-            <thead className="table-light">
-              <tr>
-                <th>#</th>
-                <th>Product Name</th>
-                <th>Category</th>
-                <th className="text-end">Price</th>
-                <th className="text-end">Quantity</th>
-                <th className="text-end">Total</th>
-              </tr>
-            </thead>
             <tbody>
-              {invoiceData.items &&
-                invoiceData.items.map((item, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{item.product_name}</td>
-                    <td>{item.category_name || "-"}</td>
-                    <td className="text-end">
-                      {Number(item.price).toLocaleString("en-IN", {
-                        style: "currency",
-                        currency: "INR",
-                      })}
-                    </td>
-                    <td className="text-end">{item.quantity}</td>
-                    <td className="text-end">
-                      {Number(item.total_price).toLocaleString("en-IN", {
-                        style: "currency",
-                        currency: "INR",
-                      })}
-                    </td>
-                  </tr>
-                ))}
+              <tr>
+                <td>Price</td>
+                <td className="text-end">
+                  {formatCurrency(invoiceData.price)}
+                </td>
+              </tr>
+              <tr>
+                <td>Discount</td>
+                <td className="text-end text-success">
+                  -{formatCurrency(invoiceData.invoice_discount)}
+                </td>
+              </tr>
+              <tr>
+                <td>Tax</td>
+                <td className="text-end">
+                  {formatCurrency(invoiceData.invoice_tax)}
+                </td>
+              </tr>
+              <tr>
+                <th>Total Amount</th>
+                <th className="text-end">
+                  {formatCurrency(invoiceData.invoice_amount)}
+                </th>
+              </tr>
             </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan="5" className="text-end">
-                  <strong>Subtotal:</strong>
-                </td>
-                <td className="text-end">
-                  {Number(invoiceData.price).toLocaleString("en-IN", {
-                    style: "currency",
-                    currency: "INR",
-                  })}
-                </td>
-              </tr>
-              <tr>
-                <td colSpan="5" className="text-end">
-                  <strong>Shipping:</strong>
-                </td>
-                <td className="text-end">₹80</td>
-              </tr>
-              <tr>
-                <td colSpan="5" className="text-end">
-                  <strong>Tax:</strong>
-                </td>
-                <td className="text-end">
-                  {Number(invoiceData.tax).toLocaleString("en-IN", {
-                    style: "currency",
-                    currency: "INR",
-                  })}
-                </td>
-              </tr>
-              <tr>
-                <td colSpan="5" className="text-end">
-                  <strong>Grand Total:</strong>
-                </td>
-                <td className="text-end">
-                  <strong>
-                    {Number(invoiceData.total_amount).toLocaleString("en-IN", {
-                      style: "currency",
-                      currency: "INR",
-                    })}
-                  </strong>
-                </td>
-              </tr>
-            </tfoot>
           </table>
         </div>
       </div>

@@ -4,6 +4,8 @@ import InvoicesTable from "./Components/InvoicesTable";
 import axios from "axios";
 import { handleApiError } from "../../utils/handleApiError";
 import { useSelector } from "react-redux";
+import { formatDate } from "../../utils/formatDate";
+import formatCurrency from "../../utils/formatCurrency";
 
 const Invoices = () => {
   // Access token
@@ -49,7 +51,7 @@ const Invoices = () => {
     };
 
     fetchData();
-  }, [APP_URL, token, refetch]);
+  }, [APP_URL, token, refetch, user.rolename]);
 
   // Filter orders based on the selected date
   useEffect(() => {
@@ -83,7 +85,7 @@ const Invoices = () => {
                     return (
                       <div
                         className="col-lg-4 col-md-6 col-sm-12"
-                        key={data.id}
+                        key={data.email}
                       >
                         <div
                           className="card hr-arrow p-4"
@@ -91,23 +93,23 @@ const Invoices = () => {
                             "--dynamic-color": "var(--theme-color1)",
                           }}
                         >
-                          <h6 className="mb-3">{data.name}</h6>
+                          <h6 className="mb-3">
+                            {data.first_name} {data.last_name}
+                          </h6>
                           <ul className="small text-muted ps-3 lh-lg mb-0">
                             <li>{data.email}</li>
                             <li>
                               Order Date:{" "}
-                              <span className="ms-2">{data.order_date}</span>
+                              <span className="ms-2">
+                                {formatDate(
+                                  data.payment_date || data.created_at
+                                )}
+                              </span>
                             </li>
                             <li>
                               Amount:{" "}
                               <span className="badge rounded bg-secondary ms-2">
-                                {Number(data.total_amount).toLocaleString(
-                                  "en-IN",
-                                  {
-                                    style: "currency",
-                                    currency: "INR",
-                                  }
-                                )}
+                                {formatCurrency(data.amount)}
                               </span>
                             </li>
                           </ul>

@@ -120,6 +120,11 @@ const Contacts = () => {
       {
         Header: "CONTACT NAME",
         accessor: "contact_name",
+        Cell: ({ row }) => (
+          <span>
+            {row.original.contact_name || "Contact name not provided"}
+          </span>
+        ),
       },
       {
         Header: "CONTACT NO",
@@ -128,6 +133,9 @@ const Contacts = () => {
       {
         Header: "CONTACT EMAIL",
         accessor: "email",
+        Cell: ({ row }) => (
+          <span>{row.original.email || "Contact email not provided"}</span>
+        ),
       },
       {
         Header: "CONTACT DATES",

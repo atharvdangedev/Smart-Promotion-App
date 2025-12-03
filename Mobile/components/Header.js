@@ -6,7 +6,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import { API_PROFILE } from '@env';
-import { Menu, User } from 'lucide-react-native';
+import { Menu, User, ArrowLeft } from 'lucide-react-native';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import { useAuthStore } from '../store/useAuthStore';
 import useThemeColors from '../hooks/useThemeColor';
@@ -25,17 +25,30 @@ export default function Header({ title = 'SmartPromotions' }) {
   }
   const colors = useThemeColors();
 
+  // Check if we're in a drawer navigator context
+  const state = navigation.getState();
+  const isInDrawer = state.type === 'drawer';
+
+  const handleLeftButtonPress = () => {
+    if (isInDrawer) {
+      navigation.dispatch(DrawerActions.openDrawer());
+    } else {
+      navigation.goBack();
+    }
+  };
+
   return (
     <View
       className="flex-row justify-between items-center py-5 p-4 mb-6"
       style={{ backgroundColor: colors.headerBg }}
     >
-      {/* Drawer button */}
-      <TouchableOpacity
-        className="pl-2"
-        onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-      >
-        <Menu size={26} color="white" />
+      {/* Navigation button - Drawer or Back */}
+      <TouchableOpacity className="pl-2" onPress={handleLeftButtonPress}>
+        {isInDrawer ? (
+          <Menu size={26} color="white" />
+        ) : (
+          <ArrowLeft size={26} color="white" />
+        )}
       </TouchableOpacity>
 
       {/* App Title */}

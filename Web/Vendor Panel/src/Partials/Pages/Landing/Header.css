@@ -1,0 +1,15 @@
+.navbar-nav .nav-link.active {
+  background-color: #e85332;
+  color: white !important;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.navbar-nav .nav-link:not(.active):hover {
+  color: #e85332;
+}
+
+.navbar-nav .nav-link {
+  font-weight: 500;
+  font-size: 0.9rem;
+}

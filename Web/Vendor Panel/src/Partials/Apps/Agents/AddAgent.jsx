@@ -103,10 +103,10 @@ const AddAgent = () => {
       formData.append("vendor_id", user?.id);
       formData.append("first_name", data.firstname);
       formData.append("last_name", data.lastname);
-      formData.append("address", data.address);
       formData.append("email", data.email);
       formData.append("contact_no", data.contact_no);
       formData.append("password", data.password);
+      formData.append("address", data.address);
       if (data.profile_pic && data.profile_pic[0] instanceof File)
         formData.append("profile_pic", data.profile_pic[0]);
 

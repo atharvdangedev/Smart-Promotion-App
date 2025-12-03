@@ -19,6 +19,8 @@ import { createOrderApi, verifyPaymentApi } from "../utils/paymentApis";
 import PaymentComponent from "../utils/PaymentComponent";
 import PlansModal from "./PlansModal";
 import CheckoutModal from "./CheckoutModal";
+import formatCurrency from "../utils/formatCurrency.js";
+import { Validity } from "../utils/Validity.jsx";
 
 const Subscriptions = () => {
   // Access token
@@ -151,17 +153,10 @@ const Subscriptions = () => {
         Header: "Plan Validity",
         accessor: (row) => `${row.start_date} ${row.end_date}`,
         Cell: ({ row }) => (
-          <div className="d-flex align-items-center justify-content-start">
-            <div className="d-flex gap-2">
-              <span className="mr-2">
-                {formatDate(row.original.start_date || "")}
-              </span>
-              -
-              <span className="ml-2">
-                {formatDate(row.original.end_date || "")}
-              </span>
-            </div>
-          </div>
+          <Validity
+            from={row.original.start_date}
+            till={row.original.end_date}
+          />
         ),
       },
       {
@@ -175,10 +170,7 @@ const Subscriptions = () => {
                 fontWeight: "bold",
               }}
             >
-              {Number(row.original.price).toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-              })}
+              {formatCurrency(row.original.price)}
             </div>
           );
         },
@@ -194,10 +186,7 @@ const Subscriptions = () => {
                 fontWeight: "bold",
               }}
             >
-              {Number(row.original.paid_amount).toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-              })}
+              {formatCurrency(row.original.paid_amount)}
             </div>
           );
         },

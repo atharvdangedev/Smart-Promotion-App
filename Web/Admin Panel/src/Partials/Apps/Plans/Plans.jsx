@@ -19,6 +19,7 @@ import { useSelector } from "react-redux";
 import usePermissions from "../../../hooks/usePermissions";
 import Can from "../Can/Can";
 import { APP_PERMISSIONS } from "../utils/permissions";
+import formatCurrency from "../utils/formatCurrency";
 
 const Plans = () => {
   // Navigate function
@@ -200,11 +201,13 @@ const Plans = () => {
         accessor: "price",
         Cell: ({ row }) => {
           return (
-            <div>
-              {Number(row.original.price).toLocaleString("en-IN", {
-                style: "currency",
-                currency: "INR",
-              })}
+            <div
+              style={{
+                color: "green",
+                fontWeight: "bold",
+              }}
+            >
+              {formatCurrency(row.original.price)}
             </div>
           );
         },

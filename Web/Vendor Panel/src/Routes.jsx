@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { lazyLoad } from "./lazyLoad";
 import AuthWrapper from "./AuthWrapper";
 
 // Lazy loaded components using custom lazyLoad
 const NotFound = lazyLoad(() => import("./NotFound/NotFound"));
-
+const Landing = lazyLoad(() => import("./Partials/Pages/Landing/Landing"));
+const Home = lazyLoad(() => import("./Partials/Pages/Landing/Home"));
 const OrderDetails = lazyLoad(() =>
   import("./Partials/Apps/Users/Invoices/OrderDetails")
 );
@@ -55,16 +56,35 @@ import CouponCodeManagement from "./Partials/Apps/CouponCodeManagement/CouponCod
 import Commissions from "./Partials/Apps/Commissions/Commissions";
 import AddCouponCode from "./Partials/Apps/CouponCodeManagement/AddCouponCode";
 import EditCouponCode from "./Partials/Apps/CouponCodeManagement/EditCouponCode";
-import EditContact from "./Partials/Apps/Contacts/EditContact";
+const EditContact = lazyLoad(() =>
+  import("./Partials/Apps/Contacts/EditContact")
+);
+const VendorRegistration = lazyLoad(() =>
+  import("./Partials/Pages/Landing/VendorRegistration")
+);
+const Checkout = lazyLoad(() => import("./Partials/Pages/Landing/Checkout"));
+const PaymentStatus = lazyLoad(() =>
+  import("./Partials/Pages/Landing/PaymentStatus")
+);
+const AffiliateRegistration = lazyLoad(() =>
+  import("./Partials/Pages/Landing/AffiliateRegistration")
+);
 
 const AppRoutes = () => {
   return (
     <Routes>
       {/* Public routes */}
+      <Route path="/" element={<Landing />}>
+        <Route index element={<Home />} />
+      </Route>
       <Route path="/signin" element={<Signin />} />
       <Route path="/forgot-password" element={<PasswordReset />} />
       <Route path="/resetPassword" element={<TwoStep />} />
       <Route path="/user-activation" element={<UserActivation />} />
+      <Route path="/vendor-registration" element={<VendorRegistration />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/payment-status" element={<PaymentStatus />} />
+      <Route path="/affiliate-registration" element={<AffiliateRegistration />} />
 
       {/* All other routes wrapped in AuthWrapper */}
       <Route
@@ -72,8 +92,6 @@ const AppRoutes = () => {
         element={
           <AuthWrapper>
             <Routes>
-              {/* Root route */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               {/* Protected routes */}
               <Route path="/dashboard" element={<Index />} />
               <Route path="/payments" element={<MyWallet />} />
