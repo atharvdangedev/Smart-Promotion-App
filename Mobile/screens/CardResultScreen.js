@@ -13,6 +13,9 @@ import SubHeader from '../components/SubHeader';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import Toast from 'react-native-toast-message';
 import useThemeColors from '../hooks/useThemeColor';
+// import { useMutation } from '@tanstack/react-query';
+// import { addContact } from '../apis/addContactApi';
+import { handleApiError } from '../utils/handleApiError';
 import { requestPermission } from '../utils/handlePermissions';
 
 export default function CardResultScreen({ route }) {
@@ -27,9 +30,9 @@ export default function CardResultScreen({ route }) {
 
   const colors = useThemeColors();
 
-  useEffect(() => {
-    requestPermission('contacts');
-  }, []);
+  useEffect(()=>{
+      requestPermission("contacts");
+    },[]);
 
   const saveContact = async () => {
     if (!selectedNumber || !contactName.trim()) {

@@ -10,6 +10,7 @@ import {
 import React from 'react';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import useThemeColors from '../hooks/useThemeColor';
+import Header from '../components/Header';
 import { useQuery } from '@tanstack/react-query';
 import { fetchContacts } from '../apis/ContactsApi';
 import { useAuthStore } from '../store/useAuthStore';

@@ -6,7 +6,9 @@ import PlansPricingScreen from '../screens/PlansPricing';
 import ContactLogScreen from '../screens/ContactLogScreen';
 import CardScannerScreen from '../screens/CardScannerScreen';
 import {
+  ChartBarIncreasing,
   ChartColumnIncreasing,
+  ChartLine,
   Contact,
   LayoutDashboard,
   List,
@@ -16,6 +18,8 @@ import {
   ShoppingCart,
   User,
   UserCog,
+  Users2,
+  Users2Icon,
 } from 'lucide-react-native';
 import CustomDrawerContent from '../screens/CustomDrawerContent';
 import AgentsScreen from '../screens/AgentsScreen';
@@ -159,7 +163,6 @@ export default function DrawerNavigator() {
           drawerIcon: () => <ShoppingCart color="black" size={20} />,
         }}
       />
-
       <Drawer.Screen
         name="Settings"
         component={Settings}

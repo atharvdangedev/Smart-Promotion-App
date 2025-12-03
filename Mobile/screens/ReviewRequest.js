@@ -14,18 +14,20 @@ import useThemeColors from '../hooks/useThemeColor';
 import SafeAreaWrapper from '../components/SafeAreaWrapper';
 import Header from '../components/Header';
 import Toast from 'react-native-toast-message';
+import { useAuthStore } from '../store/useAuthStore';
 import Contacts from 'react-native-contacts';
 import { requestPermission } from '../utils/handlePermissions';
 
 export default function RequestReview({ navigation }) {
   const colors = useThemeColors();
-  useEffect(() => {
-    requestPermission('contacts');
-  }, []);
+  useEffect(()=>{
+    requestPermission("contacts");
+  },[]);
 
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [fromPhonebook, setFromPhonebook] = useState(false);
 
   const [selectedName, setSelectedName] = useState('');
   const [selectedPhone, setSelectedPhone] = useState('');
@@ -43,6 +45,7 @@ export default function RequestReview({ navigation }) {
           contact_no: c.phoneNumbers[0].number.replace(/\s|\-/g, ''),
         }));
       setContacts(formatted);
+      setFromPhonebook(true);
       setModalVisible(true);
     } catch (error) {
       console.log(error);
@@ -175,14 +178,7 @@ export default function RequestReview({ navigation }) {
           </Text>
         </TouchableOpacity>
 
-        <Text
-          className="text-start font-thin my-2"
-          style={{ color: colors.text }}
-        >
-          {' '}
-          Note: Please allow all the permissions in settings before sending
-          review request.
-        </Text>
+        <Text className='text-start font-thin my-2' style={{color: colors.text}}> Note: Please allow all the permissions in settings before sending review request.</Text>
       </View>
 
       <Modal
@@ -194,7 +190,8 @@ export default function RequestReview({ navigation }) {
           className="flex-1"
           style={{ backgroundColor: colors.background }}
         >
-          <View className="p-2" style={{ backgroundColor: colors.inputBg }}>
+          
+          <View className='p-2' style={{backgroundColor: colors.inputBg}}>
             <Text className="text-2xl text-center mt-4 mb-3 text-black font-semibold">
               Contacts from Phonebook{' '}
             </Text>
